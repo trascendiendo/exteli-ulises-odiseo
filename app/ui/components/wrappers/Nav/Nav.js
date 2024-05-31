@@ -19,7 +19,25 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 
 const Nav = () => {
-  const [userAvatar, setUserAvatar] = useState('')
+  const [userAvatar, setUserAvatar] = useState('/avatarDefault.svg')
+
+  const handleSubmenu = (e) => {
+    let thisElement = e.target
+    let thisParentElement = thisElement.parentElement
+    let thisSiblingElement = thisElement.nextElementSibling
+    let allHasmenu = document.querySelectorAll('.pc-item.pc-hasmenu')
+    let allSubmenu = document.querySelectorAll('.pc-submenu')
+    allHasmenu.forEach(item => {
+      item.classList.remove('pc-trigger')
+    })
+    allSubmenu.forEach(item => {
+      item.style.display = 'none'
+      item.style.boxSizing = ''
+    })
+    thisParentElement.classList.add('pc-trigger')
+    thisSiblingElement.style.display = 'block'
+    thisSiblingElement.style.boxSizing = 'border-box'
+  }
 
   return (
     <nav
@@ -45,7 +63,36 @@ const Nav = () => {
             padding: '16px 24px'
           }}
         >
-
+          <Link
+            className="flex items-center justify-start"
+            href='/pages/extranjeria'
+          >
+            <Image 
+              src='/images/logo.png'
+              height={24}
+              width={108}
+              alt="Extranjería ELI"
+              quality={100}
+              loading="lazy"
+            />
+            <span
+              style={{
+                background: 'linear-gradient(206.48deg, #A389D4 11.14%, #899ED4 104.6%)',
+                borderRadius: '50rem',
+                color: '#fff',
+                display: 'inline-block',
+                fontSize: '.75rem',
+                fontWeight: '500',
+                lineHeight: '1',
+                marginLeft: '.5rem',
+                padding: '.45rem .8rem',
+                verticalAlign: 'baseline',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              v1.0
+            </span>
+          </Link>
         </div>
         <div
           className="navbar-content relative"
@@ -76,31 +123,31 @@ const Nav = () => {
                   </Link>
                 </li>
                 <li className="pc-item pc-hasmenu">
-                  <a href="#">
+                  <a href="#" onClick={e => handleSubmenu(e)}>
                     <span className="pc-micon"><FolderUser size={24} /></span>
-                    <soan className='pc-mtext'>
+                    <span className='pc-mtext'>
                       Clientes
-                    </soan>
-                    <span className="pc-marrow"></span>
+                    </span>
+                    <span className="pc-arrow">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </span>
                     <span className="pc-badge"></span>
                   </a>
-                  <ul className="pc-submenu">
+                  <ul className="pc-submenu" style={{ display: 'none' }}>
                     <li className="pc-item">
                       <Link href='/'>
-                        <span className="pc-micon"><Folders size={24} /></span>
                         <span className="pc-mtext">Administrar clientes</span>
                       </Link>
                     </li>
                     <li className="pc-item">
                       <Link href='/'>
-                        <span className="pc-micon"><FolderSimplePlus size={24} /></span>
                         <span className="pc-mtext">Agregar clientes</span>
                       </Link>
                     </li>
                   </ul>
                 </li>
                 {/* solo para colaboradores */}
-                <li className="pc-item active">
+                <li className="pc-item">
                   <Link href='/'>
                     <span className="pc-micon"><Stack size={24} /></span>
                     <span className="pc-mtext">Tareas</span>
@@ -108,24 +155,24 @@ const Nav = () => {
                 </li>
                 {/* solo para admin y superadmin */}
                 <li className="pc-item pc-hasmenu">
-                  <a href="#">
+                  <a href="#" onClick={e => handleSubmenu(e)}>
                     <span className="pc-micon"><Stack size={24} /></span>
-                    <soan className='pc-mtext'>
+                    <span className='pc-mtext'>
                       Tareas
-                    </soan>
-                    <span className="pc-marrow"></span>
+                    </span>
+                    <span className="pc-arrow">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </span>
                     <span className="pc-badge"></span>
                   </a>
-                  <ul className="pc-submenu">
+                  <ul className="pc-submenu" style={{ display: 'none' }}>
                     <li className="pc-item">
                       <Link href='/'>
-                        <span className="pc-micon"><StackSimple size={24} /></span>
                         <span className="pc-mtext">Administrar tareas</span>
                       </Link>
                     </li>
                     <li className="pc-item">
                       <Link href='/'>
-                        <span className="pc-micon"><StackPlus size={24} /></span>
                         <span className="pc-mtext">Agregar tarea</span>
                       </Link>
                     </li>
@@ -141,24 +188,24 @@ const Nav = () => {
                   </Link>
                 </li>
                 <li className="pc-item pc-hasmenu">
-                  <a href="#">
+                  <a href="#" onClick={e => handleSubmenu(e)}>
                     <span className="pc-micon"><Users size={24} /></span>
-                    <soan className='pc-mtext'>
+                    <span className='pc-mtext'>
                       Usuarios
-                    </soan>
-                    <span className="pc-marrow"></span>
+                    </span>
+                    <span className="pc-arrow">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </span>
                     <span className="pc-badge"></span>
                   </a>
-                  <ul className="pc-submenu">
+                  <ul className="pc-submenu" style={{ display: 'none' }}>
                     <li className="pc-item">
                       <Link href='/'>
-                        <span className="pc-micon"><UserCircleGear size={24} /></span>
                         <span className="pc-mtext">Administrar usuarios</span>
                       </Link>
                     </li>
                     <li className="pc-item">
                       <Link href='/'>
-                        <span className="pc-micon"><UserCirclePlus size={24} /></span>
                         <span className="pc-mtext">Agregar usuario</span>
                       </Link>
                     </li>
