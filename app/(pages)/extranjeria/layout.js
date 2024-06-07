@@ -1,6 +1,7 @@
+import withAuth from "@/app/libs/hocs/withAuth";
 import { Footer, Header, Nav } from "../../ui/components/wrappers";
 
-export default function PagesLayout({ children }) {
+const PagesLayout = ({ children }) => {
   return (
     <>
       <Nav />
@@ -13,9 +14,20 @@ export default function PagesLayout({ children }) {
           top: '74px'
         }}
       >
-        {children}
+        <div 
+          className="pc-content"
+          style={{
+            paddingLeft: '40px',
+            paddingRight: '40px',
+            paddingTop: '20px'
+          }}
+        >
+          {children}
+        </div>
       </div>
       <Footer />
     </>
   )
 }
+
+export default PagesLayout

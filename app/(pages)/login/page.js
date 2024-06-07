@@ -1,8 +1,31 @@
-import { Btn, InputCheckbox, InputText } from "@/app/ui/components/atoms";
-import Image from "next/image";
+'use client'
+
 import Link from "next/link";
+import Image from "next/image";
+
+import { InputCheckbox, InputText } from "@/app/ui/components/atoms";
 
 export default function Login() {
+  const {
+    login,
+    authError,
+    addError
+  } = useAuth()
+  const [isLoading, setIsLoading] = useState(false)
+  const [account, setAccount] = useState([])
+
+  const handleSubmit = async () => {
+    setIsLoading(true);
+    if(Input.email.length <= 0) {
+      console.log('Error: Correo electrónico requerido')
+    }
+    if(Input.password.length <= 0) {
+      console.log('Error: Correo electrónico requerido')
+    } else {
+      await Login(input)
+    }
+  }
+
   return (
     <>
       <div className="flex items-center h-full min-h-screen">

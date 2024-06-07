@@ -34,6 +34,7 @@ body {
   }
 }
 
+/* navigation */
 .pc-caption {
   color: #1D2630;
   display: block;
@@ -152,5 +153,133 @@ body {
     &:hover {
       background-color: #ebedef;
     }
+  }
+}
+
+/* card */
+.card {
+  background-color: white;
+  background-clip: border-box;
+  border: 1px solid #DBE0E5;
+  border-radius: 12px;
+  box-shadow: 0px 8px 24px rgba(27, 46, 94, 0.08);
+  color: #39465F;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  position: relative;
+  word-wrap: break-word;
+  .card__body {
+    flex: 1 1 auto;
+    padding: 25px 25px;
+  }
+}
+
+/* tables */
+.table {
+  border-color: #DBE0E5;
+  width: 100%;
+  vertical-align: top;
+  thead {
+    vertical-align: bottom;
+    tr {
+      th {
+        background: rgba(244, 247, 250, .5);
+        border-bottom: 1px solid #DBE0E5;
+        border-top: 1px solid #DBE0E5;
+        color: #29344A;
+        font-size: 13px;
+        padding: .7rem .75rem;
+        text-transform: uppercase;
+      }
+    }
+  }
+  tbody {
+    tr {
+      td {
+        border-bottom: none;
+        border-top: 1px solid #DBE0E5;
+        padding: .7rem .75rem;
+        vertical-align: middle;
+        white-space: nowrap;
+        .btn {
+          margin: 0 14px;
+        }
+      }
+    }
+  }
+  &-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  & > :not(:last-child) {
+    & > :last-child {
+      & > * {
+        border-bottom-color: #DBE0E5;
+      }
+    }
+  }
+}
+
+/* btns */
+.btn {
+  align-items: center;
+  border-radius: 8px;
+  color: white;
+  display: inline-flex;
+  font-size: 14px;
+  font-weight: 500;
+  justify-content: center;
+  padding: .562rem 1rem;
+  &.btn-primary {
+    background-color: #2196F3;
+  }
+  &.btn-secondary {
+    background-color: #39465F;
+  }
+  &.btn-danger {
+    background-color: #F44336;
+  }
+  svg {
+    margin-left: 14px;
+  }
+}
+
+/* badges */
+.badge {
+  border-radius: 6px;
+  color: white;
+  display: inline-block;
+  font-size: .75em;
+  font-weight: 500;
+  line-height: 1;
+  padding: .45em .75em;
+  text-transform: uppercase;
+  vertical-align: baseline;
+  white-space: nowrap;
+  &.badge__success {
+    background-color: #8BC34A;
+  }
+  &.badge__pending {
+    background-color: #FFC107;
+  }
+  &.badge__danger {
+    background-color: #F44336;
+  }
+  &.badge__banned {
+    background-color: #9E9E9E;
+  }
+  &.badge__primary {
+    background-color: #2196F3;
+  }
+  &.badge__dark {
+    background-color: #263238;
+  }
+  &.badge__light {
+    background-color: #E0E0E0;
+    color: #39465F;
+  }
+  &.badge__secondary {
+    background-color: #FFD54F;
   }
 }

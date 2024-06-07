@@ -1,13 +1,6 @@
 export default function PageExtranjeria () {
   return (
-    <div 
-      className="pc-content"
-      style={{
-        paddingLeft: '40px',
-        paddingRight: '40px',
-        paddingTop: '20px'
-      }}
-    >
+    <>
       <div
         className="page-header bg-transparent flex items-center"
         style={{
@@ -25,6 +18,6 @@ export default function PageExtranjeria () {
       >
         
       </div>
-    </div>
+    </>
   )
 }

@@ -1,6 +1,6 @@
-import { Public_Sans } from "next/font/google";
 import "./globals.css";
-
+import { AuthProvider } from '@/app/libs/providers/auth'
+import { Public_Sans } from "next/font/google";
 const publicSans = Public_Sans({ subsets: ["latin"] });
 
 export const metadata = {
@@ -10,15 +10,19 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body 
-        className={publicSans.className}
-        style={{
-          backgroundColor: '#F4F7FA'
-        }}
-      >
-        {children}
-      </body>
-    </html>
+    <>
+      <html lang="en">
+        <body 
+          className={publicSans.className}
+          style={{
+            backgroundColor: '#F4F7FA'
+          }}
+          >
+          <AuthProvider>
+            {children}
+          </AuthProvider>
+        </body>
+      </html>
+    </>
   );
 }

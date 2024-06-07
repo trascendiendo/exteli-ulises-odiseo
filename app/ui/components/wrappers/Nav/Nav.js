@@ -6,20 +6,14 @@ import { useState } from "react";
 import { 
   Speedometer, 
   FolderUser, 
-  Folders, 
-  FolderSimplePlus, 
   Stack, 
-  StackSimple, 
-  StackPlus, 
   FileDoc, 
   Users, 
-  UserCircleGear, 
-  UserCirclePlus,
   DotsThreeVertical
 } from "@phosphor-icons/react/dist/ssr";
 
 const Nav = () => {
-  const [userAvatar, setUserAvatar] = useState('/avatarDefault.svg')
+  const [userAvatar, setUserAvatar] = useState('/images/avatarUserMale.png')
 
   const handleSubmenu = (e) => {
     let thisElement = e.target
@@ -117,7 +111,7 @@ const Nav = () => {
                   <label>Extranjería</label>
                 </li>
                 <li className="pc-item">
-                  <Link href='/'>
+                  <Link href='/extranjeria'>
                     <span className="pc-micon"><Speedometer size={24} /></span>
                     <span className="pc-mtext">Dashboard</span>
                   </Link>
@@ -135,12 +129,12 @@ const Nav = () => {
                   </a>
                   <ul className="pc-submenu" style={{ display: 'none' }}>
                     <li className="pc-item">
-                      <Link href='/'>
+                      <Link href='/extranjeria/customers'>
                         <span className="pc-mtext">Administrar clientes</span>
                       </Link>
                     </li>
                     <li className="pc-item">
-                      <Link href='/'>
+                      <Link href='/extranjeria/customers/add'>
                         <span className="pc-mtext">Agregar clientes</span>
                       </Link>
                     </li>
@@ -148,7 +142,7 @@ const Nav = () => {
                 </li>
                 {/* solo para colaboradores */}
                 <li className="pc-item">
-                  <Link href='/'>
+                  <Link href='/extrajeria/tasks'>
                     <span className="pc-micon"><Stack size={24} /></span>
                     <span className="pc-mtext">Tareas</span>
                   </Link>
@@ -167,12 +161,12 @@ const Nav = () => {
                   </a>
                   <ul className="pc-submenu" style={{ display: 'none' }}>
                     <li className="pc-item">
-                      <Link href='/'>
+                      <Link href='/extranjeria/tasks'>
                         <span className="pc-mtext">Administrar tareas</span>
                       </Link>
                     </li>
                     <li className="pc-item">
-                      <Link href='/'>
+                      <Link href='/extranjeria/tasks/add'>
                         <span className="pc-mtext">Agregar tarea</span>
                       </Link>
                     </li>
@@ -182,7 +176,7 @@ const Nav = () => {
                   <label>Ajustes</label>
                 </li>
                 <li className="pc-item">
-                  <Link href='/'>
+                  <Link href='/extranjeria/procedures'>
                     <span className="pc-micon"><FileDoc size={24} /></span>
                     <span className="pc-mtext">Trámites</span>
                   </Link>
@@ -200,12 +194,12 @@ const Nav = () => {
                   </a>
                   <ul className="pc-submenu" style={{ display: 'none' }}>
                     <li className="pc-item">
-                      <Link href='/'>
+                      <Link href='/extranjeria/users'>
                         <span className="pc-mtext">Administrar usuarios</span>
                       </Link>
                     </li>
                     <li className="pc-item">
-                      <Link href='/'>
+                      <Link href='/extranjeria/users/add'>
                         <span className="pc-mtext">Agregar usuario</span>
                       </Link>
                     </li>
