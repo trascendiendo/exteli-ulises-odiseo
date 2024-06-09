@@ -1,28 +1,49 @@
 'use client'
 
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-
+import { useRouter } from "next/navigation";
+import toast, { Toaster } from "react-hot-toast";
+import { useDispatch } from "react-redux";
+import { onAuthStateChanged, signInWithEmailAndPassword } from "firebase/auth";
+import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
+import Cookies from "universal-cookie";
 import { InputCheckbox, InputText } from "@/app/ui/components/atoms";
+import { auth } from "@/app/libs/utils/firebase";
+import LoadingScreen from "@/app/ui/components/molecules/LoadingScreen";
 
 export default function Login() {
-  const {
-    login,
-    authError,
-    addError
-  } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
-  const [account, setAccount] = useState([])
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [keepOnline, setKeepOnline] = useState(false)
+  const router = useRouter()
+  const dispatch = useDispatch()
 
   const handleSubmit = async () => {
-    setIsLoading(true);
-    if(Input.email.length <= 0) {
-      console.log('Error: Correo electrónico requerido')
-    }
-    if(Input.password.length <= 0) {
-      console.log('Error: Correo electrónico requerido')
-    } else {
-      await Login(input)
+    try {
+      setIsLoading(true)
+      const res = await signInWithEmailAndPassword(auth, email, password)
+      if ( res ) {
+        onAuthStateChanged(auth, (user) => {
+          if ( user ) {
+            router.push('/extranjeria')
+          }
+        })
+      }
+    } catch (error) {
+      setIsLoading(false)
+      const errorCode = error.code
+      console.log(errorCode)
+      if (errorCode === 'auth/invalid-email') {
+        setEmail('')
+        toast.error('Correo electrónico erróneo')
+      }
+      if (errorCode === 'auth/invalid-credential') {
+        setPassword('')
+        toast.error('Contraseña incorrecta')
+      }
     }
   }
 
@@ -54,14 +75,24 @@ export default function Login() {
           <div className="flex flex-grow items-center justify-center w-6/12">
             <div className="bg-white flex items-center mx-3 my-5 w-full rounded-xl" style={{ maxWidth: '480px', minHeight: 'calc(100vh - 110px)' }}>
               <div className="flex flex-col justify-center p-6 w-full">
-                <div className="flex justify-center mb-8">
-                  <div className="bg-purple-400" style={{ borderRadius: '50%', height: '210px', width: '210px' }}></div>
+                <div className="flex justify-center mb-12">
+                  <div className="bg-purple-400" style={{ borderRadius: '50%', height: '210px', width: '210px' }}>
+                    <Image
+                      src={'/images/logo.png'}
+                      height={210}
+                      width={210}
+                      alt="Extranjería Eli"
+                      priority
+                      quality={100}
+                    />
+                  </div>
                 </div>
                 <h4 className="mb-4 text-xl" style={{ color: '1d2630' }}>Identificarse con correo electrónico</h4>
                 <div className="mb-3">
                   <InputText 
                     type='email'
                     placeholder='Correo electrónico'
+                    onChange={(e) => setEmail(e.target.value)}
                     required
                   />
                 </div>
@@ -69,6 +100,7 @@ export default function Login() {
                   <InputText 
                     type='password'
                     placeholder='Contraseña'
+                    onChange={(e) => setPassword(e.target.value)}
                     required
                   />
                 </div>
@@ -82,8 +114,9 @@ export default function Login() {
                 </div>
                 <div className="mb-14 mt-5">
                   <button
-                    className="border font-semibold px-4 py-3 rounded-xl text-sm w-full"
-                    style={{ backgroundColor: '#04A9F5', borderBlock: '#04A9F5', color: 'white' }}
+                    className="btn btn-primary w-full"
+                    onClick={handleSubmit}
+                    disabled={!password}
                   >
                     Login
                   </button>
@@ -92,6 +125,8 @@ export default function Login() {
             </div>
           </div> 
         </div>
+        {isLoading && <LoadingScreen />}
+        <Toaster position="top-right" reverseOrder={false} />
       </div>
     </>
   )

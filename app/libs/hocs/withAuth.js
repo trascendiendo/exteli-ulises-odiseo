@@ -1,14 +1,9 @@
-import { useIsAuthenticated } from '@/app/libs/providers/auth';
+import { useAuth } from "@/app/libs/providers/AuthContext";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
 
-import withConditionalRedirect from './withConditionalRedirect';
-
-export default function withAuth (WrappedComponent, location = '/login') {
-  return withConditionalRedirect({
-    WrappedComponent,
-    location,
-    clientCondition() {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      return !useIsAuthenticated()
-    }
-  })
+const WithAuth = () => {
+  ret
 }
+
+export default WithAuth

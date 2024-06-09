@@ -1,19 +1,27 @@
 'use client'
 
-import Link from "next/link"
-import Image from "next/image";
 import { useState } from "react";
+import Link from "next/link"
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { useSelector } from "react-redux";
+import { signOut } from "firebase/auth";
 import { 
   Speedometer, 
   FolderUser, 
   Stack, 
   FileDoc, 
   Users, 
-  DotsThreeVertical
+  DotsThreeVertical,
+  User,
+  Power
 } from "@phosphor-icons/react/dist/ssr";
+import { auth } from "@/app/libs/utils/firebase";
 
 const Nav = () => {
-  const [userAvatar, setUserAvatar] = useState('/images/avatarUserMale.png')
+  const [usermenu, setUsermenu] = useState(false)
+  const user = useSelector((state) => state.user)
+  const router = useRouter()
 
   const handleSubmenu = (e) => {
     let thisElement = e.target
@@ -31,6 +39,24 @@ const Nav = () => {
     thisParentElement.classList.add('pc-trigger')
     thisSiblingElement.style.display = 'block'
     thisSiblingElement.style.boxSizing = 'border-box'
+  }
+
+  const handleUsermenu = (e) => {
+    e.preventDefault()
+    setUsermenu(!usermenu)
+  }
+
+  const gotoAccount = () => {
+    router.push('/account')
+  }
+
+  const handleLogout = () => {
+    signOut(auth)
+      .then(() => {
+        router.push('/login')
+      }).catch(() => {
+
+      })
   }
 
   return (
@@ -63,8 +89,8 @@ const Nav = () => {
           >
             <Image 
               src='/images/logo.png'
-              height={24}
-              width={108}
+              height={49}
+              width={49}
               alt="Extranjería ELI"
               quality={100}
               loading="lazy"
@@ -175,11 +201,29 @@ const Nav = () => {
                 <li className="pc-caption">
                   <label>Ajustes</label>
                 </li>
-                <li className="pc-item">
-                  <Link href='/extranjeria/procedures'>
+                <li className="pc-item pc-hasmenu">
+                  <a href="#" onClick={e => handleSubmenu(e)}>
                     <span className="pc-micon"><FileDoc size={24} /></span>
-                    <span className="pc-mtext">Trámites</span>
-                  </Link>
+                    <span className="pc-mtext">
+                      Trámites
+                    </span>
+                    <span className="pc-arrow">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </span>
+                    <span className="pc-badge"></span>
+                  </a>
+                  <ul className="pc-submenu" style={{ display: 'none' }}>
+                    <li className="pc-item">
+                      <Link href='/extranjeria/procedures'>
+                        <span className="pc-mtext">Administrar trámites</span>
+                      </Link>
+                    </li>
+                    <li className="pc-item">
+                      <Link href='/extranjeria/procedures/add'>
+                        <span className="pc-mtext">Agregar trámite</span>
+                      </Link>
+                    </li>
+                  </ul>
                 </li>
                 <li className="pc-item pc-hasmenu">
                   <a href="#" onClick={e => handleSubmenu(e)}>
@@ -227,7 +271,9 @@ const Nav = () => {
             >
               <div className="flex-shrink">
                 <Image
-                  src={userAvatar}
+                  src={user.gender == 'Masculino' 
+                    ? '/images/avatarUserMale.png' 
+                    : '/images/avatarUserFem.png'}
                   height={45}
                   width={45}
                   alt="User"
@@ -238,34 +284,52 @@ const Nav = () => {
                 />
               </div>
               <div
-                className="flex-grow ml-4"
+                className="flex-grow ml-3"
               >
-                <div className="dropdown">
+                <div className="dropdown relative">
                   <a href="#">
                     <div className="flex items-center">
-                      <div className="flex-grow mr-2">
+                      <div className="flex-grow">
                         <h6 className="mb-0 text-sm">
-                          John Doe
+                          { user.firstName } { user.lastName }
                         </h6>
                         <small
                           style={{
                             opacity: '0.6'
                           }}
                         >
-                          Colaborador
+                          { user.role }
                         </small>
                       </div>
                       <div className="flex-shrink-0">
                         <div
                           className="btn"
+                          onClick={handleUsermenu}
                         >
                           <DotsThreeVertical size={28} />
                         </div>
                       </div>
                     </div>
                   </a>
-                  <div className="dropdown-menu">
-
+                  <div className={`dropdown-menu ${usermenu ? 'active' : ''}`}>
+                    <ul>
+                      <li>
+                        <button
+                          onClick={gotoAccount}
+                        >
+                          <User size={22} />
+                          <span>Mi cuenta</span>
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          onClick={handleLogout}
+                        >
+                          <Power size={22} />
+                          <span>Logout</span>
+                        </button>
+                      </li>
+                    </ul>
                   </div>
                 </div>
               </div>

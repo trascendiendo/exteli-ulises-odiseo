@@ -1,5 +1,8 @@
-import withAuth from "@/app/libs/hocs/withAuth";
-import { Footer, Header, Nav } from "../../ui/components/wrappers";
+'use client'
+
+import { Provider } from "react-redux";
+import store from '@/app/store'
+import { Footer, Header, Nav } from "@/app/ui/components/wrappers";
 
 const PagesLayout = ({ children }) => {
   return (
@@ -22,7 +25,9 @@ const PagesLayout = ({ children }) => {
             paddingTop: '20px'
           }}
         >
-          {children}
+          <Provider store={store}>
+            {children}
+          </Provider>
         </div>
       </div>
       <Footer />

@@ -1,56 +1,89 @@
 'use client'
 
-import Link from "next/link"
-import Image from "next/image";
-import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import Image from "next/image";
+import Link from "next/link"
+import { useParams } from "next/navigation";
+import { doc, getDoc } from "firebase/firestore"
+import toast, { Toaster } from 'react-hot-toast'
+import { db } from "@/app/libs/utils/firebase"
+import { Badge, InputText } from "@/app/ui/components/atoms";
 
-import { isEmpty, values } from "lodash";
-import Apis from '@/app/libs/apis'
-import timeFormat from "@/app/libs/utils/timeFormat";
-import { Badge, InputText, Select } from "@/app/ui/components/atoms";
-
-export default function PageUser () {
+const PageUser = () => {
   const params = useParams()
-  const id = params._id
   const [isLoading, setIsLoading] = useState(false)
-  const [user, setUser] = useState([])
-  const token = process.env.NEXT_PUBLIC_API_TOKEN
+  const [user, setUser] = useState({})
 
   useEffect(() => {
-    if ( !isEmpty(user) ) {
-      setIsLoading(true)
+    const fetchUserData = async () => {
+      try {
+        const userId = params.id
+        const userDocRef = doc(db, 'users', userId)
+        const userDoc = await getDoc(userDocRef)
+        if ( userDoc.exists() ) {
+          const { 
+            firstName, 
+            lastName, 
+            email, 
+            phone, 
+            role, 
+            gender,
+            status,
+            createdAt,
+            updatedAt
+          } = userDoc.data()
+          setUser({
+            firstName,
+            lastName,
+            email,
+            phone,
+            role,
+            gender,
+            status,
+            updatedAt: new Date(updatedAt.seconds * 1000).toLocaleDateString("es-ES")
+          })
+        }
+      } catch (error) {
+        toast.error('Error al cargar al usuarios.')
+      } finally {
+        setIsLoading(false)
+      }
     }
-  }, [user])
-
-  useEffect(() => {
-    const getData = async () => {
-      setIsLoading(true)
-      let response = await Apis.users.GetUser(token, id)
-      setUser(response.data)
-    }
-    getData()
+    fetchUserData()
   }, [])
-  console.log(user)
 
   return (
     <>
       <div
-        className="page-header bg-transparent flex items-center"
+        className="page-header bg-transparent"
         style={{
           borderRadius: '8px',
           minHeight: '55px',
           padding: '13px 0px'
         }}
       >
+        <div className="w-full">
+          <ul className="breadcrumbs">
+            <li>
+              <Link href='/'>Home</Link>
+            </li>
+          </ul>
+        </div>
+        <div className="w-full">
+          {user && (
+            <h2 className="font-bold text-3xl">
+              {user.firstName} {user.lastName}
+            </h2>
+          )}
+        </div>
       </div>
       <div
-        className="flex gap-8 items-start justify-between w-full sm:flex-col"
+        className="flex gap-8 items-start justify-between w-full"
         style={{
           paddingTop: '24px'
         }}
       >
-        <div className="w-6/12 sm:w-full">
+        <div className="w-full sm:w-6/12">
           <div className="card">
             <div className="card__body">
               {/* TODO: colocar skelleton */}
@@ -70,7 +103,7 @@ export default function PageUser () {
                       />
                     </div>
                     <div className="mt-4 userUI__profile text-center">
-                      <h4 className="capitalize">
+                      <h4 className="capitalize font-semibold mb-1 text-lg">
                         {user.firstName} {user.lastName}
                       </h4>
                       <Badge 
@@ -131,7 +164,7 @@ export default function PageUser () {
             </div>
           </div>
         </div>
-        <div className="w-6/12 sm:w-full">
+        <div className="w-full sm:w-6/12">
           <div className="card">
             <div className="card__header border-b p-6">
               <h5 className="font-semibold text-sm">Información personal</h5>
@@ -218,7 +251,11 @@ export default function PageUser () {
             </div>
           </div>
         </div>
+        <Toaster />
       </div>
     </>
   )
 }
+
+//export default WithAuth()
+export default PageUser
