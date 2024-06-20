@@ -1,16 +1,16 @@
-import general from './general'
-import clients from './general/clients'
-import nationalities from './general/nationalities'
-import notes from './general/notes'
-import procedures from './general/procedures'
-import tasks from './general/tasks'
-import users from './general/users'
+import customers from '@/app/libs/apis/customers'
+import dashboard from '@/app/libs/apis/dashboard'
+import general from '@/app/libs/apis/general'
+import nationalities from '@/app/libs/apis/nationalities'
+import procedures from '@/app/libs/apis/procedures'
+import tasks from '@/app/libs/apis/tasks'
+import users from '@/app/libs/apis/users'
 
 const apis = {
+  customers,
+  dashboard,
   general,
-  clients,
   nationalities,
-  notes,
   procedures,
   tasks,
   users

@@ -9,7 +9,7 @@ const InputCheckbox = ({
         id={id}
         {...rest}
       />
-      <label className="pl-2 text-sm" for={id}>
+      <label className="pl-2 text-sm" htmlFor={id}>
         {text}
       </label>
     </div>
