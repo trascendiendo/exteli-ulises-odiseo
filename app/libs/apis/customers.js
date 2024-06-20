@@ -1,0 +1,58 @@
+import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore'
+import { db } from '@/app/libs/utils/firebase'
+
+const customers = {
+  GetCustomer: async (uid) => {
+    try {
+      const customerDocRef = doc(db, 'customers', uid)
+      const customerDocSnap = await getDoc(customerDocRef)
+
+      if ( customerDocSnap.exists() ) {
+        return customerDocSnap.data()
+      } else {
+        return null
+      }
+    } catch (error) {
+      console.info(`GetCustomer: Error al obtener cliente: ${uid}`)
+      console.error(error)
+      throw error
+    }
+  },
+  GetAllCustomers: async () => {
+    try {
+      const customersRef = collection(db, 'customers')
+      const querySnapshot = await getDocs(customersRef)
+
+      const customers = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }))
+
+      return customers
+    } catch (error) {
+      console.info(`GetAllCustomers: Error al obtener clientes`)
+      console.error(error)
+      throw error
+    }
+  },
+  GetCustomersByStatus: async (status) => {
+    try {
+      const customersRef = collection(db, 'customers')
+      const q = query(customersRef, where('status', '==', status))
+      const querySnapshot = await getDocs(q)
+
+      const customers = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }))
+
+      return customers
+    } catch (error) {
+      console.info(`GetCustomersByStatus: Error al obtener usuarios`)
+      console.error(error)
+      throw error
+    }
+  }
+}
+
+export default customers

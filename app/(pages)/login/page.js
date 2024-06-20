@@ -1,57 +1,37 @@
 'use client'
 
-import { useState } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import toast, { Toaster } from "react-hot-toast";
-import { useDispatch } from "react-redux";
-import { onAuthStateChanged, signInWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
-import Cookies from "universal-cookie";
-import { InputCheckbox, InputText } from "@/app/ui/components/atoms";
-import { auth } from "@/app/libs/utils/firebase";
-import LoadingScreen from "@/app/ui/components/molecules/LoadingScreen";
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import Image from 'next/image';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '@/app/libs/utils/firebase';
+import { InputCheckbox, InputText } from '@/app/ui/components/atoms';
+import LoadingScreen from '@/app/ui/components/molecules/LoadingScreen';
 
-export default function Login() {
-  const [isLoading, setIsLoading] = useState(false)
+const Login = () => {
+  const [loading, setLoading] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [keepOnline, setKeepOnline] = useState(false)
   const router = useRouter()
-  const dispatch = useDispatch()
 
   const handleSubmit = async () => {
+    setLoading(true)
     try {
-      setIsLoading(true)
-      const res = await signInWithEmailAndPassword(auth, email, password)
-      if ( res ) {
-        onAuthStateChanged(auth, (user) => {
-          if ( user ) {
-            router.push('/extranjeria')
-          }
-        })
-      }
+      await signInWithEmailAndPassword(auth, email, password)
+      router.push('/extranjeria')
     } catch (error) {
-      setIsLoading(false)
-      const errorCode = error.code
-      console.log(errorCode)
-      if (errorCode === 'auth/invalid-email') {
-        setEmail('')
-        toast.error('Correo electrónico erróneo')
-      }
-      if (errorCode === 'auth/invalid-credential') {
-        setPassword('')
-        toast.error('Contraseña incorrecta')
-      }
+      console.info('login/page.js')
+      console.error(`Error al authenticarse: ${error}`)
     }
+    setLoading(false)
   }
 
   return (
     <>
-      <div className="flex items-center h-full min-h-screen">
-        <div className="absolute inset-0">
-          <div className="absolute inset-0" style={{ zIndex: '1' }}>
+      <div className="flex items-center relative md:min-h-screen">
+        <div className="absolute bottom-0 left-0 right-0 top-0">
+          <div className="absolute bottom-0 left-0 right-0 top-0" style={{ zIndex: '1' }}>
             <Image
               src='/images/background.jpeg'
               alt='Madrid'
@@ -61,19 +41,19 @@ export default function Login() {
               loading='lazy'
             />
           </div>
-          <div className="absolute inset-0" style={{ backgroundColor: 'rgba(33, 37, 41, .85)', backdropFilter: 'blur(1px)', zIndex: '2' }}></div>
+          <div className="absolute bottom-0 left-0 right-0 top-0" style={{ backgroundColor: 'rgba(33, 37, 41, .85)', backdropFilter: 'blur(1px)', zIndex: '2' }}></div>
         </div>
-        <div className="flex h-full items-end w-full" style={{ zIndex: '5' }}>
-          <div className="flex justify-center w-6/12">
-            <div className="px-8 py-16 w-4/6">
-              <hr className="mb-3 mt-4 opacity-25"/>
-              <div className="my-1 text-white">
+        <div className="flex flex-col-reverse h-full items-end w-full md:flex-row" style={{ zIndex: '5' }}>
+          <div className="flex justify-center w-full md:w-6/12">
+            <div className="px-8 py-8 w-full md:py-16 md:w-4/6">
+              <hr className="hidden mb-3 mt-4 opacity-25 md:block"/>
+              <div className="my-1 text-center text-white md:text-left">
                 <p>Hecho con ♥ por Trascendiendo Digital</p>
               </div>
             </div>
           </div>
-          <div className="flex flex-grow items-center justify-center w-6/12">
-            <div className="bg-white flex items-center mx-3 my-5 w-full rounded-xl" style={{ maxWidth: '480px', minHeight: 'calc(100vh - 110px)' }}>
+          <div className="flex flex-grow items-center justify-center w-full md:w-6/12">
+            <div className="bg-white flex items-center mx-3 my-8 w-full rounded-xl md:my-5" style={{ maxWidth: '480px', minHeight: 'calc(100vh - 110px)' }}>
               <div className="flex flex-col justify-center p-6 w-full">
                 <div className="flex justify-center mb-12">
                   <div className="bg-purple-400" style={{ borderRadius: '50%', height: '210px', width: '210px' }}>
@@ -112,7 +92,7 @@ export default function Login() {
                   />
                   <Link className="text-sm" href='/forgot-password'>¿Olvidaste tu contraseña?</Link>
                 </div>
-                <div className="mb-14 mt-5">
+                <div className="mb-5 mt-5 md:mb-14">
                   <button
                     className="btn btn-primary w-full"
                     onClick={handleSubmit}
@@ -125,9 +105,10 @@ export default function Login() {
             </div>
           </div> 
         </div>
-        {isLoading && <LoadingScreen />}
-        <Toaster position="top-right" reverseOrder={false} />
+        {loading && <LoadingScreen />}
       </div>
     </>
   )
 }
+
+export default Login

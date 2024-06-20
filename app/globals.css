@@ -121,11 +121,13 @@ body {
     }
     .pc-mtext {
       color: #39465F;
+      user-select: none;
     }
     .pc-arrow {
       position: absolute;
       right: 14px;
       transition: .35s ease;
+      user-select: none;
       svg {
         height: 14px;
         width: 14px;

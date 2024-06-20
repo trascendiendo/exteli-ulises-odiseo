@@ -2,9 +2,8 @@
 
 import "./globals.css";
 import { Public_Sans } from "next/font/google";
-import { Provider } from "react-redux";
-import store from '@/app/store'
 const publicSans = Public_Sans({ subsets: ["latin"] });
+import { AuthProvider } from "@/app/libs/providers/AuthContext";
 
 const metadata = {
   title: "Create Next App",
@@ -14,6 +13,7 @@ const metadata = {
 export default function RootLayout({ children }) {
   return (
     <>
+      <AuthProvider>
       <html lang="en">
         <body 
           className={publicSans.className}
@@ -21,11 +21,10 @@ export default function RootLayout({ children }) {
             backgroundColor: '#F4F7FA'
           }}
           >
-            <Provider store={store}>
               {children}
-            </Provider>
         </body>
       </html>
+      </AuthProvider>
     </>
   );
 }
