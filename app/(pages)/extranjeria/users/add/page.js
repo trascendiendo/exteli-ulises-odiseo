@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore'
@@ -8,7 +9,6 @@ import toast, { Toaster } from 'react-hot-toast'
 import { auth, db } from '@/app/libs/utils/firebase'
 import { InputText } from '@/app/ui/components/atoms';
 import LoadingScreen from '@/app/ui/components/molecules/LoadingScreen';
-import Link from 'next/link';
 
 const AddUser = () => {
   const [isLoading, setIsLoading] = useState(false)

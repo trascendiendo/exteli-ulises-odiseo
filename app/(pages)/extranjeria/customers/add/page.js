@@ -56,42 +56,47 @@ const AddCustomer = () => {
     }
   }
 
+  console.log(user)
+
   useEffect(() => {
-    const getUser = async () => {
-      if ( user ) {
-        try {
-          const data = await Apis.user.GetUser(user.id)
-          setThisUser(data)
-        } catch (error) {
-          console.info('customers/add/page.js')
-          console.error(`Error al obtener data del usuario: ${error}`)
+    {/**
+      const getUser = async () => {
+        if ( user ) {
+          try {
+            const data = await Apis.users.GetUser(user.id)
+            console.log(data)
+            setThisUser(data)
+          } catch (error) {
+            console.info('customers/add/page.js')
+            console.error(`Error al obtener data del usuario: ${error}`)
+          }
         }
       }
-    }
-    const getAllAgents = async () => {
-      try {
-        const data = await Apis.users.GetAllUsers()
-        setAllAgents(data)
-      } catch (error) {
-        console.info('customers/add/page.js')
-        console.error(`Error al obtener los usuarios: ${error}`)
+      const getAllAgents = async () => {
+        try {
+          const data = await Apis.users.GetAllUsers()
+          setAllAgents(data)
+        } catch (error) {
+          console.info('customers/add/page.js')
+          console.error(`Error al obtener los usuarios: ${error}`)
+        }
       }
-    }
-    const getAllAgentsButMe = async () => {
-      try {
-        const data = await Apis.users.getAllAgentsButMe()
-        setAllAgents(data)
-      } catch (error) {
-        console.info('customers/add/page.js')
-        console.error(`Error al obtener los usuarios excepto el usuario en sesión: ${error}`)
+      const getAllAgentsButMe = async () => {
+        try {
+          const data = await Apis.users.getAllAgentsButMe()
+          setAllAgents(data)
+        } catch (error) {
+          console.info('customers/add/page.js')
+          console.error(`Error al obtener los usuarios excepto el usuario en sesión: ${error}`)
+        }
       }
-    }
-    getUser()
-    if (user.role == 'Administrador') {
-      getAllAgentsButMe()
-    } else {
-      getAllAgents()
-    }
+      getUser()
+      if (user.role == 'Administrador') {
+        getAllAgentsButMe()
+      } else {
+        getAllAgents()
+      }
+    */}
   })
 
   console.log(allAgents)

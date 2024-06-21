@@ -9,7 +9,7 @@ const initialState = {
   role: '',
   gender: '',
   status: '',
-  lastConnection: null,
+  lastConnection: '',
 }
 
 const userSlice = createSlice({
@@ -19,7 +19,7 @@ const userSlice = createSlice({
     setUser: (state, action) => {
       return {...state, ...action.payload}
     },
-    clearUser: (state) => {
+    clearUser: () => {
       return initialState
     }
   }

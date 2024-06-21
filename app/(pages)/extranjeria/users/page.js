@@ -1,19 +1,20 @@
 'use client'
 
-import { useEffect, useState } from "react";
-import Link from "next/link"
-import Image from "next/image";
-import { Eye } from "@phosphor-icons/react/dist/ssr";
-import { collection, getDocs } from "firebase/firestore";
+import { useEffect, useState } from 'react';
+import Link from 'next/link'
+import Image from 'next/image';
+import { Eye } from '@phosphor-icons/react/dist/ssr';
+import { collection, getDocs } from 'firebase/firestore';
 import toast, { Toaster } from 'react-hot-toast'
-import { db } from "@/app/libs/utils/firebase"
-import { Badge } from "@/app/ui/components/atoms";
+import { db } from '@/app/libs/utils/firebase'
+import { Badge } from '@/app/ui/components/atoms';
 
 const PageUsers = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [users, setUsers] = useState([])
 
   useEffect(() => {
+    /** TODO : Cambiar a Apis.users.GetAllUsers */
     const fetchUsers = async () => {
       setIsLoading(true)
       try {

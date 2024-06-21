@@ -1,9 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link'
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { useSelector, useDispatch } from 'react-redux';
 import { signOut } from 'firebase/auth';
 import { 
   ChartLine,
@@ -17,17 +18,16 @@ import {
   User,
   Users, 
 } from '@phosphor-icons/react/dist/ssr';
-import { useAuth } from '@/app/libs/providers/AuthContext';
 import { auth } from '@/app/libs/utils/firebase'
-import Apis from '@/app/libs/apis'
 import LoadingScreen from '@/app/ui/components/molecules';
+import { clearUser } from '@/app/features/user/userSlice';
 
 const Nav = () => {
+  const thisUser = useSelector((state) => state.userState.user)
   const [loading, setLoading] = useState(false)
-  const { user } = useAuth()
-  const [thisUser, setThisUser] = useState({})
   const [usermenu, setUsermenu] = useState(false)
   const router = useRouter()
+  const dispatch = useDispatch()
 
   const handleSubmenu = (e) => {
     let thisElement = e.target
@@ -58,6 +58,7 @@ const Nav = () => {
 
   const handleLogout = async () => {
     setLoading(true)
+    dispatch(clearUser())
     try {
       await signOut(auth)
       router.push('/login')
@@ -67,22 +68,6 @@ const Nav = () => {
     }
     setLoading(false)
   }
-
-  useEffect(() => {
-    const getData = async () => {
-      if ( user ) {
-        try {
-          const data = await Apis.users.GetUser(user.uid)
-          setThisUser(data)
-        } catch (error) {
-          console.info('Nav/Nav.js')
-          console.error(`Error al obtener data del usuario: ${error}`)
-        }
-      }
-    }
-    getData()
-    
-  }, [user])
 
   return (
     <>

@@ -4,21 +4,43 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useDispatch } from 'react-redux';
 import { signInWithEmailAndPassword } from 'firebase/auth';
+import Apis from '@/app/libs/apis'
 import { auth } from '@/app/libs/utils/firebase';
 import { InputCheckbox, InputText } from '@/app/ui/components/atoms';
 import LoadingScreen from '@/app/ui/components/molecules/LoadingScreen';
+import { setUser } from '@/app/features/user/userSlice';
 
 const Login = () => {
   const [loading, setLoading] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const router = useRouter()
+  const dispatch = useDispatch()
 
   const handleSubmit = async () => {
     setLoading(true)
     try {
-      await signInWithEmailAndPassword(auth, email, password)
+      const userCredential = await signInWithEmailAndPassword(auth, email, password)
+      const user = userCredential.user
+
+      const getUser = await Apis.users.GetUser(user.uid)
+
+      if ( getUser ) {
+        dispatch(setUser({
+          uid: user.uid,
+          firstName: getUser.firstName,
+          lastName: getUser.lastName,
+          email: getUser.email,
+          phone: getUser.phone,
+          role: getUser.role,
+          gender: getUser.gender,
+          status: getUser.status,
+          lastConnection: user.metadata.lastSignInTime
+        }))
+      }
+
       router.push('/extranjeria')
     } catch (error) {
       console.info('login/page.js')
