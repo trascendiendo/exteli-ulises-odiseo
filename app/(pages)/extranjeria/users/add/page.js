@@ -20,39 +20,43 @@ const AddUser = () => {
   const [passwordConfirm, setPasswordConfirm] = useState('')
   const [passwordsCorrect, setPasswordCorrect] = useState(false)
   const [phone, setPhone] = useState('')
-  const [role, setRole] = useState('Administrador')
-  const [gender, setGender] = useState('Fenemino')
-  const [status, setStatus] = useState('Pendiente')
+  const [role, setRole] = useState('')
+  const [gender, setGender] = useState('')
+  const [status, setStatus] = useState('')
   const router = useRouter()
 
   const handleSubmit = async () => {
     setIsLoading(true)
-    try {
-      /** TODO: crear usuario sin usar auth */
-      const res = await createUserWithEmailAndPassword(auth, email, password)
-      const user = res.user
-      await setDoc(doc(db, 'users', user.uid), {
-        uid: user.uid,
-        firstName,
-        lastName,
-        email,
-        phone,
-        role,
-        gender,
-        status,
-        lastConnection: '',
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      })
-      toast.success('Usuario registrado con éxito.')
-      setTimeout(() => {
-        setIsLoading(false)
-        router.push('/extranjeria/users')
-      }, 5000);
-    } catch (error) {
-      setIsLoading(false)
-      toast.error('Error al crear un usuario.')
+    const res = await createUserWithEmailAndPassword(auth, email, password)
+    const user = res.user
+
+    const newUser = {
+      uid: user.uid,
+      firstName,
+      lastName,
+      email,
+      phone,
+      role,
+      gender,
+      status,
+      lastConnection: '',
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
     }
+    await Apis.users.PostUser(user.uid, newUser)
+      .then(() => {
+        console.log(newUser)
+        toast.success('Usuario registrado con éxito.')
+      })
+      .catch((error) => {
+        console.log(newUser)
+        toast.error('Error al crear un usuario.')
+        console.log(error)
+      })
+      .finally(() => {
+        setIsLoading(false)
+        //router.push('/extranjeria/users')
+      })
   }
 
   useEffect(() => {
@@ -184,6 +188,7 @@ const AddUser = () => {
                           onChange={e => setRole(e.target.value)}
                           required
                         >
+                          <option value="">Seleccionar opción</option>
                           <option value="Administrador">Administrador</option>
                           <option value="Colaborador">Colaborador</option>
                           <option value="Practicante">Practicante</option>
@@ -199,7 +204,8 @@ const AddUser = () => {
                           onChange={e => setGender(e.target.value)}
                           required
                         >
-                          <option value="Fenemino">Fenemino</option>
+                          <option value="">Seleccionar opción</option>
+                          <option value="Femenino">Femenino</option>
                           <option value="Masculino">Masculino</option>
                           <option value="Otro">Otro</option>
                         </select>
@@ -217,6 +223,7 @@ const AddUser = () => {
                           onChange={e => setStatus(e.target.value)}
                           required
                         >
+                          <option value="0">Seleccionar opción</option>
                           <option value="Pendiente">Pendiente</option>
                           <option value="Activo">Activo</option>
                           <option value="Baja">Baja</option>

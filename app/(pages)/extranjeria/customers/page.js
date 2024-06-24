@@ -99,15 +99,27 @@ const PageClients = () => {
                             {customer.customer.agent}
                           </td>
                           <td>
+                            {customer.customer.status == 'Pendiente' && (
+                              <Badge 
+                              className='badge badge__banned'
+                              text={customer.customer.status} 
+                              />
+                            )}
                             {customer.customer.status == 'Activo' && (
                               <Badge 
                                 className='badge badge__success'
                                 text={customer.customer.status} 
                               />
                             )}
-                            {customer.customer.status == 'Inhabilitado' && (
+                            {customer.customer.status == 'Incompleto' && (
                               <Badge 
-                                className='badge badge__banned'
+                                className='badge badge__danger'
+                                text={customer.customer.status} 
+                              />
+                            )}
+                            {customer.customer.status == 'Finalizado' && (
+                              <Badge 
+                                className='badge badge__primary'
                                 text={customer.customer.status} 
                               />
                             )}

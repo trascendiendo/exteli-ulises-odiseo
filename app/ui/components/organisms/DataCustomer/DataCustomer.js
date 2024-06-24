@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useState } from 'react';
 import { serverTimestamp } from 'firebase/firestore';
 import toast, { Toaster } from 'react-hot-toast';
+import Cookies from 'universal-cookie';
 import Apis from '@/app/libs/apis';
 import { InputText } from '@/app/ui/components/atoms';
 import SkeletonDataCustomer from '@/app/ui/components/skeletons/organisms/DataCustomer/DataCustomer';
@@ -10,34 +11,76 @@ import SkeletonDataCustomer from '@/app/ui/components/skeletons/organisms/DataCu
 const Customer = ({
   uid
 }) => {
+  const cookies = new Cookies
   const [customer, setCustomer] = useState(null)
-  const [allNationalities, setAllNationalities] = useState([null])
-  const [allProcedures, setAllProcedures] = useState([null])
-  const [allPacks, setAllPacks] = useState([null])
-  const [allAgents, setAllAgents] = useState([null])
+  const [allNationalities, setAllNationalities] = useState(null)
+  const [allProcedures, setAllProcedures] = useState(null)
+  const [allPacks, setAllPacks] = useState(null)
+  const [allAgents, setAllAgents] = useState(null)
   const [error, setError] = useState(null)
+  const [thisUser, setThisUser] = useState({})
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const resNationalities = await Apis.nationalities.GetAllNationalities()
-        setAllNationalities(resNationalities)
-        const resProcedures = await Apis.procedures.GetAllProcedures()
-        setAllProcedures(resProcedures)
-        const resPacks = await Apis.packs.GetPacks()
-        setAllPacks(resPacks)
-        const resAgents = await Apis.users.GetAllUsers()
-        setAllAgents(resAgents)
-        const resCustomer = await Apis.customers.GetCustomer(uid)
-        setCustomer(resCustomer.customer)
-      } catch (error) {
-        console.info('organisms/DataCustomer/DataCustomer.js/fetchData()')
-        console.error('Error al cargar la data.')
-        setError(error)
-      }
+    const getUser = () => {
+      const user = cookies.get('user')
+      if ( user ) setThisUser(user)
     }
-    fetchData()
+  getUser()
+  const fetchData = async () => {
+    try {
+      const resNationalities = await Apis.nationalities.GetAllNationalities()
+      setAllNationalities(resNationalities)
+      const resProcedures = await Apis.procedures.GetAllProcedures()
+      setAllProcedures(resProcedures)
+      const resPacks = await Apis.packs.GetPacks()
+      setAllPacks(resPacks)
+      const resAgents = await Apis.users.GetAllUsers()
+      setAllAgents(resAgents)
+      const resCustomer = await Apis.customers.GetCustomer(uid)
+      setCustomer(resCustomer.customer)
+    } catch (error) {
+      console.info('organisms/DataCustomer/DataCustomer.js/fetchData()')
+      console.error('Error al cargar la data.')
+      setError(error)
+    }
+  }
+  fetchData()
   }, [uid])
+
+  const handleUpdate = async (e) => {
+    e.preventDefault()
+    console.log(e)
+    const updatedCustomer = {
+      firstName: e.target.firstName.value,
+      lastName: e.target.lastName.value,
+      email: e.target.email.value,
+      gender: e.target.gender.value,
+      birthday: e.target.birthday.value,
+      nationality: e.target.nationality.value,
+      phone: e.target.phone.value,
+      messenger: e.target.messenger.value,
+      documentType: e.target.documentType.value,
+      documentNumber: e.target.documentNumber.value,
+      enterDate: e.target.enterDate.value,
+      threeMonths: customer.threeMonths,
+      servicePack: e.target.servicePack.value ? e.target.servicePack.value : '',
+      procedure: e.target.procedure.value ? e.target.procedure.value : '',
+      totalPrice: e.target.totalPrice.value,
+      paid: e.target.paid.value,
+      status: e.target.status.value,
+      agent: e.target.agent.value,
+      updatedAt: serverTimestamp()
+    }
+    console.log('uid', uid)
+    console.log('updatedCustomer', updatedCustomer)
+    try {
+      await Apis.customers.PatchCustomer(uid, updatedCustomer)
+      toast.success('Usuario actualizado con éxito')
+    } catch (error) {
+      toast.error('Error al actualizar el usuario')
+      console.error(error)
+    }
+  }
 
   if ( error ) {
     return <SkeletonDataCustomer />
@@ -50,39 +93,39 @@ const Customer = ({
   return (
     <div className="userUI__content">
       <div className="userUI__details">
-        <form>
+        <form onSubmit={handleUpdate}>
           <div className="flex gap-4 items-center justify-between sm:flex-col">
             <div className="w-6/12 sm:w-full">
               <span className="block text-sm">Nombre</span>
               <InputText
+                name='firstName'
                 capitalize={true}
-                //isDisabled={user.role == 'Administrador' ? false : true}
                 type='text'
-                placeholder={customer.firstName}
+                defaultValue={customer.firstName}
               />
             </div>
             <div className="w-6/12 sm:w-full">
               <span className="block text-sm">Apellidos</span>
               <InputText
-                //isDisabled={user.role == 'Administrador' ? false : true}
+                name='lastName'
                 type='text'
-                placeholder={customer.lastName}
+                defaultValue={customer.lastName}
               />
             </div>
             <div className="w-6/12 sm:w-full">
               <span className="block text-sm">Correo electrónico</span>
               <InputText
-                //isDisabled={user.role == 'Administrador' ? false : true}
+                name='email'
                 type='text'
-                placeholder={customer.email}
+                defaultValue={customer.email}
               />
             </div>
             <div className="w-6/12 sm:w-full">
               <span className="block text-sm">Género:</span>
               <select 
+                name='gender'
                 className="border rounded-lg px-3 py-3.5 text-sm w-full" 
                 defaultValue={customer.gender}
-                //disabled={user.role == 'Administrador' ? false : true}
               >
                 <option value='Femenino'>Femenino</option>
                 <option value='Masculino'>Masculino</option>
@@ -92,17 +135,17 @@ const Customer = ({
             <div className="w-6/12 sm:w-full">
               <span className="block text-sm">Fecha de nacimiento</span>
               <InputText
-                //isDisabled={user.role == 'Administrador' ? false : true}
+                name='birthday'
                 type='text'
-                placeholder={customer.birthday}
+                defaultValue={customer.birthday}
               />
             </div>
             <div className="w-6/12 sm:w-full">
               <span className="block text-sm">Nacionalidad:</span>
               <select 
+                name='nationality'
                 className="border rounded-lg px-3 py-3.5 text-sm w-full" 
                 defaultValue={customer.nationality}
-                //disabled={user.role == 'Administrador' ? false : true}
               >
                 {Object.keys(allNationalities).length && (
                   allNationalities.map(nationality => (
@@ -119,17 +162,17 @@ const Customer = ({
             <div className="w-6/12 sm:w-full">
               <span className="block text-sm">Móvil</span>
               <InputText
-                //isDisabled={user.role == 'Administrador' ? false : true}
+                name='phone'
                 type='text'
-                placeholder={customer.phone}
+                defaultValue={customer.phone}
               />
             </div>
             <div className="w-6/12 sm:w-full">
               <span className="block text-sm">¿Está habilitado para Whatsapp?</span>
               <select 
+                name='messenger'
                 className="border rounded-lg px-3 py-3.5 text-sm w-full" 
                 defaultValue={customer.messenger}
-                //disabled={user.role == 'Administrador' ? false : true}
               >
                 <option value='No'>No</option>
                 <option value='Sí'>Sí</option>
@@ -138,9 +181,9 @@ const Customer = ({
             <div className="w-6/12 sm:w-full">
               <span className="block text-sm">Tipo de documento:</span>
               <select 
+                name='documentType'
                 className="border rounded-lg px-3 py-3.5 text-sm w-full" 
                 defaultValue={customer.documentType}
-                //disabled={user.role == 'Administrador' ? false : true}
               >
                 <option value="Pasaporte">Pasaporte</option>
                 <option value="NIE">NIE</option>
@@ -150,22 +193,23 @@ const Customer = ({
             <div className="w-6/12 sm:w-full">
               <span className="block text-sm">Número de documento</span>
               <InputText
-                //isDisabled={user.role == 'Administrador' ? false : true}
+                name='documentNumber'
                 type='text'
-                placeholder={customer.documentNumber}
+                defaultValue={customer.documentNumber}
               />
             </div>
             <div className="w-6/12 sm:w-full">
               <span className="block text-sm">Fecha de ingreso</span>
               <InputText
-                //isDisabled={user.role == 'Administrador' ? false : true}
+                name='enterDate'
                 type='text'
-                placeholder={customer.enterDate}
+                defaultValue={customer.enterDate}
               />
             </div>
             <div className="w-6/12 sm:w-full">
               <span className="block text-sm">¿Cumple 90 días en España?</span>
               <select 
+                name='threeMonts'
                 className="border rounded-lg px-3 py-3.5 text-sm w-full" 
                 defaultValue={customer.threeMonts}
                 disabled
@@ -178,70 +222,77 @@ const Customer = ({
               </select>
             </div>
             <div className="w-6/12 sm:w-full">
-              {customer.procedure != ' ' ? (
-                <>
-                  <span className="block text-sm">Pack</span>
-                  <select 
-                    className="border rounded-lg px-3 py-3.5 text-sm w-full" 
-                    defaultValue={customer.servicePack}
-                    //disabled={user.role == 'Administrador' ? false : true}
-                  >
-                    {Object.keys(allPacks).length && (
-                      allPacks.map(pack => (
-                        <option
-                          key={pack.id}
-                          value={pack.packs.name}
-                        >
-                          {pack.packs.name}
-                        </option>
-                      ))
-                    )}
-                  </select>
-                </>
-              ) : (
-                <>
-                  <span className="block text-sm">Trámite</span>
-                  <select 
-                    className="border rounded-lg px-3 py-3.5 text-sm w-full" 
-                    defaultValue={customer.procedure}
-                    //disabled={user.role == 'Administrador' ? false : true}
-                  >
-                    {Object.keys(allProcedures).length && (
-                      allProcedures.map(procedure => (
-                        <option
-                          key={procedure.id}
-                          value={procedure.procedure.name}
-                        >
-                          {procedure.procedure.name}
-                        </option>
-                      ))
-                    )}
-                  </select>
-                </>
-              )}
+              <span className="block text-sm">Pack</span>
+              <select 
+                name='servicePack'
+                className="border rounded-lg px-3 py-3.5 text-sm w-full" 
+                defaultValue={customer.servicePack}
+                disabled={customer.servicePack == ''}
+              >
+                {customer.servicePack == '' ? (
+                  <option value="">---</option>
+                ) : (
+                  <option value="">Seleccionar pack</option>
+                )}
+                {Object.keys(allPacks).length && (
+                  allPacks.map(pack => (
+                    <option
+                      key={pack.id}
+                      value={pack.packs.name}
+                    >
+                      {pack.packs.name}
+                    </option>
+                  ))
+                )}
+              </select>
+            </div>
+            <div className="w-6/12 sm:w-full">
+              <span className="block text-sm">Trámite</span>
+              <select 
+                name='procedure'
+                className="border rounded-lg px-3 py-3.5 text-sm w-full" 
+                defaultValue={customer.procedure}
+                disabled={customer.procedure == ''}
+              >
+                {customer.procedure == '' ? (
+                  <option value="">---</option>
+                ) : (
+                  <option value="">Seleccionar trámite</option>
+                )}
+                {Object.keys(allProcedures).length && (
+                  allProcedures.map(procedure => (
+                    <option
+                      key={procedure.id}
+                      value={procedure.procedure.name}
+                    >
+                      {procedure.procedure.name}
+                    </option>
+                  ))
+                )}
+              </select>
             </div>
             <div className="w-6/12 sm:w-full">
               <span className="block text-sm">Valor total</span>
               <InputText
-                //isDisabled={user.role == 'Administrador' ? false : true}
+                name='totalPrice'
                 type='text'
-                placeholder={customer.totalPrice}
+                defaultValue={customer.totalPrice}
               />
             </div>
             <div className="w-6/12 sm:w-full">
               <span className="block text-sm">Pago inicial</span>
               <InputText
-                //isDisabled={user.role == 'Administrador' ? false : true}
+                name='paid'
                 type='text'
-                placeholder={customer.paid}
+                defaultValue={customer.paid}
               />
             </div>
             <div className="w-6/12 sm:w-full">
               <span className="block text-sm">Estado</span>
               <select 
+                name='status'
                 className="border rounded-lg px-3 py-3.5 text-sm w-full" 
                 defaultValue={customer.status}
-                //disabled={user.role == 'Administrador' ? false : true}
               >
                 <option value="Pendiente">Pendiente</option>
                 <option value="Activo">Activo</option>
@@ -252,9 +303,9 @@ const Customer = ({
             <div className="w-6/12 sm:w-full">
               <span className="block text-sm">Agente:</span>
               <select 
+                name='agent'
                 className="border rounded-lg px-3 py-3.5 text-sm w-full" 
                 defaultValue={customer.agent}
-                //disabled={user.role == 'Administrador' ? false : true}
               >
                 {Object.keys(allAgents).length && (
                   allAgents.map(agent => (
@@ -268,7 +319,16 @@ const Customer = ({
                 )}
               </select>
             </div>
-
+            <div className="flex justify-center w-6/12 sm:w-full">
+              <div className="w-full sm:w-6/12">
+                <button
+                  className="btn btn-primary w-full"
+                  type='submit'
+                >
+                  Actualizar
+                </button>
+              </div>
+            </div>
           </div>
         </form>
       </div>

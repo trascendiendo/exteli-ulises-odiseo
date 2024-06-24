@@ -386,6 +386,7 @@ const AddCustomer = () => {
                   <div className="flex gap-6">
                     <div className="w-full sm:w-6/12">
                       <div className="mb-4">
+                        {/** TODO: quitar el valor total, el precio irá directamente del tramite o del pack */}
                         <span className="block text-sm">Valor total (*)</span>
                         <InputText
                           type='text'

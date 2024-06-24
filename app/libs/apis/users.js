@@ -54,11 +54,9 @@ const users = {
       throw error
     }
   },
-  PostUser: async (user) => {
+  PostUser: async (uid, user) => {
     try {
-      await setDoc(doc(db, 'users'), {
-        user
-      })
+      await setDoc(doc(db, 'users', uid), user)
     } catch (error) {
       console.info(`PostUser: Error al crear usuario: ${user}`)
       console.error(error)

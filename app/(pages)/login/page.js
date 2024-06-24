@@ -18,14 +18,21 @@ const Login = () => {
   const [password, setPassword] = useState('')
   const router = useRouter()
 
+  // eli
   // 3MiJ6R2glGF2Ql
+
+  // flor
+  // cB&A(H5QQTsWXMgf
+
+  // pedro
+  // g7aeM2k(fI&B(cPC
 
   const handleSubmit = async () => {
     setLoading(true)
     try {
       const res = await signInWithEmailAndPassword(auth, email, password)
       if ( res ) {
-        //router.push('/extranjeria')
+        router.push('/extranjeria')
       }
     } catch (error) {
       console.info('login/page.js')
@@ -36,7 +43,6 @@ const Login = () => {
 
   useEffect(() => {
     const user = cookies.get('user')
-    console.log(user)
     if ( user ) router.push('/extranjeria')
   },[])
 

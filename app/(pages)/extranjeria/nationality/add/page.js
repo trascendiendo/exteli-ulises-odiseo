@@ -23,7 +23,6 @@ const AddNationality = () => {
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     }
-    {/** si envio como argumento un objeto, se guardará un objeto, mejor enviar argumentos */}
     await Apis.nationalities.PostNationality(nationality)
       .then(() => {
         toast.success('Nacionalidad registrada con éxito.')
