@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore'
 import toast, { Toaster } from 'react-hot-toast'
+import Apis from '@/app/libs/apis';
 import { auth, db } from '@/app/libs/utils/firebase'
 import { InputText } from '@/app/ui/components/atoms';
 import LoadingScreen from '@/app/ui/components/molecules/LoadingScreen';
@@ -27,6 +28,7 @@ const AddUser = () => {
   const handleSubmit = async () => {
     setIsLoading(true)
     try {
+      /** TODO: crear usuario sin usar auth */
       const res = await createUserWithEmailAndPassword(auth, email, password)
       const user = res.user
       await setDoc(doc(db, 'users', user.uid), {
@@ -236,11 +238,12 @@ const AddUser = () => {
                       </button>
                     </div>
                     <div className="w-full sm:w-6/12">
-                      <button
+                      <Link
                         className="btn btn-danger w-full"
+                        href={`./users`}
                       >
                         Cancelar
-                      </button>
+                      </Link>
                     </div>
                   </div>
                 </div>

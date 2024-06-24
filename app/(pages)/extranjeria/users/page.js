@@ -4,9 +4,8 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link'
 import Image from 'next/image';
 import { Eye } from '@phosphor-icons/react/dist/ssr';
-import { collection, getDocs } from 'firebase/firestore';
 import toast, { Toaster } from 'react-hot-toast'
-import { db } from '@/app/libs/utils/firebase'
+import Apis from '@/app/libs/apis';
 import { Badge } from '@/app/ui/components/atoms';
 
 const PageUsers = () => {
@@ -14,21 +13,15 @@ const PageUsers = () => {
   const [users, setUsers] = useState([])
 
   useEffect(() => {
-    /** TODO : Cambiar a Apis.users.GetAllUsers */
     const fetchUsers = async () => {
       setIsLoading(true)
       try {
-        const querySnapshot = await getDocs(collection(db, 'users'))
-        const usersList = querySnapshot.docs.map(doc => ({
-          _id: doc.id,
-          ...doc.data()
-        }))
-        setUsers(usersList)
-        setIsLoading(false)
+        const res = await Apis.users.GetAllUsers()
+        if ( res ) setUsers(res)
       } catch (error) {
-        setIsLoading(false)
         toast.error('Error al cargar la lista de usuarios.')
       }
+      setIsLoading(false)
     }
     fetchUsers()
   }, [])
@@ -87,7 +80,7 @@ const PageUsers = () => {
                   <tbody>
                     {users && (
                       users.map(user => (
-                        <tr key={user._id}>
+                        <tr key={user.id}>
                           <td>
                             <div className="flex items-center justify-start">
                               <div className="">
@@ -166,7 +159,7 @@ const PageUsers = () => {
                           <td>
                             <Link
                               className="btn btn-primary"
-                              href={`./users/${user._id}`}
+                              href={`./users/${user.id}`}
                             >
                               Ver más <Eye size={28} />
                             </Link>

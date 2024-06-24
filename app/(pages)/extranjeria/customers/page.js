@@ -3,9 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link"
 import { Eye } from "@phosphor-icons/react/dist/ssr";
-import { collection, getDocs } from "firebase/firestore";
 import toast, { Toaster } from 'react-hot-toast'
-import { db } from "@/app/libs/utils/firebase"
+import Apis from '@/app/libs/apis';
 import { Badge } from "@/app/ui/components/atoms";
 
 const PageClients = () => {
@@ -16,17 +15,12 @@ const PageClients = () => {
     const fetchClients = async () => {
       setIsLoading(true)
       try {
-        const querySnapshot = await getDocs(collection(db, 'clients'))
-        const clientsList = querySnapshot.docs.map(doc => ({
-          _id: doc.id,
-          ...doc.data()
-        }))
-        setClients(clientsList)
-        setIsLoading(false)
+        const res = await Apis.customers.GetAllCustomers()
+        if ( res ) setCustomers(res)
       } catch (error) {
-        setIsLoading(false)
         toast.error('Error al cargar la lista de clientes.')
       }
+      setIsLoading(false)
     }
     fetchClients()
   }, [])
@@ -84,35 +78,44 @@ const PageClients = () => {
                   </thead>
                   <tbody>
                     {customers && (
-                      customers.map(procedure => (
-                        <tr key={procedure._id}>
+                      customers.map(customer => (
+                        <tr key={customer.id}>
                           <td>
-                            {procedure.name}
+                            {customer.customer.firstName} {customer.customer.lastName}
                           </td>
                           <td>
-                            {user.status == 'Activo' && (
+                            <Badge 
+                              className='badge badge__primary mr-2'
+                              text={customer.customer.documentType} 
+                            />
+                            <code>
+                              {customer.customer.documentNumber}
+                            </code>
+                          </td>
+                          <td>
+                            {customer.customer.nationality}
+                          </td>
+                          <td>
+                            {customer.customer.agent}
+                          </td>
+                          <td>
+                            {customer.customer.status == 'Activo' && (
                               <Badge 
-                              className='badge badge__success'
-                              text={user.status} 
+                                className='badge badge__success'
+                                text={customer.customer.status} 
                               />
                             )}
-                            {user.status == 'Inhabilitado' && (
+                            {customer.customer.status == 'Inhabilitado' && (
                               <Badge 
-                              className='badge badge__banned'
-                              text={user.status} 
+                                className='badge badge__banned'
+                                text={customer.customer.status} 
                               />
                             )}
-                          </td>
-                          <td>
-                            pendientes
-                          </td>
-                          <td>
-                            finalizados
                           </td>
                           <td>
                             <Link
                               className="btn btn-primary"
-                              href={`./customers/${user._id}`}
+                              href={`./customers/${customer.id}`}
                             >
                               Ver más <Eye size={28} />
                             </Link>

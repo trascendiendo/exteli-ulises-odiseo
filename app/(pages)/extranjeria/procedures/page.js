@@ -1,33 +1,37 @@
 'use client'
 
-import { useEffect, useState } from "react";
-import Link from "next/link"
-import { Eye } from "@phosphor-icons/react/dist/ssr";
-import { collection, getDocs } from "firebase/firestore";
+import { useEffect, useState } from 'react';
+import Link from 'next/link'
+import { useRouter } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast'
-import { db } from "@/app/libs/utils/firebase"
-import { Badge } from "@/app/ui/components/atoms";
+import Cookies from 'universal-cookie';
+import { Eye } from '@phosphor-icons/react/dist/ssr';
+import Apis from '@/app/libs/apis';
+import { Badge } from '@/app/ui/components/atoms';
 
 const PageProcedures = () => {
+  const router = useRouter()
+  const cookies = new Cookies
   const [isLoading, setIsLoading] = useState(false)
   const [procedures, setProcedures] = useState([])
+  const [thisUser, setThisUser] = useState({})
 
   useEffect(() => {
+    const getUser = () => {
+      const user = cookies.get('user')
+      if ( user ) setThisUser(user)
+    }
     const fetchProcedures = async () => {
       setIsLoading(true)
       try {
-        const querySnapshot = await getDocs(collection(db, 'procedures'))
-        const proceduresList = querySnapshot.docs.map(doc => ({
-          _id: doc.id,
-          ...doc.data()
-        }))
-        setProcedures(proceduresList)
-        setIsLoading(false)
+        const res = await Apis.procedures.GetAllProcedures()
+        if ( res ) setProcedures(res)
       } catch (error) {
-        setIsLoading(false)
         toast.error('Error al cargar la lista de trámites.')
       }
+      setIsLoading(false)
     }
+    getUser()
     fetchProcedures()
   }, [])
 
@@ -76,42 +80,34 @@ const PageProcedures = () => {
                     <tr>
                       <th>Trámite</th>
                       <th>Status</th>
-                      <th>Pendientes</th>
-                      <th>Finalizados</th>
                       <th>Usuarios en trámite</th>
                     </tr>
                   </thead>
                   <tbody>
                     {procedures && (
                       procedures.map(procedure => (
-                        <tr key={procedure._id}>
+                        <tr key={procedure.id}>
                           <td>
-                            {procedure.name}
+                            {procedure.procedure.name}
                           </td>
                           <td>
-                            {user.status == 'Activo' && (
+                            {procedure.procedure.status == 'Activo' && (
                               <Badge 
                               className='badge badge__success'
-                              text={user.status} 
+                              text={procedure.procedure.status} 
                               />
                             )}
-                            {user.status == 'Inhabilitado' && (
+                            {procedure.procedure.status == 'Inhabilitado' && (
                               <Badge 
                               className='badge badge__banned'
-                              text={user.status} 
+                              text={procedure.procedure.status} 
                               />
                             )}
-                          </td>
-                          <td>
-                            pendientes
-                          </td>
-                          <td>
-                            finalizados
                           </td>
                           <td>
                             <Link
                               className="btn btn-primary"
-                              href={`./procedures/${user._id}`}
+                              href={`./procedures/${procedure.id}`}
                             >
                               Ver más <Eye size={28} />
                             </Link>

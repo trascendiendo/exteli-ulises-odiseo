@@ -1,53 +1,44 @@
 'use client'
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useDispatch } from 'react-redux';
 import { signInWithEmailAndPassword } from 'firebase/auth';
+import Cookies from "universal-cookie";
 import Apis from '@/app/libs/apis'
 import { auth } from '@/app/libs/utils/firebase';
 import { InputCheckbox, InputText } from '@/app/ui/components/atoms';
 import LoadingScreen from '@/app/ui/components/molecules/LoadingScreen';
-import { setUser } from '@/app/features/user/userSlice';
 
 const Login = () => {
+  const cookies = new Cookies
   const [loading, setLoading] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const router = useRouter()
-  const dispatch = useDispatch()
+
+  // 3MiJ6R2glGF2Ql
 
   const handleSubmit = async () => {
     setLoading(true)
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password)
-      const user = userCredential.user
-
-      const getUser = await Apis.users.GetUser(user.uid)
-
-      if ( getUser ) {
-        dispatch(setUser({
-          uid: user.uid,
-          firstName: getUser.firstName,
-          lastName: getUser.lastName,
-          email: getUser.email,
-          phone: getUser.phone,
-          role: getUser.role,
-          gender: getUser.gender,
-          status: getUser.status,
-          lastConnection: user.metadata.lastSignInTime
-        }))
+      const res = await signInWithEmailAndPassword(auth, email, password)
+      if ( res ) {
+        //router.push('/extranjeria')
       }
-
-      router.push('/extranjeria')
     } catch (error) {
       console.info('login/page.js')
       console.error(`Error al authenticarse: ${error}`)
     }
     setLoading(false)
   }
+
+  useEffect(() => {
+    const user = cookies.get('user')
+    console.log(user)
+    if ( user ) router.push('/extranjeria')
+  },[])
 
   return (
     <>

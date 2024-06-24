@@ -3,9 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore'
+import { serverTimestamp } from 'firebase/firestore'
 import toast, { Toaster } from 'react-hot-toast'
-import { db } from '@/app/libs/utils/firebase'
 import Apis from '@/app/libs/apis'
 import { useAuth } from '@/app/libs/providers/AuthContext';
 import { InputText } from '@/app/ui/components/atoms';
@@ -14,6 +13,9 @@ import LoadingScreen from '@/app/ui/components/molecules/LoadingScreen';
 const AddCustomer = () => {
   const { user } = useAuth()
   const [thisUser, setThisUser] = useState({})
+  const [allNationalities, setAllNationalities] = useState({})
+  const [allProcedures, setAllProcedures] = useState({})
+  const [allPacks, setAllPacks] = useState({})
   const [allAgents, setAllAgents] = useState({})
 
   const [isLoading, setIsLoading] = useState(false)
@@ -36,70 +38,84 @@ const AddCustomer = () => {
   const [totalPrice, setTotalPrice] = useState('')
   const [paid, setPaid] = useState('')
   const [registerdBy, setRegisteredBy] = useState('')
-  const [timeline, setTimeline] = useState('')
   const router = useRouter()
 
   const handleSubmit = async () => {
     setIsLoading(true)
-    try {
-      await setDoc(doc(db, 'customers'), {
-
+    const timeline = {
+      registerdBy: user,
+      comment: `Registrado para ${procedure != 0 ? procedure : servicePack}`,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    }
+    const timelineRef = await Apis.timelines.PostTimeline(timeline)
+    const timelineUid = timelineRef.id
+    const customer = {
+      firstName,
+      lastName,
+      email,
+      phone,
+      messenger,
+      agent,
+      documentType,
+      documentNumber,
+      nationality,
+      procedure,
+      birthday,
+      gender,
+      status,
+      enterDate,
+      threeMonths,
+      servicePack,
+      totalPrice,
+      paid,
+      registerdBy: `${user.firstName} ${user.lastName}`,
+      timeline: timelineUid,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    }
+    await Apis.customers.PostCustomer(customer)
+      .then(() => {
+        toast.success('Cliente registrado con éxito.')
       })
-      toast.success('Cliente registrado con éxito.')
-      setTimeout(() => {
+      .catch(() => {
+        toast.error('Error al registrar un cliente.')
+      })
+      .finally(() => {
         setIsLoading(false)
         router.push('/extranjeria/customers')
-      }, 5000);
-    } catch (error) {
-      setIsLoading(false)
-      toast.error('Error al registrar un cliente.')
-    }
+      })
   }
 
-  console.log(user)
+  const handle90days = (e) => {
+    setEnterDate(e)
+    let enter = new Date(e)
+    let today = new Date().getTime()
+    enter.setDate(enter.getDate() + 90)
+    setThreeMonths( enter <= today )
+  }
 
   useEffect(() => {
-    {/**
-      const getUser = async () => {
-        if ( user ) {
-          try {
-            const data = await Apis.users.GetUser(user.id)
-            console.log(data)
-            setThisUser(data)
-          } catch (error) {
-            console.info('customers/add/page.js')
-            console.error(`Error al obtener data del usuario: ${error}`)
-          }
-        }
+    const fetchData = async () => {
+      setIsLoading(true)
+      try {
+        setThisUser(user)
+        const resNationalities = await Apis.nationalities.GetAllNationalities()
+        setAllNationalities(resNationalities)
+        const resProcedures = await Apis.procedures.GetAllProcedures()
+        setAllProcedures(resProcedures)
+        const resPacks = await Apis.packs.GetPacks()
+        setAllPacks(resPacks)
+        const resAgents = await Apis.users.GetAllUsers()
+        setAllAgents(resAgents)
+      } catch (error) {
+        console.info('fetchData')
+        console.error(`Error al obtener data`)
       }
-      const getAllAgents = async () => {
-        try {
-          const data = await Apis.users.GetAllUsers()
-          setAllAgents(data)
-        } catch (error) {
-          console.info('customers/add/page.js')
-          console.error(`Error al obtener los usuarios: ${error}`)
-        }
-      }
-      const getAllAgentsButMe = async () => {
-        try {
-          const data = await Apis.users.getAllAgentsButMe()
-          setAllAgents(data)
-        } catch (error) {
-          console.info('customers/add/page.js')
-          console.error(`Error al obtener los usuarios excepto el usuario en sesión: ${error}`)
-        }
-      }
-      getUser()
-      if (user.role == 'Administrador') {
-        getAllAgentsButMe()
-      } else {
-        getAllAgents()
-      }
-    */}
-  })
-
-  console.log(allAgents)
+      setIsLoading(false)
+    }
+    fetchData()
+  }, [])
 
   return (
     <>
@@ -137,23 +153,25 @@ const AddCustomer = () => {
                   <div className="flex gap-6">
                     <div className="w-full sm:w-6/12">
                       <div className="mb-4">
-                        <span className="block text-sm">Nombre</span>
+                        <span className="block text-sm">Nombre (*)</span>
                         <InputText
                           type='text'
                           value={firstName}
                           onChange={e => setFirstName(e.target.value)}
                           required
+                          autoComplete='none'
                         />
                       </div>
                     </div>
                     <div className="w-full sm:w-6/12">
                       <div className="mb-4">
-                        <span className="block text-sm">Apellidos</span>
+                        <span className="block text-sm">Apellidos (*)</span>
                         <InputText
                           type='text'
                           value={lastName}
                           onChange={e => setLastName(e.target.value)}
                           required
+                          autoComplete='none'
                         />
                       </div>
                     </div>
@@ -162,25 +180,26 @@ const AddCustomer = () => {
                   <div className="flex gap-6">
                     <div className="w-full sm:w-6/12">
                       <div className="mb-4">
-                        <span className="block text-sm">Correo electrónico</span>
+                        <span className="block text-sm">Correo electrónico (*)</span>
                         <InputText
                           type='email'
                           value={email}
                           onChange={e => setEmail(e.target.value)}
                           required
+                          autoComplete='none'
                         />
                       </div>
                     </div>
                     <div className="w-full sm:w-6/12">
                       <div className="mb-4"> 
-                        <span className="block text-sm">Gender</span>
+                        <span className="block text-sm">Género (*)</span>
                         <select
                           className="border rounded-lg px-3 py-3.5 text-sm w-full"
                           value={gender}
                           onChange={e => setGender(e.target.value)}
                           required
                         >
-                          <option value="0">Seleccionar opción</option>
+                          <option value="">Seleccionar opción</option>
                           <option value="Femenino">Femenino</option>
                           <option value="Masculino">Masculino</option>
                           <option value="Otro">Otro</option>
@@ -192,11 +211,11 @@ const AddCustomer = () => {
                   <div className="flex gap-6">
                     <div className="w-full sm:w-6/12">
                       <div className="mb-4">
-                        <span className="block text-sm">Fecha de nacimiento</span>
-                        {/** TODO: cambiar input a datepicker, no puede elegirse día posterior al actual */}
+                        <span className="block text-sm">Fecha de nacimiento (*)</span>
                         <InputText
-                          type='email'
+                          type='date'
                           value={birthday}
+                          max={new Date().toJSON().slice(0, 10)}
                           onChange={e => setBirthday(e.target.value)}
                           required
                         />
@@ -204,18 +223,24 @@ const AddCustomer = () => {
                     </div>
                     <div className="w-full sm:w-6/12">
                       <div className="mb-4"> 
-                        <span className="block text-sm">Nacionalidad</span>
+                        <span className="block text-sm">Nacionalidad (*)</span>
                         <select
                           className="border rounded-lg px-3 py-3.5 text-sm w-full"
                           value={nationality}
                           onChange={e => setNationality(e.target.value)}
                           required
                         >
-                          {/** TODO: Consumir nacionalidades */}
-                          <option value="0">Seleccionar opción</option>
-                          <option value="Pasaporte">Pasaporte</option>
-                          <option value="NIE">NIE</option>
-                          <option value="DNI">DNI</option>
+                          <option value="">Seleccionar opción</option>
+                          {Object.keys(allNationalities).length && (
+                            allNationalities.map(nationality => (
+                              <option
+                                key={nationality.id}
+                                value={nationality.nationality.country}
+                              >
+                                {nationality.nationality.country}
+                              </option>
+                            ))
+                          )}
                         </select>
                       </div>
                     </div>
@@ -224,7 +249,7 @@ const AddCustomer = () => {
                   <div className="flex gap-6">
                     <div className="w-full sm:w-6/12">
                       <div className="mb-4">
-                        <span className="block text-sm">Móvil</span>
+                        <span className="block text-sm">Móvil (*)</span>
                         <InputText
                           type='text'
                           value={phone}
@@ -241,11 +266,9 @@ const AddCustomer = () => {
                           className="border rounded-lg px-3 py-3.5 text-sm w-full"
                           value={messenger}
                           onChange={e => setMessenger(e.target.value)}
-                          required
                         >
-                          <option value="0">Seleccionar opción</option>
-                          <option value="Sí">Sí</option>
                           <option value="No">No</option>
+                          <option value="Sí">Sí</option>
                         </select>
                       </div>
                     </div>
@@ -254,14 +277,14 @@ const AddCustomer = () => {
                   <div className="flex gap-6">
                     <div className="w-full sm:w-6/12">
                       <div className="mb-4"> 
-                        <span className="block text-sm">Tipo de documento</span>
+                        <span className="block text-sm">Tipo de documento (*)</span>
                         <select
                           className="border rounded-lg px-3 py-3.5 text-sm w-full"
                           value={documentType}
                           onChange={e => setDocumentType(e.target.value)}
                           required
                         >
-                          <option value="0">Seleccionar opción</option>
+                          <option value="">Seleccionar opción</option>
                           <option value="Pasaporte">Pasaporte</option>
                           <option value="NIE">NIE</option>
                           <option value="DNI">DNI</option>
@@ -270,7 +293,7 @@ const AddCustomer = () => {
                     </div>
                     <div className="w-full sm:w-6/12">
                       <div className="mb-4">
-                        <span className="block text-sm">Número de documento</span>
+                        <span className="block text-sm">Número de documento (*)</span>
                         <InputText
                           type='text'
                           value={documentNumber}
@@ -285,25 +308,29 @@ const AddCustomer = () => {
                     <div className="w-full sm:w-6/12">
                       <div className="mb-4">
                         <span className="block text-sm">Fecha de ingreso</span>
-                        {/** TODO: cambiar input a datepicker, no puede elegirse día posterior al actual */}
                         <InputText
-                          type='text'
+                          type='date'
                           value={enterDate}
-                          onChange={e => setEnterDate(e.target.value)}
-                          required
+                          max={new Date().toJSON().slice(0, 10)}
+                          onChange={e => handle90days(e.target.value)}
                         />
                       </div>
                     </div>
                     <div className="w-full sm:w-6/12">
                       <div className="mb-4">
                         <span className="block text-sm">¿Cumple 90 días en España?</span>
-                        {/** TODO: Cambiar a select con dos opciones: sí y no */}
-                        <InputText
-                          type='text'
+                        <select
+                          className="border rounded-lg px-3 py-3.5 text-sm w-full"
                           value={threeMonths}
-                          onChange={e => setThreeMonths(e.target.value)}
-                          required
-                        />
+                          disabled
+                        >
+                          <option value="">Calculando...</option>
+                          {threeMonths ? (
+                            <option value={threeMonths}>Sí</option>
+                          ) : (
+                            <option value={threeMonths}>No</option>
+                          )}
+                        </select>
                       </div>
                     </div>
                   </div>
@@ -316,26 +343,42 @@ const AddCustomer = () => {
                           className="border rounded-lg px-3 py-3.5 text-sm w-full"
                           value={procedure}
                           onChange={e => setProcedure(e.target.value)}
-                          required
                         >
                           {/** TODO: Consumir trámites */}
-                          <option value="0">Seleccionar opción</option>
-                          <option value="Pasaporte">Pasaporte</option>
-                          <option value="NIE">NIE</option>
-                          <option value="DNI">DNI</option>
+                          <option value="">Seleccionar trámite</option>
+                          {Object.keys(allProcedures).length && (
+                            allProcedures.map(procedure => (
+                              <option
+                                key={procedure.id}
+                                value={procedure.procedure.name}
+                              >
+                                {procedure.procedure.name}
+                              </option>
+                            ))
+                          )}
                         </select>
                       </div>
                     </div>
                     <div className="w-full sm:w-6/12">
                       <div className="mb-4">
                         <span className="block text-sm">Pack</span>
-                        {/** TODO: cambiar a select, hay que registrar los packs y consumirlos */}
-                        <InputText
-                          type='text'
+                        <select
+                          className="border rounded-lg px-3 py-3.5 text-sm w-full"
                           value={servicePack}
                           onChange={e => setServicePack(e.target.value)}
-                          required
-                        />
+                        >
+                          <option value="">Seleccionar pack</option>
+                          {Object.keys(allPacks).length && (
+                            allPacks.map(pack => (
+                              <option
+                                key={pack.id}
+                                value={pack.packs.name}
+                              >
+                                {pack.packs.name}
+                              </option>
+                            ))
+                          )}
+                        </select>
                       </div>
                     </div>
                   </div>
@@ -343,7 +386,7 @@ const AddCustomer = () => {
                   <div className="flex gap-6">
                     <div className="w-full sm:w-6/12">
                       <div className="mb-4">
-                        <span className="block text-sm">Valor del Pack</span>
+                        <span className="block text-sm">Valor total (*)</span>
                         <InputText
                           type='text'
                           value={totalPrice}
@@ -354,7 +397,7 @@ const AddCustomer = () => {
                     </div>
                     <div className="w-full sm:w-6/12">
                       <div className="mb-4">
-                        <span className="block text-sm">Pago inicial</span>
+                        <span className="block text-sm">Pago inicial (*)</span>
                         <InputText
                           type='text'
                           value={paid}
@@ -368,7 +411,7 @@ const AddCustomer = () => {
                   <div className="flex gap-6">
                     <div className="w-full sm:w-6/12">
                       <div className="mb-4">
-                        <span className="block text-sm">Estado</span>
+                        <span className="block text-sm">Estado (*)</span>
                         <select
                           className="border rounded-lg px-3 py-3.5 text-sm w-full"
                           value={status}
@@ -384,21 +427,25 @@ const AddCustomer = () => {
                       </div>
                     </div>
                     <div className="w-full sm:w-6/12">
-                      {/** TODO: Visualizado solo por Administrador */}
                       <div className="mb-4">
-                        <span className="block text-sm">Agente:</span>
+                        <span className="block text-sm">Agente (*)</span>
                         <select
                           className="border rounded-lg px-3 py-3.5 text-sm w-full"
                           value={agent}
                           onChange={e => setAgent(e.target.value)}
                           required
                         >
-                          {/** TODO: Consumir usuarios */}
                           <option value="0">Seleccionar opción</option>
-                          <option value="Pendiente">Pendiente</option>
-                          <option value="Activo">Activo</option>
-                          <option value="Incompleto">Incompleto</option>
-                          <option value="Finalizado">Finalizado</option>
+                          {Object.keys(allAgents).length && (
+                            allAgents.map(agent => (
+                              <option
+                                key={agent.id}
+                                value={`${agent.firstName} ${agent.lastName}`}
+                              >
+                                {agent.firstName} {agent.lastName}
+                              </option>
+                            ))
+                          )}
                         </select>
                       </div>
                     </div>
@@ -414,13 +461,19 @@ const AddCustomer = () => {
                       </button>
                     </div>
                     <div className="w-full sm:w-6/12">
-                      <button
+                      <Link
                         className="btn btn-danger w-full"
+                        href={`./`}
                       >
                         Cancelar
-                      </button>
+                      </Link>
                     </div>
                   </div>
+                  <InputText
+                    type='hidden'
+                    value={registerdBy}
+                    onChange={e => setRegisteredBy(user.uid)}
+                  />
 
                 </div>
               </div>

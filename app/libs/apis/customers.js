@@ -1,4 +1,4 @@
-import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore'
+import { addDoc, collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore'
 import { db } from '@/app/libs/utils/firebase'
 
 const customers = {
@@ -49,6 +49,17 @@ const customers = {
       return customers
     } catch (error) {
       console.info(`GetCustomersByStatus: Error al obtener usuarios`)
+      console.error(error)
+      throw error
+    }
+  },
+  PostCustomer: async (customer) => {
+    try {
+      await addDoc(collection(db, 'customers'), {
+        customer
+      })
+    } catch (error) {
+      console.info(`PostCustomer: Error al crear usuario`)
       console.error(error)
       throw error
     }

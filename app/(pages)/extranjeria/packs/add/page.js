@@ -1,41 +1,67 @@
 'use client'
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { serverTimestamp } from "firebase/firestore"
 import toast, { Toaster } from 'react-hot-toast'
 import Apis from '@/app/libs/apis';
-import { InputText } from '@/app/ui/components/atoms';
+import { InputCheckbox, InputText } from '@/app/ui/components/atoms';
 import LoadingScreen from '@/app/ui/components/molecules/LoadingScreen';
 
-const AddNationality = () => {
+const AddPack = () => {
   const [isLoading, setIsLoading] = useState(false)
-  const [country, setCountry] = useState('')
-  const [iso3166, setIso3166] = useState('')
+  const [name, setName] = useState('')
+  const [price, setPrice] = useState('')
+  const [procedures, setProcedures] = useState([])
+  const [thisProcedures, setThisProcedures] = useState([])
   const router = useRouter()
 
   const handleSubmit = async () => {
     setIsLoading(true)
-    const nationality = {
-      country,
-      iso3166,
+    const pack = {
+      name,
+      price,
+      procedures,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     }
-    {/** si envio como argumento un objeto, se guardará un objeto, mejor enviar argumentos */}
-    await Apis.nationalities.PostNationality(nationality)
+
+    await Apis.packs.PostPack(pack)
       .then(() => {
-        toast.success('Nacionalidad registrada con éxito.')
+        toast.success('Pack registrado con éxito.')
       })
       .catch((error) => {
-        toast.error('Error al registrar una nacionalidad.')
+        toast.error('Error al registrar un pack.')
       })
       .finally(() => {
         setIsLoading(false)
-        router.push('/extranjeria/nationality')
+        router.push('/extranjeria/packs')
       })
   }
+
+  const handleProcedure = (e) => {
+    console.log(e)
+    let newArray = [...procedures, e]
+    if ( procedures.includes(e) ) {
+      newArray = newArray.filter(procedure => procedure !== e)
+    }
+    setProcedures(newArray)
+  }
+
+  useEffect(() => {
+    const fetchProcedures = async () => {
+      setIsLoading(true)
+      try {
+        const res = await Apis.procedures.GetAllProcedures()
+        if ( res ) setThisProcedures(res)
+      } catch (error) {
+        toast.error('Error al cargar la lista de trámites.')
+      }
+      setIsLoading(false)
+    }
+    fetchProcedures()
+  }, [])
 
   return (
     <>
@@ -55,7 +81,7 @@ const AddNationality = () => {
           </ul>
         </div>
         <div className="w-full">
-          <h2 className="font-bold text-3xl">Agregar nacionalidad</h2>
+          <h2 className="font-bold text-3xl">Agregar pack</h2>
         </div>
       </div>
       <div
@@ -73,24 +99,51 @@ const AddNationality = () => {
                   <div className="flex gap-6">
                     <div className="w-full sm:w-6/12">
                       <div className="mb-4">
-                        <span className="block text-sm">País</span>
+                        <span className="block text-sm">Nombre</span>
                         <InputText
                           type='text'
-                          value={country}
-                          onChange={e => setCountry(e.target.value)}
+                          value={name}
+                          onChange={e => setName(e.target.value)}
                           required
                         />
                       </div>
                     </div>
                     <div className="w-full sm:w-6/12">
                       <div className="mb-4">
-                        <span className="block text-sm">ISO 3166</span>
+                        <span className="block text-sm">Precio</span>
                         <InputText
                           type='text'
-                          value={iso3166}
-                          onChange={e => setIso3166(e.target.value)}
+                          value={price}
+                          onChange={e => setPrice(e.target.value)}
                           required
                         />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-6">
+                    <div className=' w-full'>
+                      <span className="block text-sm">Trámites</span>
+                      <div className="mb-4 mt-2 flex align-top flex-wrap gap-y-4">
+                        {thisProcedures && (
+                          thisProcedures.map(procedure => (
+                            <div key={procedure.id} className='w-4/12'>
+
+                              <div>
+                                <label>
+                                  <input 
+                                    type='checkbox'
+                                    id={procedure.id}
+                                    value={procedure.procedure.name}
+                                    className='inline-block mr-3'
+                                    onChange={e => handleProcedure(e.target.value)}
+                                  />
+                                  {procedure.procedure.name}
+                                </label>
+                              </div>
+                            </div>
+                          ))
+                        )}
                       </div>
                     </div>
                   </div>
@@ -125,4 +178,4 @@ const AddNationality = () => {
   )
 }
 
-export default AddNationality
+export default AddPack

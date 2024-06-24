@@ -1,11 +1,27 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import toast, { Toaster } from 'react-hot-toast'
+import Apis from '@/app/libs/apis';
 
 const PageNationalities = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [nationalities, setNationalities] = useState([])
+
+  useEffect(() => {
+    const fetchNationalities = async () => {
+      setIsLoading(true)
+      try {
+        const res = await Apis.nationalities.GetAllNationalities()
+        if ( res ) setNationalities(res)
+      } catch (error) {
+        toast.error('Error al cargar la lista de nacionalidades.')
+      }
+      setIsLoading(false)
+    }
+    fetchNationalities()
+  }, [])
 
   return (
     <>
@@ -56,17 +72,22 @@ const PageNationalities = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td>Perú</td>
-                      <td>PE</td>
-                      <td>1</td>
-                    </tr>
+                    {nationalities && (
+                      nationalities.map(nationality => (
+                        <tr key={nationality.id}>
+                          <td>{nationality.nationality.country}</td>
+                          <td>{nationality.nationality.iso3166}</td>
+                          <td>1</td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>
             </div>
           </div>
         </div>
+        <Toaster />
       </div>
     </>
   )
