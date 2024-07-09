@@ -1,17 +1,23 @@
 'use client'
 
-import { useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { useAuth } from "@/app/libs/providers/AuthContext"
-import LoadingScreen from "@/app/ui/components/molecules/LoadingScreen"
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import Cookies from 'universal-cookie';
+import LoadingScreen from '@/app/ui/components/molecules/LoadingScreen'
 
 const PageExtranjeria = () => {
-  const { user, loading } = useAuth()
   const router = useRouter()
+  const cookies = new Cookies
+  const [loading, setLoading] = useState(false)
+  const [thisUser, setThisUser] = useState({})
 
   useEffect(() => {
-    if ( !loading && !user ) router.push('/login')
-  }, [user, loading, router])
+    const getUser = () => {
+      const user = cookies.get('user')
+      if ( user ) setThisUser(user)
+    }
+    getUser()
+  }, [])
 
   return (
     <>
@@ -31,7 +37,17 @@ const PageExtranjeria = () => {
           </ul>
         </div>
         <div className="w-full">
-          <h2 className="font-bold text-3xl">Bienvenido, user.firstName</h2>
+          <h2 className="font-bold text-3xl">
+            {thisUser.gender == 'Femenino' ? (
+              <>
+                ¡Bienvenida, {thisUser.firstName}!
+              </>
+            ) : (
+              <>
+                ¡Bienvenido, {thisUser.firstName}!
+              </>
+            )}
+          </h2>
         </div>
       </div>
       <div

@@ -1,37 +1,36 @@
 'use client'
 
-import { useEffect, useState } from "react";
-import Image from "next/image";
-import Link from "next/link"
-import { useParams } from "next/navigation";
-import { doc, getDoc } from "firebase/firestore"
+import { useEffect, useState } from 'react';
+import Image from 'next/image';
+import Link from 'next/link'
+import { useParams } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast'
-import { db } from "@/app/libs/utils/firebase"
-import { Badge, InputText } from "@/app/ui/components/atoms";
+import Apis from '@/app/libs/apis';
+import { Badge, InputText } from '@/app/ui/components/atoms';
 
 const PageUser = () => {
   const params = useParams()
+  const uid = params.id
   const [isLoading, setIsLoading] = useState(false)
   const [user, setUser] = useState({})
 
   useEffect(() => {
-    const fetchUserData = async () => {
+    const fetchUser = async () => {
+      setIsLoading(true)
       try {
-        const userId = params.id
-        const userDocRef = doc(db, 'users', userId)
-        const userDoc = await getDoc(userDocRef)
-        if ( userDoc.exists() ) {
-          const { 
-            firstName, 
-            lastName, 
-            email, 
-            phone, 
-            role, 
+        const res = await Apis.users.GetUser(uid)
+        if ( res ) {
+          const {
+            firstName,
+            lastName,
+            email,
+            phone,
+            role,
             gender,
             status,
             createdAt,
             updatedAt
-          } = userDoc.data()
+          } = res
           setUser({
             firstName,
             lastName,
@@ -40,16 +39,42 @@ const PageUser = () => {
             role,
             gender,
             status,
-            updatedAt: new Date(updatedAt.seconds * 1000).toLocaleDateString("es-ES")
+            createdAt: new Date(createdAt.seconds * 1000).toLocaleDateString("es-Es"),
+            updatedAt: new Date(updatedAt.seconds * 1000).toLocaleDateString("es-Es")
           })
         }
+        {/**
+          if ( userDoc.exists() ) {
+            const { 
+              firstName, 
+              lastName, 
+              email, 
+              phone, 
+              role, 
+              gender,
+              status,
+              createdAt,
+              updatedAt
+            } = userDoc.data()
+            setUser({
+              firstName,
+              lastName,
+              email,
+              phone,
+              role,
+              gender,
+              status,
+              updatedAt: new Date(updatedAt.seconds * 1000).toLocaleDateString("es-ES")
+            })
+          }
+        */}
       } catch (error) {
-        toast.error('Error al cargar al usuarios.')
+        toast.error('Error al cargar al usuario.')
       } finally {
         setIsLoading(false)
       }
     }
-    fetchUserData()
+    fetchUser()
   }, [])
 
   return (
@@ -88,8 +113,8 @@ const PageUser = () => {
             <div className="card__body">
               {/* TODO: colocar skelleton */}
               {user && (  
-                <div className="userUI__content">
-                  <div className="userUI__details">
+                <div className="userUI__content flex justify-center">
+                  <div className="userUI__details md:w-8/12">
                     <div className="userUI__avatar flex justify-center">
                       <Image
                         src={user.gender == 'Masculino' 
@@ -107,15 +132,9 @@ const PageUser = () => {
                         {user.firstName} {user.lastName}
                       </h4>
                       <Badge 
-                        className='badge badge__primary'
-                        text='Administrador'
+                        className={`badge ${user.role == 'Administrador' ? 'badge__primary' : `${user.role == 'Colaborador' ? 'badge__dark' : `${user.role == 'Practicante' ? 'badge__light' : 'badge__secondary'}`}`}`}
+                        text={user.role} 
                       />
-                      {/* 
-                        <Badge 
-                          className={`badge ${user.role == 'Administrador' ? 'badge__primary' : `${user.role == 'Colaborador' ? 'badge__dark' : `${user-role == 'Practicante' ? 'badge__light' : 'badge__secondary'}`}`}`}
-                          text={user.role} 
-                        />
-                      */}
                     </div>
                     {/* ONLY if status == 'Activo' */}
                     <div className="userUI__summary flex items-center justify-center mt-4">
@@ -132,32 +151,29 @@ const PageUser = () => {
                         <span className="text-sm">Clientes</span>
                       </div>
                     </div>
-                    {/*
-                      {user.status == 'Activo' && (
-
-                      )}
-                    */}
                     {/* ONLY Admin, aprove */}
-                    {/* 
-                      {user.status == 'Pendiente' && (
-                        <div className="userUI__status flex gap-4 items-center justify-center mt-4">
-                          <div className="w-6/12">
-                            <button
-                              className="btn btn-primary w-full"
-                            >
-                              Aprobar
-                            </button>
+                    {user.role == 'Administrator' && (
+                      <>
+                        {user.status == 'Pendiente' && (
+                          <div className="userUI__status flex gap-4 items-center justify-center mt-4">
+                            <div className="w-6/12">
+                              <button
+                                className="btn btn-primary w-full"
+                              >
+                                Aprobar
+                              </button>
+                            </div>
+                            <div className="w-6/12">
+                              <button
+                                className="btn btn-danger w-full"
+                              >
+                                Denegar
+                              </button>
+                            </div>
                           </div>
-                          <div className="w-6/12">
-                            <button
-                              className="btn btn-danger w-full"
-                            >
-                              Denegar
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    */}
+                        )}
+                      </>
+                    )}
                   </div>
                 </div>
               )}
@@ -238,6 +254,10 @@ const PageUser = () => {
                           >
                             <option>{user.status}</option>
                           </select>
+                        </div>
+                        <div className="w-full">
+                          <span className="text-sm">Creado el: </span>
+                          <span className="text-sm">{user.createdAt}</span>
                         </div>
                         <div className="w-full">
                           <span className="text-sm">Actualizado el: </span>

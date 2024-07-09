@@ -6,6 +6,7 @@ const InputCheckbox = ({
   return (
     <div className="block mb-1">
       <input
+        type="checkbox"
         id={id}
         {...rest}
       />

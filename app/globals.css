@@ -118,12 +118,16 @@ body {
     .pc-micon {
       display: inline-block;
       margin-right: 14px;
+      pointer-events: none;
+      user-select: none;
     }
     .pc-mtext {
       color: #39465F;
+      pointer-events: none;
       user-select: none;
     }
     .pc-arrow {
+      pointer-events: none;
       position: absolute;
       right: 14px;
       transition: .35s ease;
@@ -132,6 +136,10 @@ body {
         height: 14px;
         width: 14px;
       }
+    }
+    .pc-badge {
+      pointer-events: none;
+      user-select: none;
     }
     &:hover {
       &::after {
@@ -274,6 +282,9 @@ body {
         font-size: 13px;
         padding: .7rem .75rem;
         text-transform: uppercase;
+        &:last-child {
+          width: 12%;
+        }
       }
     }
   }
@@ -374,5 +385,96 @@ body {
   }
   &.badge__secondary {
     background-color: #FFD54F;
+  }
+}
+
+/* timeline */
+.timeline {
+  .timeline__content {
+    position: relative;
+    &::before {
+      background-color: rgb(229, 231, 235);
+      bottom: 0;
+      content: "";
+      display: block;
+      left: 0;
+      position: absolute;
+      top: 0;
+      width: 2px;
+    }
+    .timeline__item {
+      margin-top: 21px;
+      padding-left: 28px;
+      position: relative;
+      &:first-child {
+        margin-top: 0;
+      }
+      &::before {
+        background-color: white;
+        border: 4px solid #2196F3;
+        border-radius: 14px;
+        box-sizing: border-box;
+        content: "";
+        display: block;
+        height: 14px;
+        left: -6px;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 14px;
+      }
+      .item__content {
+        background-color: #eeeeee;
+        border-radius: 14px;
+        padding: 14px 21px;
+      }
+      span {
+        font-size: 12px;
+      }
+      p {
+        font-size: 14px;
+      }
+      .timeline__author {
+        font-size: 12px;
+        font-style: italic;
+        margin-top: 7px;
+        text-align: right;
+        position: relative;
+        &::before {
+          background-color: white;
+          content: "";
+          display: block;
+          height: 1px;
+          left: 0;
+          position: absolute;
+          right: 0;
+          top: 50%;
+          transform: translateY(-50%);
+          z-index: 1;
+        }
+        span {
+          background-color: #eeeeee;
+          display: inline-block;
+          padding: 0 7px 0 14px;
+          position: relative;
+          z-index: 2;
+        }
+      }
+    }
+  }
+  &.skeleton {
+    .timeline__content {
+      &::before {
+        background-color: rgb(224, 224, 224);
+      }
+      .timeline__item {
+        &::before {
+          border: 4px solid #E0E0E0;
+        }
+        .item__content {
+          background-color: #E0E0E0;
+        }
+      }
+    }
   }
 }

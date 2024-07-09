@@ -1,9 +1,10 @@
 'use client'
 
-import "./globals.css";
-import { Public_Sans } from "next/font/google";
-const publicSans = Public_Sans({ subsets: ["latin"] });
-import { AuthProvider } from "@/app/libs/providers/AuthContext";
+import './globals.css';
+import { Public_Sans } from 'next/font/google';
+import { AuthProvider } from '@/app/libs/providers/AuthContext';
+
+const publicSans = Public_Sans({ subsets: ['latin'] });
 
 const metadata = {
   title: "Create Next App",
@@ -13,18 +14,18 @@ const metadata = {
 export default function RootLayout({ children }) {
   return (
     <>
-      <AuthProvider>
       <html lang="en">
         <body 
           className={publicSans.className}
           style={{
             backgroundColor: '#F4F7FA'
           }}
-          >
-              {children}
+        >
+          <AuthProvider>
+            {children}
+          </AuthProvider>
         </body>
       </html>
-      </AuthProvider>
     </>
   );
 }

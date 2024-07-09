@@ -5,29 +5,29 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { signOut } from 'firebase/auth';
+import Cookies from 'universal-cookie';
 import { 
   ChartLine,
   DotsThreeVertical,
-  FileDoc, 
+  FileDoc,
   Flag,
-  FolderUser, 
+  FolderUser,
+  Package,
   Power,
-  Speedometer, 
-  Stack, 
+  Speedometer,
+  Stack,
   User,
-  Users, 
+  Users
 } from '@phosphor-icons/react/dist/ssr';
-import { useAuth } from '@/app/libs/providers/AuthContext';
 import { auth } from '@/app/libs/utils/firebase'
-import Apis from '@/app/libs/apis'
 import LoadingScreen from '@/app/ui/components/molecules';
 
 const Nav = () => {
-  const [loading, setLoading] = useState(false)
-  const { user } = useAuth()
-  const [thisUser, setThisUser] = useState({})
-  const [usermenu, setUsermenu] = useState(false)
   const router = useRouter()
+  const cookies = new Cookies
+  const [loading, setLoading] = useState(false)
+  const [usermenu, setUsermenu] = useState(false)
+  const [thisUser, setThisUser] = useState({})
 
   const handleSubmenu = (e) => {
     let thisElement = e.target
@@ -60,6 +60,7 @@ const Nav = () => {
     setLoading(true)
     try {
       await signOut(auth)
+      cookies.remove('user')
       router.push('/login')
     } catch (error) {
       console.info('Nav/Nav.js')
@@ -69,20 +70,12 @@ const Nav = () => {
   }
 
   useEffect(() => {
-    const getData = async () => {
-      if ( user ) {
-        try {
-          const data = await Apis.users.GetUser(user.uid)
-          setThisUser(data)
-        } catch (error) {
-          console.info('Nav/Nav.js')
-          console.error(`Error al obtener data del usuario: ${error}`)
-        }
-      }
+    const getUser = () => {
+      const user = cookies.get('user')
+      if ( user ) setThisUser(user)
     }
-    getData()
-    
-  }, [user])
+    getUser()
+  }, [])
 
   return (
     <>
@@ -187,7 +180,7 @@ const Nav = () => {
                       </li>
                       <li className="pc-item">
                         <Link href='/extranjeria/customers/add'>
-                          <span className="pc-mtext">Agregar clientes</span>
+                          <span className="pc-mtext">Agregar cliente</span>
                         </Link>
                       </li>
                     </ul>
@@ -279,6 +272,32 @@ const Nav = () => {
                           </li>
                         </ul>
                       </li>
+
+                      <li className="pc-item pc-hasmenu">
+                        <a href="#" onClick={e => handleSubmenu(e)}>
+                          <span className="pc-micon"><Package size={24} /></span>
+                          <span className="pc-mtext">
+                            Packs de servicios
+                          </span>
+                          <span className="pc-arrow">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                          </span>
+                          <span className="pc-badge"></span>
+                        </a>
+                        <ul className="pc-submenu" style={{ display: 'none' }}>
+                          <li className="pc-item">
+                            <Link href='/extranjeria/packs'>
+                              <span className="pc-mtext">Administrar packs</span>
+                            </Link>
+                          </li>
+                          <li className="pc-item">
+                            <Link href='/extranjeria/packs/add'>
+                              <span className="pc-mtext">Agregar pack</span>
+                            </Link>
+                          </li>
+                        </ul>
+                      </li>
+
                       <li className="pc-item pc-hasmenu">
                         <a href="#" onClick={e => handleSubmenu(e)}>
                           <span className="pc-micon"><Users size={24} /></span>
@@ -350,18 +369,20 @@ const Nav = () => {
                 className="flex items-center"
               >
                 <div className="flex-shrink">
-                  <Image
-                    src={thisUser.gender == 'Masculino' 
-                      ? '/images/avatarUserMale.png' 
-                      : '/images/avatarUserFem.png'}
-                    height={45}
-                    width={45}
-                    alt={thisUser.firstName}
-                    quality={80}
-                    style={{ borderRadius: '45px', objectFit: 'cover' }}
-                    loading="lazy"
-  
-                  />
+                  {thisUser && (
+                    <Image
+                      src={thisUser.gender == 'Masculino' 
+                        ? '/images/avatarUserMale.png' 
+                        : '/images/avatarUserFem.png'}
+                      height={45}
+                      width={45}
+                      alt={`${thisUser.firstName ? thisUser.firstName : 'Usuario'}`}
+                      quality={80}
+                      style={{ borderRadius: '45px', objectFit: 'cover' }}
+                      loading="lazy"
+    
+                    />
+                  )}
                 </div>
                 <div
                   className="flex-grow ml-3"

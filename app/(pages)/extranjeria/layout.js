@@ -1,8 +1,6 @@
 'use client'
 
-import { Provider } from "react-redux";
-import store from '@/app/store'
-import { Footer, Header, Nav } from "@/app/ui/components/wrappers";
+import { Footer, Header, Nav } from '@/app/ui/components/wrappers';
 
 const PagesLayout = ({ children }) => {
   return (
@@ -25,9 +23,7 @@ const PagesLayout = ({ children }) => {
             paddingTop: '20px'
           }}
         >
-          <Provider store={store}>
-            {children}
-          </Provider>
+          {children}
         </div>
       </div>
       <Footer />

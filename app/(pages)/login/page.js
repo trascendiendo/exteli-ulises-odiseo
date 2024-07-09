@@ -1,31 +1,56 @@
 'use client'
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { signInWithEmailAndPassword } from 'firebase/auth';
+import Cookies from "universal-cookie";
+import Apis from '@/app/libs/apis'
 import { auth } from '@/app/libs/utils/firebase';
 import { InputCheckbox, InputText } from '@/app/ui/components/atoms';
 import LoadingScreen from '@/app/ui/components/molecules/LoadingScreen';
 
 const Login = () => {
+  const cookies = new Cookies
   const [loading, setLoading] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const router = useRouter()
 
+  // eli
+  // 3MiJ6R2glGF2Ql
+
+  // flor
+  // cB&A(H5QQTsWXMgf
+
+  // pedro
+  // g7aeM2k(fI&B(cPC
+
+  // manuel
+  // WpaB%fs(a76S(rgR
+
+  // yaneth
+  // 5f)CJK9yANT!wd*U
+
   const handleSubmit = async () => {
     setLoading(true)
     try {
-      await signInWithEmailAndPassword(auth, email, password)
-      router.push('/extranjeria')
+      const res = await signInWithEmailAndPassword(auth, email, password)
+      if ( res ) {
+        router.push('/extranjeria')
+      }
     } catch (error) {
       console.info('login/page.js')
       console.error(`Error al authenticarse: ${error}`)
     }
     setLoading(false)
   }
+
+  useEffect(() => {
+    const user = cookies.get('user')
+    if ( user ) router.push('/extranjeria')
+  },[])
 
   return (
     <>

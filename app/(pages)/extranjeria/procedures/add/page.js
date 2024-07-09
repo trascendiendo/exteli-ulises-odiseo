@@ -1,41 +1,56 @@
 'use client'
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { doc, setDoc, serverTimestamp } from "firebase/firestore"
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { serverTimestamp } from 'firebase/firestore'
 import toast, { Toaster } from 'react-hot-toast'
-import { auth, db } from "@/app/libs/utils/firebase"
-import { InputText } from "@/app/ui/components/atoms";
-import LoadingScreen from "@/app/ui/components/molecules/LoadingScreen";
-import Link from "next/link";
+import Cookies from "universal-cookie";
+import Apis from '@/app/libs/apis';
+import { auth, db } from '@/app/libs/utils/firebase'
+import { InputText } from '@/app/ui/components/atoms';
+import LoadingScreen from '@/app/ui/components/molecules/LoadingScreen';
+
 
 const AddProcedure = () => {
+  const router = useRouter()
+  const cookies = new Cookies
   const [isLoading, setIsLoading] = useState(false)
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
-  const [status, setStatus] = useState('Inhabilitado')
-  const router = useRouter()
+  const [status, setStatus] = useState('0')
+  const [thisUser, setThisUser] = useState({})
 
   const handleSubmit = async () => {
     setIsLoading(true)
-    try {
-      await setDoc(doc(db, 'procedures'), {
-        name,
-        description,
-        status,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
+    const procedure = {
+      name,
+      description,
+      status,
+      registerdBy: thisUser,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    }
+    await Apis.procedures.PostProcedure(procedure)
+      .then(() => {
+        toast.success('Trámite registrado con éxito.')
       })
-      toast.success('Trámite registrado con éxito.')
-      setTimeout(() => {
+      .catch((error) => {
+        toast.error('Error al crear un trámite.')
+      })
+      .finally(() => {
         setIsLoading(false)
         router.push('/extranjeria/procedures')
-      }, 5000);
-    } catch (error) {
-      setIsLoading(false)
-      toast.error('Error al crear un trámite.')
-    }
+      })    
   }
+
+  useEffect(() => {
+    const getUser = () => {
+      const user = cookies.get('user')
+      if ( user ) setThisUser(user.uid)
+    }
+  getUser()
+  }, [])
 
   return (
     <>
@@ -83,6 +98,24 @@ const AddProcedure = () => {
                     </div>
                     <div className="w-full sm:w-6/12">
                       <div className="mb-4">
+                        <span className="block text-sm">Estado</span>
+                        <select
+                          className="border rounded-lg px-3 py-3.5 text-sm w-full"
+                          value={status}
+                          onChange={e => setStatus(e.target.value)}
+                          required
+                        >
+                          <option value="0">Seleccionar</option>
+                          <option value="Activo">Activo</option>
+                          <option value="Inhabilitado">Inhabilitado</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-6">
+                    <div className="w-full">
+                      <div className="mb-4">
                         <span className="block text-sm">Descripción</span>
                         <InputText
                           type='text'
@@ -92,24 +125,6 @@ const AddProcedure = () => {
                         />
                       </div>
                     </div>
-                  </div>
-
-                  <div className="flex gap-6">
-                    <div className="w-full sm:w-6/12">
-                      <div className="mb-4">
-                        <span className="block text-sm">Estado</span>
-                        <select
-                          className="border rounded-lg px-3 py-3.5 text-sm w-full"
-                          value={status}
-                          onChange={e => setStatus(e.target.value)}
-                          required
-                        >
-                          <option value="Activo">Activo</option>
-                          <option value="Inhabilitado">Inhabilitado</option>
-                        </select>
-                      </div>
-                    </div>
-                    <div className="w-full sm:w-6/12"></div>
                   </div>
 
                   <div className="flex gap-6 mt-5">

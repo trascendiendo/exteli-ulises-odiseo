@@ -1,4 +1,4 @@
-import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore'
+import { collection, doc, getDoc, getDocs, query, setDoc, where } from 'firebase/firestore'
 import { db } from '@/app/libs/utils/firebase'
 
 const users = {
@@ -50,6 +50,15 @@ const users = {
       return users
     } catch (error) {
       console.info(`GetAllUsersButMe: Error al obtener usuarios`)
+      console.error(error)
+      throw error
+    }
+  },
+  PostUser: async (uid, user) => {
+    try {
+      await setDoc(doc(db, 'users', uid), user)
+    } catch (error) {
+      console.info(`PostUser: Error al crear usuario: ${user}`)
       console.error(error)
       throw error
     }
