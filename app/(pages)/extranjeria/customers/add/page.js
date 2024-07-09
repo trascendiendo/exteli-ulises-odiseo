@@ -23,6 +23,7 @@ const AddCustomer = () => {
   const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
+  const [phoneSecondary, setPhoneSecondary] = useState('')
   const [messenger, setMessenger] = useState('')
   const [agent, setAgent] = useState('')
   const [documentType, setDocumentType] = useState('')
@@ -38,6 +39,7 @@ const AddCustomer = () => {
   const [totalPrice, setTotalPrice] = useState('')
   const [paid, setPaid] = useState('')
   const [registerdBy, setRegisteredBy] = useState('')
+  const [totalPriceDisabled, setTotalPriceDisabled] = useState(true)
   const router = useRouter()
 
   const handleSubmit = async () => {
@@ -48,43 +50,54 @@ const AddCustomer = () => {
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     }
-    const timelineRef = await Apis.timelines.PostTimeline(timeline)
-    const timelineUid = timelineRef.id
-    const customer = {
-      firstName,
-      lastName,
-      email,
-      phone,
-      messenger,
-      agent,
-      documentType,
-      documentNumber,
-      nationality,
-      procedure,
-      birthday,
-      gender,
-      status,
-      enterDate,
-      threeMonths,
-      servicePack,
-      totalPrice,
-      paid,
-      registerdBy: `${user.firstName} ${user.lastName}`,
-      timeline: timelineUid,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp()
+    const accounting = {
+      type: 'ingreso',
+      amount: paid,
+      description: `${firstName} ${lastName}`,
+      reference: servicePack == 0 ? procedure : servicePack,
+      registerdBy: user,
+      createdAt: serverTimestamp()
     }
-    await Apis.customers.PostCustomer(customer)
-      .then(() => {
-        toast.success('Cliente registrado con éxito.')
-      })
-      .catch(() => {
-        toast.error('Error al registrar un cliente.')
-      })
-      .finally(() => {
-        setIsLoading(false)
-        router.push('/extranjeria/customers')
-      })
+    try {
+      const timelineRef = await Apis.timelines.PostTimeline(timeline)
+      const timelineUid = timelineRef.id
+      if (paid > 0) {
+        await Apis.accounting.PostAccounting(accounting)
+        toast.success('Ingreso registrado con éxito.')
+      }
+      const customer = {
+        firstName,
+        lastName,
+        email,
+        phone,
+        phoneSecondary,
+        messenger,
+        agent,
+        documentType,
+        documentNumber,
+        nationality,
+        procedure,
+        birthday,
+        gender,
+        status,
+        enterDate,
+        threeMonths,
+        servicePack,
+        totalPrice,
+        paid,
+        registerdBy: `${user.firstName} ${user.lastName}`,
+        timeline: timelineUid,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      }
+      await Apis.customers.PostCustomer(customer)
+      toast.success('Cliente registrado con éxito.')
+    } catch (error) {
+      toast.error('Error al registrar un cliente.')
+    } finally {
+      setIsLoading(false)
+      router.push('/extranjeria/customers')
+    }
   }
 
   const handle90days = (e) => {
@@ -93,6 +106,21 @@ const AddCustomer = () => {
     let today = new Date().getTime()
     enter.setDate(enter.getDate() + 90)
     setThreeMonths( enter <= today )
+  }
+
+  const handlePackPrice = (e) => {
+    console.log(e.target.name)
+    if (e.target.name == 'selectPack') {
+      setServicePack(e.target.value)
+      setProcedure(0)
+      setTotalPriceDisabled(true)
+      setTotalPrice(e.target.value)
+    } else {
+      setProcedure(e.target.value)
+      setServicePack(0)
+      setTotalPriceDisabled(false)
+      setTotalPrice('0.00 (Ingresar precio...)')
+    }
   }
 
   useEffect(() => {
@@ -249,7 +277,7 @@ const AddCustomer = () => {
                   <div className="flex gap-6">
                     <div className="w-full sm:w-6/12">
                       <div className="mb-4">
-                        <span className="block text-sm">Móvil (*)</span>
+                        <span className="block text-sm">Móvil principal (*)</span>
                         <InputText
                           type='text'
                           value={phone}
@@ -272,6 +300,20 @@ const AddCustomer = () => {
                         </select>
                       </div>
                     </div>
+                  </div>
+
+                  <div className="flex gap-6">
+                    <div className="w-full sm:w-6/12">
+                        <div className="mb-4">
+                          <span className="block text-sm">Móvil secundario</span>
+                          <InputText
+                            type='text'
+                            value={phoneSecondary}
+                            onChange={e => setPhoneSecondary(e.target.value)}
+                          />
+                        </div>
+                    </div>
+                    <div className="w-full sm:w-6/12"></div>
                   </div>
 
                   <div className="flex gap-6">
@@ -342,10 +384,11 @@ const AddCustomer = () => {
                         <select
                           className="border rounded-lg px-3 py-3.5 text-sm w-full"
                           value={procedure}
-                          onChange={e => setProcedure(e.target.value)}
+                          name='selectProcedure'
+                          onChange={e => handlePackPrice(e)}
                         >
                           {/** TODO: Consumir trámites */}
-                          <option value="">Seleccionar trámite</option>
+                          <option value="0">Seleccionar trámite</option>
                           {Object.keys(allProcedures).length && (
                             allProcedures.map(procedure => (
                               <option
@@ -365,14 +408,16 @@ const AddCustomer = () => {
                         <select
                           className="border rounded-lg px-3 py-3.5 text-sm w-full"
                           value={servicePack}
-                          onChange={e => setServicePack(e.target.value)}
+                          name='selectPack'
+                          onChange={e => handlePackPrice(e)}
                         >
-                          <option value="">Seleccionar pack</option>
+                          <option value="0">Seleccionar pack</option>
                           {Object.keys(allPacks).length && (
                             allPacks.map(pack => (
                               <option
                                 key={pack.id}
-                                value={pack.packs.name}
+                                value={pack.packs.price}
+                                price={pack.packs.name}
                               >
                                 {pack.packs.name}
                               </option>
@@ -391,8 +436,8 @@ const AddCustomer = () => {
                         <InputText
                           type='text'
                           value={totalPrice}
-                          onChange={e => setTotalPrice(e.target.value)}
-                          required
+                          placeholder="Calculando..."
+                          disabled={totalPriceDisabled}
                         />
                       </div>
                     </div>

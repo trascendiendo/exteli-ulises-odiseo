@@ -25,26 +25,26 @@ const Customer = ({
       const user = cookies.get('user')
       if ( user ) setThisUser(user)
     }
-  getUser()
-  const fetchData = async () => {
-    try {
-      const resNationalities = await Apis.nationalities.GetAllNationalities()
-      setAllNationalities(resNationalities)
-      const resProcedures = await Apis.procedures.GetAllProcedures()
-      setAllProcedures(resProcedures)
-      const resPacks = await Apis.packs.GetPacks()
-      setAllPacks(resPacks)
-      const resAgents = await Apis.users.GetAllUsers()
-      setAllAgents(resAgents)
-      const resCustomer = await Apis.customers.GetCustomer(uid)
-      setCustomer(resCustomer.customer)
-    } catch (error) {
-      console.info('organisms/DataCustomer/DataCustomer.js/fetchData()')
-      console.error('Error al cargar la data.')
-      setError(error)
+    getUser()
+    const fetchData = async () => {
+      try {
+        const resNationalities = await Apis.nationalities.GetAllNationalities()
+        setAllNationalities(resNationalities)
+        const resProcedures = await Apis.procedures.GetAllProcedures()
+        setAllProcedures(resProcedures)
+        const resPacks = await Apis.packs.GetPacks()
+        setAllPacks(resPacks)
+        const resAgents = await Apis.users.GetAllUsers()
+        setAllAgents(resAgents)
+        const resCustomer = await Apis.customers.GetCustomer(uid)
+        setCustomer(resCustomer.customer)
+      } catch (error) {
+        console.info('organisms/DataCustomer/DataCustomer.js/fetchData()')
+        console.error('Error al cargar la data.')
+        setError(error)
+      }
     }
-  }
-  fetchData()
+    fetchData()
   }, [uid])
 
   const handleUpdate = async (e) => {

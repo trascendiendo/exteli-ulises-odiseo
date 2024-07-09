@@ -1,11 +1,11 @@
-import { addDoc, collection, getDocs } from 'firebase/firestore'
+import { addDoc, collection, getDoc, getDocs } from 'firebase/firestore'
 import { db } from '@/app/libs/utils/firebase'
 
 const nationalities = {
   GetNationality: async (uid) => {
     try {
       const nationalityRef = doc(db, 'nationalities', uid)
-      const nationalitySnapshot = await  getDoc(nationalityRef)
+      const nationalitySnapshot = await getDoc(nationalityRef)
 
       if ( nationalitySnapshot.exists() ) {
         return nationalitySnapshot.data()

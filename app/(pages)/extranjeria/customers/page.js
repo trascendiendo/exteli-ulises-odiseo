@@ -1,11 +1,11 @@
 'use client'
 
-import { useEffect, useState } from "react";
-import Link from "next/link"
-import { Eye } from "@phosphor-icons/react/dist/ssr";
+import { useEffect, useState } from 'react';
+import Link from 'next/link'
+import { Eye } from '@phosphor-icons/react/dist/ssr';
 import toast, { Toaster } from 'react-hot-toast'
 import Apis from '@/app/libs/apis';
-import { Badge } from "@/app/ui/components/atoms";
+import { Badge } from '@/app/ui/components/atoms';
 
 const PageClients = () => {
   const [isLoading, setIsLoading] = useState(false)

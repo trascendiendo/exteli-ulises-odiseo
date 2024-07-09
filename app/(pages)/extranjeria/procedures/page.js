@@ -79,6 +79,7 @@ const PageProcedures = () => {
                   <thead>
                     <tr>
                       <th>Trámite</th>
+                      <th>Precio</th>
                       <th>Status</th>
                       <th>Usuarios en trámite</th>
                     </tr>
@@ -89,6 +90,9 @@ const PageProcedures = () => {
                         <tr key={procedure.id}>
                           <td>
                             {procedure.procedure.name}
+                          </td>
+                          <td>
+                            {procedure.procedure.price}
                           </td>
                           <td>
                             {procedure.procedure.status == 'Activo' && (

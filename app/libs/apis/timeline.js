@@ -1,11 +1,13 @@
-import { addDoc, collection, doc, getDocs, setDoc } from 'firebase/firestore'
+import { addDoc, collection, doc, getDocs, setDoc, query, orderBy } from 'firebase/firestore'
 import { db } from '@/app/libs/utils/firebase'
 
 const lines = {
   GetLine: async (uid) => {
     try {
       const lineDocRef = collection(db, 'timelines', uid, 'lines')
-      const querySnapshot = await getDocs(lineDocRef)
+      const q = query(lineDocRef, orderBy('createdAt', 'asc'))
+
+      const querySnapshot = await getDocs(q)
 
       const lines = querySnapshot.docs.map(doc => {
         const data = doc.data()
@@ -64,8 +66,15 @@ const lines = {
   },
   PostTimeline: async (timeline) => {
     try {
-      const timelineRef = await addDoc(collection(db, 'timelines'), timeline)
-      return timelineRef
+      const timelineDocRef = doc(collection(db, 'timelines'))
+      const timelineUid = timelineDocRef.id
+
+      const linesDocRef = doc(collection(db, `timelines/${timelineUid}/lines`))
+      const linesUid = linesDocRef.id
+
+      await setDoc(linesDocRef, {...timeline, uid: linesUid})
+
+      return timelineDocRef
     } catch (error) {
       console.info(`PostTimeline: Error al crear timeline`)
       console.error(error)

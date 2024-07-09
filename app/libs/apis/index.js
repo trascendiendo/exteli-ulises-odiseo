@@ -1,3 +1,4 @@
+import accounting from '@/app/libs/apis/accounting'
 import customers from '@/app/libs/apis/customers'
 import dashboard from '@/app/libs/apis/dashboard'
 import general from '@/app/libs/apis/general'
@@ -9,6 +10,7 @@ import timelines from '@/app/libs/apis/timeline'
 import users from '@/app/libs/apis/users'
 
 const apis = {
+  accounting,
   customers,
   dashboard,
   general,
