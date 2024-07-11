@@ -1,4 +1,4 @@
-import { addDoc, collection, doc, getDoc, getDocs, query, updateDoc, where } from 'firebase/firestore'
+import { addDoc, collection, doc, getDoc, getDocs, query, orderBy, updateDoc, where } from 'firebase/firestore'
 import { db } from '@/app/libs/utils/firebase'
 
 const customers = {
@@ -22,11 +22,12 @@ const customers = {
     try {
       const customersRef = collection(db, 'customers')
       const querySnapshot = await getDocs(customersRef)
+      
 
       const customers = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
-      }))
+      })).sort((a, b) => a.customer.createdAt - b.customer.createdAt)
 
       return customers
     } catch (error) {

@@ -16,6 +16,9 @@
     "firebase-admin": "^12.1.1",
     "lodash": "^4.17.21",
     "next": "14.2.3",
+    "primeflex": "^3.3.1",
+    "primeicons": "^7.0.0",
+    "primereact": "^10.7.0",
     "react": "^18",
     "react-dom": "^18",
     "react-hot-toast": "^2.4.1",
@@ -26,6 +29,7 @@
     "universal-cookie": "^4.0.4"
   },
   "devDependencies": {
+    "autoprefixer": "^10",
     "eslint": "^8",
     "eslint-config-next": "14.2.3",
     "postcss": "^8",

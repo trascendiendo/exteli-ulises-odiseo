@@ -1,6 +1,11 @@
 'use client'
 
+import { PrimeReactProvider } from 'primereact/api'
+
 import './globals.css';
+import 'primeicons/primeicons.css'
+import 'primeflex/primeflex.css'
+import 'primereact/resources/themes/lara-light-indigo/theme.css'
 import { Public_Sans } from 'next/font/google';
 import { AuthProvider } from '@/app/libs/providers/AuthContext';
 
@@ -22,7 +27,9 @@ export default function RootLayout({ children }) {
           }}
         >
           <AuthProvider>
-            {children}
+            <PrimeReactProvider>
+              {children}
+            </PrimeReactProvider>
           </AuthProvider>
         </body>
       </html>
