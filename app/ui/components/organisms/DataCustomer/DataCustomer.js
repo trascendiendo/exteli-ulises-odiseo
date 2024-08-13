@@ -1,31 +1,28 @@
 'use client'
 
 import { Suspense, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { serverTimestamp } from 'firebase/firestore';
 import toast, { Toaster } from 'react-hot-toast';
-import Cookies from 'universal-cookie';
 import Apis from '@/app/libs/apis';
+import { timeFormat } from '@/app/libs/utils';
 import { InputText } from '@/app/ui/components/atoms';
 import SkeletonDataCustomer from '@/app/ui/components/skeletons/organisms/DataCustomer/DataCustomer';
 
 const Customer = ({
-  uid
+  uid,
+  canEdit
 }) => {
-  const cookies = new Cookies
+  const [isLoading, setIsLoading] = useState(false)
   const [customer, setCustomer] = useState(null)
   const [allNationalities, setAllNationalities] = useState(null)
   const [allProcedures, setAllProcedures] = useState(null)
   const [allPacks, setAllPacks] = useState(null)
   const [allAgents, setAllAgents] = useState(null)
   const [error, setError] = useState(null)
-  const [thisUser, setThisUser] = useState({})
+  const router = useRouter()
 
   useEffect(() => {
-    const getUser = () => {
-      const user = cookies.get('user')
-      if ( user ) setThisUser(user)
-    }
-    getUser()
     const fetchData = async () => {
       try {
         const resNationalities = await Apis.nationalities.GetAllNationalities()
@@ -49,36 +46,40 @@ const Customer = ({
 
   const handleUpdate = async (e) => {
     e.preventDefault()
-    console.log(e)
+    setIsLoading(true)
     const updatedCustomer = {
-      firstName: e.target.firstName.value,
-      lastName: e.target.lastName.value,
-      email: e.target.email.value,
-      gender: e.target.gender.value,
-      birthday: e.target.birthday.value,
-      nationality: e.target.nationality.value,
-      phone: e.target.phone.value,
-      messenger: e.target.messenger.value,
-      documentType: e.target.documentType.value,
-      documentNumber: e.target.documentNumber.value,
-      enterDate: e.target.enterDate.value,
-      threeMonths: customer.threeMonths,
-      servicePack: e.target.servicePack.value ? e.target.servicePack.value : '',
-      procedure: e.target.procedure.value ? e.target.procedure.value : '',
-      totalPrice: e.target.totalPrice.value,
-      paid: e.target.paid.value,
-      status: e.target.status.value,
-      agent: e.target.agent.value,
-      updatedAt: serverTimestamp()
+      customer: {
+        ...customer,
+        firstName: e.target.firstName.value,
+        lastName: e.target.lastName.value,
+        email: e.target.email.value,
+        gender: e.target.gender.value,
+        birthday: e.target.birthday.value,
+        nationality: e.target.nationality.value,
+        phone: e.target.phone.value,
+        messenger: e.target.messenger.value,
+        documentType: e.target.documentType.value,
+        documentNumber: e.target.documentNumber.value,
+        enterDate: e.target.enterDate.value,
+        threeMonths: customer.threeMonths,
+        servicePack: e.target.servicePack.value ? e.target.servicePack.value : '',
+        procedure: e.target.procedure.value ? e.target.procedure.value : '',
+        totalPrice: e.target.totalPrice.value,
+        paid: e.target.paid.value,
+        status: e.target.status.value,
+        registerdBy: e.target.agent.value,
+        updatedAt: serverTimestamp()
+      }
     }
-    console.log('uid', uid)
-    console.log('updatedCustomer', updatedCustomer)
     try {
       await Apis.customers.PatchCustomer(uid, updatedCustomer)
       toast.success('Usuario actualizado con éxito')
     } catch (error) {
       toast.error('Error al actualizar el usuario')
       console.error(error)
+    } finally {
+      setIsLoading(false)
+      router.refresh()
     }
   }
 
@@ -102,6 +103,7 @@ const Customer = ({
                 capitalize={true}
                 type='text'
                 defaultValue={customer.firstName}
+                disabled={canEdit != 'Administrador' }
               />
             </div>
             <div className="w-6/12 sm:w-full">
@@ -110,6 +112,7 @@ const Customer = ({
                 name='lastName'
                 type='text'
                 defaultValue={customer.lastName}
+                disabled={canEdit != 'Administrador' }
               />
             </div>
             <div className="w-6/12 sm:w-full">
@@ -118,6 +121,7 @@ const Customer = ({
                 name='email'
                 type='text'
                 defaultValue={customer.email}
+                disabled={canEdit != 'Administrador' }
               />
             </div>
             <div className="w-6/12 sm:w-full">
@@ -126,6 +130,7 @@ const Customer = ({
                 name='gender'
                 className="border rounded-lg px-3 py-3.5 text-sm w-full" 
                 defaultValue={customer.gender}
+                disabled={canEdit != 'Administrador' }
               >
                 <option value='Femenino'>Femenino</option>
                 <option value='Masculino'>Masculino</option>
@@ -136,8 +141,9 @@ const Customer = ({
               <span className="block text-sm">Fecha de nacimiento</span>
               <InputText
                 name='birthday'
-                type='text'
+                type='date'
                 defaultValue={customer.birthday}
+                disabled={canEdit != 'Administrador' }
               />
             </div>
             <div className="w-6/12 sm:w-full">
@@ -146,6 +152,7 @@ const Customer = ({
                 name='nationality'
                 className="border rounded-lg px-3 py-3.5 text-sm w-full" 
                 defaultValue={customer.nationality}
+                disabled={canEdit != 'Administrador' }
               >
                 {Object.keys(allNationalities).length && (
                   allNationalities.map(nationality => (
@@ -165,6 +172,7 @@ const Customer = ({
                 name='phone'
                 type='text'
                 defaultValue={customer.phone}
+                disabled={canEdit != 'Administrador' }
               />
             </div>
             <div className="w-6/12 sm:w-full">
@@ -173,6 +181,7 @@ const Customer = ({
                 name='messenger'
                 className="border rounded-lg px-3 py-3.5 text-sm w-full" 
                 defaultValue={customer.messenger}
+                disabled={canEdit != 'Administrador' }
               >
                 <option value='No'>No</option>
                 <option value='Sí'>Sí</option>
@@ -184,6 +193,7 @@ const Customer = ({
                 name='documentType'
                 className="border rounded-lg px-3 py-3.5 text-sm w-full" 
                 defaultValue={customer.documentType}
+                disabled={canEdit != 'Administrador' }
               >
                 <option value="Pasaporte">Pasaporte</option>
                 <option value="NIE">NIE</option>
@@ -196,14 +206,16 @@ const Customer = ({
                 name='documentNumber'
                 type='text'
                 defaultValue={customer.documentNumber}
+                disabled={canEdit != 'Administrador' }
               />
             </div>
             <div className="w-6/12 sm:w-full">
               <span className="block text-sm">Fecha de ingreso</span>
               <InputText
                 name='enterDate'
-                type='text'
+                type='date'
                 defaultValue={customer.enterDate}
+                disabled={canEdit != 'Administrador' }
               />
             </div>
             <div className="w-6/12 sm:w-full">
@@ -227,7 +239,7 @@ const Customer = ({
                 name='servicePack'
                 className="border rounded-lg px-3 py-3.5 text-sm w-full" 
                 defaultValue={customer.servicePack}
-                disabled={customer.servicePack == ''}
+                disabled={customer.servicePack == '' && customer.status != 'Pendiente'}
               >
                 {customer.servicePack == '' ? (
                   <option value="">---</option>
@@ -252,7 +264,7 @@ const Customer = ({
                 name='procedure'
                 className="border rounded-lg px-3 py-3.5 text-sm w-full" 
                 defaultValue={customer.procedure}
-                disabled={customer.procedure == ''}
+                disabled={customer.procedure == '' && customer.status != 'Pendiente'}
               >
                 {customer.procedure == '' ? (
                   <option value="">---</option>
@@ -277,6 +289,7 @@ const Customer = ({
                 name='totalPrice'
                 type='text'
                 defaultValue={customer.totalPrice}
+                disabled={canEdit != 'Administrador' }
               />
             </div>
             <div className="w-6/12 sm:w-full">
@@ -285,6 +298,7 @@ const Customer = ({
                 name='paid'
                 type='text'
                 defaultValue={customer.paid}
+                disabled={canEdit != 'Administrador' }
               />
             </div>
             <div className="w-6/12 sm:w-full">
@@ -293,6 +307,7 @@ const Customer = ({
                 name='status'
                 className="border rounded-lg px-3 py-3.5 text-sm w-full" 
                 defaultValue={customer.status}
+                disabled={canEdit != 'Administrador' }
               >
                 <option value="Pendiente">Pendiente</option>
                 <option value="Activo">Activo</option>
@@ -306,6 +321,7 @@ const Customer = ({
                 name='agent'
                 className="border rounded-lg px-3 py-3.5 text-sm w-full" 
                 defaultValue={customer.agent}
+                disabled={canEdit != 'Administrador' }
               >
                 {Object.keys(allAgents).length && (
                   allAgents.map(agent => (
@@ -319,27 +335,30 @@ const Customer = ({
                 )}
               </select>
             </div>
-            <div className="flex justify-center w-6/12 sm:w-full">
-              <div className="w-full sm:w-6/12">
-                <button
-                  className="btn btn-primary w-full"
-                  type='submit'
-                >
-                  Actualizar
-                </button>
+            {canEdit == 'Administrador' && (
+              <div className="flex justify-center w-6/12 sm:w-full">
+                <div className="w-full sm:w-6/12">
+                  <button
+                    className="btn btn-primary w-full"
+                    type='submit'
+                  >
+                    Actualizar
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </form>
       </div>
+      <Toaster />
     </div>
   )
 }
 
-const DataCustomer = ({ uid }) => {
+const DataCustomer = ({ uid, canEdit }) => {
   return (
     <Suspense fallback={<SkeletonDataCustomer />}>
-      <Customer uid={uid} />
+      <Customer uid={uid} canEdit={canEdit} />
     </Suspense>
   )
 }

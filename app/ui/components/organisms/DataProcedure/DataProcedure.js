@@ -1,10 +1,12 @@
 'use client'
 
 import { Suspense, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { serverTimestamp } from 'firebase/firestore';
 import toast, { Toaster } from 'react-hot-toast'
 import Cookies from 'universal-cookie';
 import Apis from '@/app/libs/apis';
+import { timeFormat } from '@/app/libs/utils';
 import { InputText } from '@/app/ui/components/atoms';
 import SkeletonDataProcedure from '@/app/ui/components/skeletons/organisms/DataProcedure/DataProcedure';
 
@@ -12,10 +14,12 @@ const Procedure = ({
   uid
 }) => {
   const cookies = new Cookies
+  const [isLoading, setIsLoading] = useState(false)
   const [procedure, setProcedure] = useState(null)
   const [allAgents, setAllAgents] = useState(null)
   const [error, setError] = useState(null)
   const [thisUser, setThisUser] = useState({})
+  const router = useRouter()
 
   useEffect(() => {
     const getUser = () => {
@@ -39,7 +43,30 @@ const Procedure = ({
   }, [uid])
 
   const handleUpdate = async (e) => {
-    
+    e.preventDefault()
+    setIsLoading(true)
+
+    const formData = new FormData(e.target)
+    const updateProcedure = {
+      procedure: {
+        ...procedure,
+        name: formData.get('name') || procedure.name,
+        description: formData.get('description') || procedure.description,
+        price: formData.get('price') || procedure.price,
+        status: formData.get('status') || procedure.status,
+        updatedAt: serverTimestamp()
+      }
+    }
+    try {
+      await Apis.procedures.PatchProcedure(uid, updateProcedure)
+      toast.success('Trámite actualizado con éxito')
+    } catch (error) {
+      toast.error('Error al actualizar el trámite')
+      console.error(error)
+    } finally {
+      setIsLoading(false)
+      router.push('/extranjeria/procedures')
+    }
   }
 
   if ( error ) {
@@ -67,7 +94,7 @@ const Procedure = ({
                     <div className="w-6/12 sm:w-full">
                       <span className="block text-sm">Nombre</span>
                       <InputText
-                        name='firstName'
+                        name='name'
                         capitalize={true}
                         type='text'
                         defaultValue={procedure.name}
@@ -79,13 +106,15 @@ const Procedure = ({
                         className={`block border mt-2 rounded-lg px-3 py-3.5 text-sm w-full`}
                         style={{ resize: 'none'}}
                         rows='7'
+                        name='description'
+                        defaultValue={procedure.description}
                       >
                       </textarea>
                     </div>
                     <div className="w-6/12 sm:w-full">
                       <span className="block text-sm">Precio</span>
                       <InputText
-                        name='firstName'
+                        name='price'
                         capitalize={true}
                         type='text'
                         defaultValue={procedure.price || 0.00}
@@ -105,7 +134,7 @@ const Procedure = ({
                       </select>
                     </div>
                     <div className="w-6/12 sm:w-full">
-                      Actualizado el: 
+                      Actualizado el: {timeFormat(procedure.updatedAt)}
                     </div>
                     <div className="flex justify-center w-6/12 sm:w-full">
                       <div className="w-full sm:w-6/12">

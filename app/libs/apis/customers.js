@@ -1,4 +1,4 @@
-import { addDoc, collection, doc, getDoc, getDocs, query, orderBy, updateDoc, where } from 'firebase/firestore'
+import { addDoc, collection, doc, getDoc, getDocs, query, updateDoc, where } from 'firebase/firestore'
 import { db } from '@/app/libs/utils/firebase'
 
 const customers = {
@@ -70,7 +70,7 @@ const customers = {
       const customerDocRef = doc(db, 'customers', uid)
       await updateDoc(customerDocRef, customer)
     } catch (error) {
-      console.info(`PatchCustomer: Error al actualizar al usuario: ${uid}`)
+      console.info(`PatchCustomer: Error al actualizar usuario: ${uid}`)
       console.error(error)
       throw error
     }

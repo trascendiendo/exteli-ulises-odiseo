@@ -1,4 +1,4 @@
-import { addDoc, collection, deleteDoc, doc, getDoc, getDocs } from 'firebase/firestore'
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, updateDoc } from 'firebase/firestore'
 import { db } from '@/app/libs/utils/firebase'
 
 const procedures = {
@@ -43,6 +43,16 @@ const procedures = {
       })
     } catch (error) {
       console.info(`PostProcedure: Error al crear trámite`)
+      console.error(error)
+      throw error
+    }
+  },
+  PatchProcedure: async (uid, procedure) => {
+    try {
+      const procedureDocRef = doc(db, 'procedures', uid)
+      await updateDoc(procedureDocRef, procedure)
+    } catch (error) {
+      console.info(`PatchProcedure: Error al actualizar trámite: ${uid}`)
       console.error(error)
       throw error
     }

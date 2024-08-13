@@ -36,6 +36,32 @@
   }
 }
 
+/* breadcrumbs */
+.breadcrumbs {
+  display: inline-flex;
+  font-size: 13px;
+  .breadcrumbs__item {
+    padding-left: 8px;
+    text-transform: capitalize;
+    &::before {
+      content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='14' height='14' stroke='%235b6b79' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round' class='css-i6dzq1'%3E%3Cpolyline points='9 18 15 12 9 6'%3E%3C/polyline%3E%3C/svg%3E");
+      padding-right: 8px;
+      position: relative;
+      top: 2px;
+    }
+    &:first-child {
+      padding-left: 0;
+      &::before {
+        display: none;
+      }
+    }
+    &.active {
+      color: #2196F3;
+      font-weight: 600;
+    }
+  }
+}
+
 /* navigation */
 .pc-caption {
   color: #1D2630;
@@ -130,8 +156,21 @@
 
     &.pc-trigger {
       a {
+        .pc-micon,
+        .pc-mtext {
+          color: #2196F4;
+        }
         .pc-arrow {
           transform: rotate(90deg);
+        }
+      }
+      ul {
+        li {
+          a {
+            .pc-mtext {
+              color: #39465F;
+            }
+          }
         }
       }
     }
@@ -249,7 +288,7 @@
 
   .card__body {
     flex: 1 1 auto;
-    padding: 28px;
+    padding: 49px 28px;
   }
 }
 
@@ -499,4 +538,41 @@
       }
     }
   }
+}
+
+input {
+  &[type="text"] {
+    &:disabled {
+      background-color: #ECEFF1 !important;
+    }
+  }
+}
+
+select {
+  &:disabled {
+    background-color: #ECEFF1 !important;
+  }
+}
+
+.accountingBlug.up {
+  background-color: rgba(139, 195, 74, .25);
+  box-shadow: 10px 10px 80px 7px rgba(139, 195, 74, 1);
+  border: 1px solid rgba(139, 195, 74, .4);
+  border-radius: 6px;
+  color: rgba(139, 195, 74, 1);
+  padding: 4px
+}
+
+.accountingBlug.down {
+  background-color: rgba(239, 83, 80, .25);
+  box-shadow: 10px 10px 80px 7px rgba(239, 83, 80, 1);
+  border: 1px solid rgba(239, 83, 80, .4);
+  border-radius: 6px;
+  color: rgba(239, 83, 80, 1);
+  padding: 4px;
+}
+
+.accountingBlug svg,
+.accountingBlug path {
+  border-color: transparent;
 }

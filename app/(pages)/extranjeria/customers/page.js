@@ -16,8 +16,10 @@ import { Dropdown } from 'primereact/dropdown';
 import { Tag } from 'primereact/tag';
 
 import Apis from '@/app/libs/apis';
+import { Breadcrumbs } from '@/app/ui/components/organisms';
 
 const PageClients = () => {
+  const [loading, setLoading] = useState(true)
   const [customers, setCustomers] = useState(null)
   const [agents, setAgents] = useState(null)
   const [nationalities, setNationalities] = useState(null)
@@ -31,7 +33,6 @@ const PageClients = () => {
     agent: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
     status: { value: null, matchMode: FilterMatchMode.EQUALS }
   });
-  const [loading, setLoading] = useState(true)
   const getSeverity = (status) => {
     switch (status) {
       case 'Pendiente':
@@ -170,11 +171,7 @@ const PageClients = () => {
         }}
       >
         <div className="w-full">
-          <ul className="breadcrumbs">
-            <li>
-              <Link href='/'>Home</Link>
-            </li>
-          </ul>
+          <Breadcrumbs />
         </div>
         <div className="w-full">
           <h2 className="font-bold text-3xl">Clientes</h2>
@@ -215,7 +212,7 @@ const PageClients = () => {
                   ]}
                   header={header}
                   rowsPerPageOptions={[
-                    14, 21, 35, 42, 49
+                    14, 21, 28, 35, 42, 49
                   ]}
                   emptyMessage="No se han encontrado clientes"
                 >

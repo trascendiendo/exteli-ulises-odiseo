@@ -104,7 +104,7 @@ const Nav = () => {
           >
             <Link
               className="flex items-center justify-start"
-              href='/pages/extranjeria'
+              href='/extranjeria'
             >
               <Image 
                 src='/images/logo.png'

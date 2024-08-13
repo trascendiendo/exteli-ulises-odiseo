@@ -8,6 +8,7 @@ import toast, { Toaster } from 'react-hot-toast'
 import Apis from '@/app/libs/apis';
 import { InputCheckbox, InputText } from '@/app/ui/components/atoms';
 import LoadingScreen from '@/app/ui/components/molecules/LoadingScreen';
+import { Breadcrumbs } from '@/app/ui/components/organisms';
 
 const AddPack = () => {
   const [isLoading, setIsLoading] = useState(false)
@@ -74,11 +75,7 @@ const AddPack = () => {
         }}
       >
         <div className="w-full">
-          <ul className="breadcrumbs">
-            <li>
-              <Link href='/'>Home</Link>
-            </li>
-          </ul>
+          <Breadcrumbs />
         </div>
         <div className="w-full">
           <h2 className="font-bold text-3xl">Agregar pack</h2>
