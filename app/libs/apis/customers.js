@@ -22,7 +22,6 @@ const customers = {
     try {
       const customersRef = collection(db, 'customers')
       const querySnapshot = await getDocs(customersRef)
-      
 
       const customers = querySnapshot.docs.map(doc => ({
         id: doc.id,
@@ -50,6 +49,25 @@ const customers = {
       return customers
     } catch (error) {
       console.info(`GetCustomersByStatus: Error al obtener usuarios`)
+      console.error(error)
+      throw error
+    }
+  },
+  GetAllCustomersByAgent: async (agentUid) => {
+    try {
+      const customersRef = collection(db, 'customers')
+      const q = query(customersRef, where('customer.agent', '==', agentUid))
+      //const q = query(customersRef, where('agentUid', '', agentUid))
+      const querySnapshot = await getDocs(q)
+
+      const customers = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }))
+      
+      return customers
+    } catch (error) {
+      console.info(`GetAllCustomersByAgent: Error al obtener usuarios del agente ${agentUid}`)
       console.error(error)
       throw error
     }

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link'
-import Image from 'next/image';
 import { Eye } from '@phosphor-icons/react/dist/ssr';
 import toast, { Toaster } from 'react-hot-toast'
 
@@ -21,85 +20,30 @@ import { Breadcrumbs } from '@/app/ui/components/organisms';
 const PageClients = () => {
   const [loading, setLoading] = useState(true)
   const [globalFilterValue, setGlobalFilterValue] = useState('')
-  const [customers, setCustomers] = useState(null)
-  const [nationalities, setNationalities] = useState(null)
-  const [agents, setAgents] = useState(null)
-  const [statuses] = useState(['Pendiente', 'Activo', 'Incompleto', 'Finalizado'])
+  const [bills, setBills] = useState(null)
+  const [customer, setCustomer] = useState(null)
+  const [statuses] = useState(['Pagado', 'Pendiente', 'Vencido', 'Cancelado'])
   const [filters, setFilters] = useState({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    name: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-    documentNumber: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-    nationality: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-    agent: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    number: {value: null, matchMode: FilterMatchMode.STARTS_WITH},
+    customer: {value: null, matchMode: FilterMatchMode.STARTS_WITH},
+    total: {value: null, matchMode: FilterMatchMode.STARTS_WITH},
     status: { value: null, matchMode: FilterMatchMode.EQUALS }
-  });
+  })
   const getSeverity = (status) => {
     switch (status) {
+      case 'Pagado':
+        return 'success'
       case 'Pendiente':
         return 'warning'
-      case 'Activo':
-        return 'success'
-      case 'Incompleto':
-        return 'danger'
-      case 'Finalizado':
+      case 'Vencido':
         return 'info'
+      case 'Cancelado':
+        return 'danger'
     }
   }
   useEffect(() => {
-    const fetchNationalities = async () => {
-      try {
-        const res = await Apis.nationalities.GetAllNationalities()
-        if (res) {
-          const parseRes = (res) => {
-            return res.map(item => ({
-              name: item.nationality.country
-            }))
-          }
-          const newRes = parseRes(res)
-          setNationalities(newRes)
-        }
-      } catch (error) {
-        toast.error('Error al cargar la lista de nacionalidades.')
-      }
-    }
-    const fetchAgents = async () => {
-      try {
-        const res = await Apis.users.GetAllUsers()
-        if (res) {
-          const parseRes = (res) => {
-            return res.map(item => ({
-              name: `${item.firstName} ${item.lastName}`
-            }))
-          }
-          const newRes = parseRes(res)
-          setAgents(newRes)
-        }
-      } catch (error) {
-        toast.error('Error al cargar la lista de agentes.')
-      }
-    }
-    const fetchCustomers = async () => {
-      try {
-        const res = await Apis.customers.GetAllCustomers()
-        if ( res ) {
-          const parseRes = (res) => {
-            return res.map(item => ({
-              id: item.id,
-              name: `${item.customer.firstName} ${item.customer.lastName}`,
-              ...item.customer
-            }))
-          }
-          const newRes = parseRes(res)
-          setCustomers(newRes)
-        } 
-      } catch (error) {
-        toast.error('Error al cargar la lista de clientes.')
-      }
-    }
-    fetchNationalities()
-    fetchAgents()
-    fetchCustomers()
-    setLoading(false)
+
   }, [])
   const onGlobalFilterChange = (e) => {
     const value = e.target.value
@@ -110,7 +54,7 @@ const PageClients = () => {
   }
   const renderHeader = () => {
     return (
-      <div className='flex justify-end'> 
+      <div className='flex justify-end'>
         <IconField iconPosition='left'>
           <InputIcon className='pi pi-search' />
           <InputText value={globalFilterValue} onChange={onGlobalFilterChange} placeholder='Búsqueda' />
@@ -120,7 +64,7 @@ const PageClients = () => {
   }
   const statusBodyTemplate = (rowData) => {
     return (
-      <Tag 
+      <Tag
         value={rowData.status}
         severity={getSeverity(rowData.status)}
       />
@@ -128,15 +72,15 @@ const PageClients = () => {
   }
   const statusItemTemplate = (option) => {
     return (
-      <Tag 
+      <Tag
         value={option}
-        severity={getSeverity(option)}
+        security={getSeverity(option)}
       />
     )
   }
   const statusRowFilterTemplate = (options) => {
     return (
-      <Dropdown 
+      <Dropdown
         value={options.value}
         options={statuses}
         onChange={(e) => options.filterApplyCallback(e.value)} 
@@ -151,8 +95,8 @@ const PageClients = () => {
   const actionBodyTemplate = (rowData) => {
     return (
       <Link
-        className="btn btn-primary"
-        href={`./customers/${rowData.id}`}
+        className='btn btn-primary'
+        href={`./bills/${rowData.id}`}
       >
         Ver más <Eye size={28} />
       </Link>
@@ -174,7 +118,7 @@ const PageClients = () => {
           <Breadcrumbs />
         </div>
         <div className="w-full">
-          <h2 className="font-bold text-3xl">Clientes</h2>
+          <h2 className="font-bold text-3xl">Facturas</h2>
         </div>
       </div>
       <div
@@ -190,58 +134,50 @@ const PageClients = () => {
                 <div className="w-4/12"></div>
                 <Link
                   className="btn btn-success"
-                  href='/extranjeria/customers/add'
+                  href='/extranjeria/bills/add'
                 >
-                  Agregar cliente
+                  Agregar factura
                 </Link>
               </div>
               <div className="table-responsive">
-                <DataTable 
-                  value={customers}
+                <DataTable
+                  value={bills}
                   paginator
                   rows={14}
                   dataKey='id'
                   filters={filters}
                   filterDisplay='row'
                   globalFilterFields={[
-                    'name',
-                    'documentNumber',
-                    'nationality.name',
-                    'agent.name',
+                    'number',
+                    'customer',
+                    'total',
                     'status'
                   ]}
                   header={header}
                   rowsPerPageOptions={[
                     14, 21, 28, 35, 42, 49
                   ]}
-                  emptyMessage="No se han encontrado clientes"
+                  emptyMessage="No se han encontrado facturas"
                 >
-                  <Column
-                    field='name'
-                    header='Nombre'
+                  <Column 
+                    field='number'
+                    header='Número'
                     filter
-                    filterPlaceholder='Buscar nombre'
+                    filterPlaceholder='Filtrar por número de factura'
                     style={{ minWidth: '10rem' }}
                   />
                   <Column 
-                    field='documentNumber'
-                    header='Pasaporte'
+                    field='customer'
+                    header='Cliente'
                     filter
-                    filterPlaceholder='Buscar por pasaporte'
+                    filterPlaceholder='Filtrar por cliente'
                     style={{ minWidth: '10rem' }}
                   />
                   <Column 
-                    field='nationality'
-                    header='Nacionalidad'
+                    field='total'
+                    header='Total'
                     filter
-                    filterPlaceholder='Buscar por nacionalidad'
-                    style={{ minWidth: '10rem' }}
-                  />
-                  <Column 
-                    field='agent'
-                    header='Agente'
-                    filter
-                    filterPlaceholder='Buscar agente'
+                    filterPlaceholder='Buscar por Total'
                     style={{ minWidth: '10rem' }}
                   />
                   <Column 
@@ -271,5 +207,4 @@ const PageClients = () => {
   )
 }
 
-//export default WithAuth()
 export default PageClients
