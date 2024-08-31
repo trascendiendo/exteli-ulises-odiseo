@@ -107,31 +107,31 @@ const AddBill = () => {
   const calculateSubtotal = () => {
     const newTotal = rows.reduce((acc, _, index) => {
       const baseValue = parseFloat(document.querySelector(`input[name='base-${index + 1}']`).value) || 0
-      return acc + baseValue
+      const cantidad = parseFloat(document.querySelector(`input[name='cantidad-${index + 1}']`).value) || 1
+      return acc + (baseValue * cantidad)
     }, 0)
     calculateIvas()
     setSubtotal(newTotal)
   }
 
-  const calculateTotal = () => {
-    const newTotal = rows.reduce((acc, _, index) => {
-      const baseValue = parseFloat(document.querySelector(`input[name='base-${index + 1}']`).value) || 0
-      return acc + baseValue
-    }, 0)
-    setTotal(newTotal)
-  }
-
   const calculateIvas = () => {
-    const ivaValues = rows.map((_, index) => parseFloat(document.querySelector(`input[name='iva-${index + 1}']`).value) || 0);
-    const uniqueIvas = [...new Set(ivaValues)];
+    const ivaValues = rows.map((_, index) => parseFloat(document.querySelector(`input[name='iva-${index + 1}']`).value) || 0)
+    const uniqueIvas = [...new Set(ivaValues)]
     setIvas(uniqueIvas.map(iva => ({
       iva,
       value: rows.reduce((acc, _, index) => {
-        const baseValue = parseFloat(document.querySelector(`input[name='base-${index + 1}']`).value) || 0;
-        const currentIva = parseFloat(document.querySelector(`input[name='iva-${index + 1}']`).value) || 0;
-        return currentIva === iva ? acc + (baseValue * iva) / 100 : acc;
+        const baseValue = parseFloat(document.querySelector(`input[name='base-${index + 1}']`).value) || 0
+        const cantidad = parseFloat(document.querySelector(`input[name='cantidad-${index + 1}']`).value) || 1
+        const currentIva = parseFloat(document.querySelector(`input[name='iva-${index + 1}']`).value) || 0
+        return currentIva === iva ? acc + ((baseValue * cantidad) * iva) / 100 : acc
       }, 0)
     })))
+  }
+
+  const calculateTotal = () => {
+    const totalIva = ivas.reduce((acc, iva) => acc + iva.value, 0)
+    const newTotal = subtotal + totalIva
+    setTotal(newTotal)
   }
 
   useEffect(() => {
@@ -170,6 +170,10 @@ const AddBill = () => {
   useEffect(() => {
     calculateSubtotal()
   }, [rows])
+
+  useEffect(() => {
+    calculateTotal()
+  }, [subtotal, ivas])
 
   return (
     <>
@@ -236,7 +240,7 @@ const AddBill = () => {
                           type='text'
                           
                           required
-                          autoComplete='none'
+                          autoComplete='off'
                         />
                       </div>
                     </div>
@@ -250,6 +254,7 @@ const AddBill = () => {
                           value={createDate}
                           onChange={(e) => setCreateDate(e.target.value)}
                           required
+                          autoComplete='off'
                         />
                       </div>
                     </div>
@@ -284,6 +289,7 @@ const AddBill = () => {
                           onChange={(e) => setPaidDate(e.target.value)}
                           required={dueDate === 'manual'}
                           disabled={dueDate !== 'manual'}
+                          autoComplete='off'
                         />
                       </div>
                     </div>
@@ -301,7 +307,7 @@ const AddBill = () => {
                                 type='text'
                                 
                                 required
-                                autoComplete='none'
+                                autoComplete='off'
                               />
                             </div>
                           </div>
@@ -313,7 +319,7 @@ const AddBill = () => {
                                 type='text'
                                 placeholder='0'
                                 required
-                                autoComplete='none'
+                                autoComplete='off'
                                 onChange={calculateSubtotal}
                               />
                             </div>
@@ -324,9 +330,10 @@ const AddBill = () => {
                               <InputText
                                 name={`cantidad-${index + 1}`}
                                 type='text'
-                                placeholder='0'
+                                defaultValue='1'
                                 required
-                                autoComplete='none'
+                                autoComplete='off'
+                                onChange={calculateSubtotal}
                               />
                             </div>
                           </div>
@@ -338,7 +345,7 @@ const AddBill = () => {
                                 type='text'
                                 placeholder='0'
                                 required
-                                autoComplete='none'
+                                autoComplete='off'
                               />
                             </div>
                           </div>
@@ -349,8 +356,8 @@ const AddBill = () => {
                                 name={`iva-${index + 1}`}
                                 type='text'
                                 defaultValue='21'
-                                disabled
-                                autoComplete='none'
+                                autoComplete='off'
+                                onChange={calculateSubtotal}
                               />
                             </div>
                           </div>
@@ -362,7 +369,7 @@ const AddBill = () => {
                                 type='text'
                                 placeholder='0'
                                 required
-                                autoComplete='none'
+                                autoComplete='off'
                               />
                             </div>
                           </div>
@@ -436,10 +443,10 @@ const AddBill = () => {
 
                             <div className='mb-2 row__iva'>
                               {ivas.length > 1
-                                ? ivas.map((iva, index) => {
+                                ? ivas.map((iva, index) => (
                                   <div className='flex gap-4 row__iva-item' key={index}>
                                     <div className="w-6/12">
-                                      <span className="block font-extralight text-base">IVA ({iva.iva} %)</span>
+                                      <span className="block font-extralight text-base">IVA {iva.iva} %</span>
                                     </div>
                                     <div className="text-right w-6/12">
                                       <span className="block font-extralight text-base row__iva-value">
@@ -447,10 +454,10 @@ const AddBill = () => {
                                       </span>
                                     </div>
                                   </div>
-                                })
+                                ))
                                 : <div className='flex gap-4 row__iva-item'>
                                     <div className="w-6/12">
-                                      <span className="block font-extralight text-base">IVA ({ivas[0]?.iva} %)</span>
+                                      <span className="block font-extralight text-base">IVA {ivas[0]?.iva} %</span>
                                     </div>
                                     <div className="text-right w-6/12">
                                       <span className="block font-extralight text-base row__iva-value">
