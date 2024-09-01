@@ -1,5 +1,5 @@
+import { addDoc, collection, getDoc, getDocs, limit, orderBy } from 'firebase/firestore'
 import { db } from '@/app/libs/utils/firebase'
-import { addDoc, collection, getDoc, getDocs } from 'firebase/firestore'
 
 const bills = {
   GetBill: async (uid) => {
@@ -72,11 +72,31 @@ const bills = {
       throw error
     }
   },
+  GetLastBill: async () => {
+    try {
+      const billsRef = collection(db, 'bills')
+      const q = query(billsRef, orderBy('createdAt', 'desc'), limit(1))
+      const querySnapshot = await getDocs(q)
+
+      if ( !querySnapshot.empty ) {
+        const lastBillDoc = querySnapshot.docs[0]
+        const { billNumber } = lastBillDoc.data()
+
+        return billNumber
+      } else {
+        console.info("No hay facturas registradas")
+        return null
+      }
+
+    } catch (error) {
+      console.info(`GetLastBill: Error al obtener la ultima factura`)
+      console.error(error)
+      throw error
+    }
+  },
   PostBill: async (bill) => {
     try {
-      await addDoc(collection(db, 'bills'), {
-        bill
-      })
+      await addDoc(collection(db, 'bills'), bill)
     } catch (error) {
       console.info(`PostBill: Error al crear factura`)
       console.error(error)

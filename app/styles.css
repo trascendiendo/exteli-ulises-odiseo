@@ -588,3 +588,38 @@ select {
 .nouser-select {
   user-select: none;
 }
+
+.dropdown-menu {
+  background-color: white;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 4px 24px 0 rgba(62, 57, 107, 0.18);
+  display: none;
+  margin: 0;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: calc(226px);
+  z-index: 0;
+  &.active {
+    display: block;
+    inset: auto 0px 0px auto;
+    transform: translate3d(0px, 32px, 0px);
+    z-index: 1025;
+  }
+  ul {
+    li {
+      border-top: 1px solid #dbe0e5;
+      &:first-child {
+        border-top: none;
+      }
+      button {
+        align-items: center;
+        display: flex;
+        gap: 7px;
+        padding: 14px;
+        width: 100%;
+      }
+    }
+  }
+}

@@ -6,17 +6,20 @@ import Link from 'next/link';
 import { DotsThreeVertical } from '@phosphor-icons/react/dist/ssr';
 import { serverTimestamp } from 'firebase/firestore'
 import toast, { Toaster } from 'react-hot-toast'
+import { Html } from 'react-pdf-html';
 import Apis from '@/app/libs/apis'
 import { parsePrice } from '@/app/libs/utils';
 import { useAuth } from '@/app/libs/providers/AuthContext';
 import { InputText } from '@/app/ui/components/atoms';
 import LoadingScreen from '@/app/ui/components/molecules/LoadingScreen';
 import { Breadcrumbs } from '@/app/ui/components/organisms';
+import { Trash } from '@phosphor-icons/react';
 
 const AddBill = () => {
   const { user } = useAuth()
   const [thisUser, setThisUser] = useState({})
   const [isLoading, setIsLoading] = useState(false)
+  const [usermenu, setUsermenu] = useState(false)
   const [provider, setProvider] = useState({})
   const [myCustomers, setMyCustomers] = useState({})
   const [rows, setRows] = useState([{}])
@@ -28,6 +31,11 @@ const AddBill = () => {
   const [status, setStatus] = useState('pendiente')
   const [ivas, setIvas] = useState([])
   const router = useRouter()
+
+  const handleUsermenu = (e) => {
+    e.preventDefault()
+    setUsermenu(!usermenu)
+  }
 
   const getCompanyData = async () => {
     try {
@@ -100,11 +108,17 @@ const AddBill = () => {
     })))
   }
 
+  const handleDeleteRow = () => {
+
+  }
+
   const calculateTotal = () => {
     const totalIva = ivas.reduce((acc, iva) => acc + iva.value, 0)
     const newTotal = subtotal + totalIva
     setTotal(newTotal)
   }
+
+  const html = ``
 
   const handleSubmit = async () => {
     setIsLoading(true)
@@ -385,14 +399,29 @@ const AddBill = () => {
                               />
                             </div>
                           </div>
-                          <div className="w-1/12">
+                          <div className="relative w-1/12">
                             <div className="mb-4">
                               <span className="block text-sm">
                                 &nbsp;
                               </span>
-                              <button className='btn btn-info items-center justify-center w-full'>
+                              <button 
+                                className='btn btn-info items-center justify-center w-full'
+                                onClick={handleUsermenu}
+                              >
                                 <DotsThreeVertical size={28} />
                               </button>
+                            </div>
+                            <div className={`dropdown-menu ${usermenu ? 'active' : ''}`}>
+                              <ul>
+                                <li>
+                                  <button
+                                    onClick={handleDeleteRow}
+                                  >
+                                    <Trash size={22} />
+                                    <span>Eliminar</span>
+                                  </button>
+                                </li>
+                              </ul>
                             </div>
                           </div>
                         </div>
