@@ -17,6 +17,7 @@ const AddBill = () => {
   const { user } = useAuth()
   const [thisUser, setThisUser] = useState({})
   const [isLoading, setIsLoading] = useState(false)
+  const [provider, setProvider] = useState({})
   const [myCustomers, setMyCustomers] = useState({})
   const [rows, setRows] = useState([{}])
   const [createDate, setCreateDate] = useState(new Date().toISOString().split('T')[0])
@@ -28,52 +29,14 @@ const AddBill = () => {
   const [ivas, setIvas] = useState([])
   const router = useRouter()
 
-  const handleSubmit = async () => {
-    setIsLoading(true)
+  const getCompanyData = async () => {
     try {
-      const description = rows.map((_, index) => {
-        return {
-          concept: document.querySelector(`input[name='concept-${index + 1}']`).value,
-          base: document.querySelector(`input[name='base-${index + 1}']`).value,
-          cantidad: document.querySelector(`input[name='cantidad-${index + 1}']`).value,
-          dto: document.querySelector(`input[name='dto-${index + 1}']`).value,
-          iva: document.querySelector(`input[name='iva-${index + 1}']`).value,
-          irpf: document.querySelector(`input[name='irpf-${index + 1}']`).value
-        }
-      })
-
-      const bill = {
-        provider, // TODO: datos fiscales de la empresa que factura
-        customer: document.querySelector(`select[name='customer']`).value,
-        billSerial: document.querySelector(`select[name='billSerial']`).value,
-        billNumber: document.querySelector(`input[name='billNumber']`).value,
-        createDate,
-        dueDate,
-        paidDate,
-        description,
-        subtotal,
-        total,
-        notes: document.querySelector(`input[name='notes']`).value,
-        status,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      }
-      console.log(bill)
+      const resCompanyData = await Apis.company.GetAllCompanies()
+      setProvider(resCompanyData)
     } catch (error) {
-      toast.error('Error al registrar una factura.')
-    } finally {
-      setIsLoading(false)
-      router.push('/extranjeria/bills')
+      console.info('getCompanyData')
+      console.error(`Error al obtener data`)
     }
-  }
-
-  const handleAddRow = () => {
-    if ( !validateFills() ) {
-      toast.error('Complete los campos de la primera fila antes de agregar más')
-      return
-    }
-
-    setRows([...rows, {}])
   }
 
   const validateFills = () => {
@@ -83,6 +46,15 @@ const AddBill = () => {
       document.querySelector("input[name='base-1']").value &&
       document.querySelector("input[name='iva-1']").value
     )
+  }
+
+  const handleAddRow = () => {
+    if ( !validateFills() ) {
+      toast.error('Complete los campos de la primera fila antes de agregar más')
+      return
+    }
+
+    setRows([...rows, {}])
   }
 
   const calculatePaidDate = () => {
@@ -134,6 +106,45 @@ const AddBill = () => {
     setTotal(newTotal)
   }
 
+  const handleSubmit = async () => {
+    setIsLoading(true)
+    try {
+      const description = rows.map((_, index) => {
+        return {
+          concept: document.querySelector(`input[name='concept-${index + 1}']`).value,
+          base: document.querySelector(`input[name='base-${index + 1}']`).value,
+          cantidad: document.querySelector(`input[name='cantidad-${index + 1}']`).value,
+          dto: document.querySelector(`input[name='dto-${index + 1}']`).value,
+          iva: document.querySelector(`input[name='iva-${index + 1}']`).value,
+          irpf: document.querySelector(`input[name='irpf-${index + 1}']`).value
+        }
+      })
+
+      const bill = {
+        provider, // TODO: datos fiscales de la empresa que factura
+        customer: document.querySelector(`select[name='customer']`).value,
+        billSerial: document.querySelector(`select[name='billSerial']`).value,
+        billNumber: document.querySelector(`input[name='billNumber']`).value,
+        createDate,
+        dueDate,
+        paidDate,
+        description,
+        subtotal,
+        total,
+        notes: document.querySelector(`input[name='notes']`).value,
+        status,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      }
+      console.log(bill)
+    } catch (error) {
+      toast.error('Error al registrar una factura.')
+    } finally {
+      setIsLoading(false)
+      router.push('/extranjeria/bills')
+    }
+  }
+
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true)
@@ -153,6 +164,7 @@ const AddBill = () => {
       setIsLoading(true)
       try {
         const resCustomers = await Apis.customers.GetAllCustomersByAgent(`${user.firstName} ${user.lastName}`)
+        getCompanyData()
         setMyCustomers(resCustomers)
       } catch (error) {
         console.info('fetchData')
@@ -227,8 +239,8 @@ const AddBill = () => {
                         </select>
                       </div>
                     </div>
-                    <div className="w-4/12"></div>
-                    <div className="w-4/12"></div>
+                    <div className="nouser-select w-4/12"></div>
+                    <div className="nouser-select w-4/12"></div>
                   </div>
 
                   <div className="flex gap-4">
@@ -413,18 +425,18 @@ const AddBill = () => {
                         </textarea>
                       </div>
                     </div>
-                    <div className="w-1/12"></div>
-                    <div className="w-1/12"></div>
-                    <div className="w-1/12"></div>
-                    <div className="w-1/12"></div>
-                    <div className="w-1/12"></div>
-                    <div className="w-1/12"></div>
+                    <div className="nouser-select w-1/12"></div>
+                    <div className="nouser-select w-1/12"></div>
+                    <div className="nouser-select w-1/12"></div>
+                    <div className="nouser-select w-1/12"></div>
+                    <div className="nouser-select w-1/12"></div>
+                    <div className="nouser-select w-1/12"></div>
                   </div>
 
                   <div className="flex gap-4 mb-4">
-                  <div className="w-3/12"></div>
-                    <div className="w-3/12"></div>
-                    <div className="w-3/12"></div>
+                    <div className="nouser-select w-3/12"></div>
+                    <div className="nouser-select w-3/12"></div>
+                    <div className="nouser-select w-3/12"></div>
                     <div className="w-3/12">
                       <div className='bg-gray-200 rounded-xl px-4 py-3'>
 

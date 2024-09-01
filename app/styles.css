@@ -584,3 +584,7 @@ select {
 .accountingBlug path {
   border-color: transparent;
 }
+
+.nouser-select {
+  user-select: none;
+}
