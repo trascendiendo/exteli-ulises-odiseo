@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { useRouter } from 'next/navigation';
 import { onIdTokenChanged } from 'firebase/auth';
 import Apis from '@/app/libs/apis'
 import { auth } from '@/app/libs/utils/firebase';
@@ -10,6 +11,7 @@ export const AuthProvider = ({ children }) => {
   const cookies = new Cookies
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
+  const router = useRouter()
 
   useEffect(() => {
     return onIdTokenChanged(auth, async (user) => {
