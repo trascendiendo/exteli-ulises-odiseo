@@ -40,7 +40,7 @@ const Procedure = ({
       }
     }
     fetchData()
-  }, [uid])
+  }, [uid]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleUpdate = async (e) => {
     e.preventDefault()

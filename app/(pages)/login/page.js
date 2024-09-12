@@ -50,7 +50,7 @@ const Login = () => {
   useEffect(() => {
     const user = cookies.get('user')
     if ( user ) router.push('/extranjeria')
-  },[])
+  },[]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <>

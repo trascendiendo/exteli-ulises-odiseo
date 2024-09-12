@@ -31,7 +31,7 @@ const PageBill = () => {
       }
     }
     getBill()
-  }, [])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <>

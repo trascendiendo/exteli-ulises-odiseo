@@ -274,19 +274,19 @@ const AddBill = () => {
       }
     }
     fetchData()
-  }, [thisUser])
+  }, [thisUser]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     calculatePaidDate()
-  }, [createDate, dueDate])
+  }, [createDate, dueDate]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     calculateSubtotal()
-  }, [rows])
+  }, [rows]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     calculateTotal()
-  }, [subtotal, ivas])
+  }, [subtotal, ivas]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const getLastBill = async () => {

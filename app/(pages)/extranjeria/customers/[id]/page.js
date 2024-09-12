@@ -25,7 +25,7 @@ const PageCustomer = () => {
       if ( user ) setThisUser(user)
     }
     getUser()
-  }, [])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <>

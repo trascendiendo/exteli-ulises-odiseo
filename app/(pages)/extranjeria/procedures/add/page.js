@@ -50,7 +50,7 @@ const AddProcedure = () => {
       if ( user ) setThisUser(user.uid)
     }
   getUser()
-  }, [])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <>
