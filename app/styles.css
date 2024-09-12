@@ -370,6 +370,14 @@
   &.btn-danger {
     background-color: #F44336;
     border: 2px solid #F44336;
+    svg {
+      margin-left: 0;
+    }
+    &:disabled {
+      background-color: #EF9A9A;
+      border: 2px solid #EF9A9A;
+      color: white;
+    }
   }
 
   &.btn-success {
@@ -586,6 +594,7 @@ select {
 }
 
 .nouser-select {
+  pointer-events: none;
   user-select: none;
 }
 
@@ -621,5 +630,38 @@ select {
         width: 100%;
       }
     }
+  }
+}
+
+.modal {
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  inset: 0px;
+  place-content: center space-around;
+  position: fixed;
+  z-index: 99999;
+  .modal__content {
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: rgba(131, 131, 131, 0.5) 0px 2px 10px 0px;
+    height: 850px;
+    max-height: 95%;
+    max-width: 900px;
+    overflow: auto;
+    padding: 56px 28px 28px 28px;
+    place-self: center;
+    position: relative;
+    width: 800px;
+  }
+  .modal__close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+  }
+}
+
+.documento {
+  background-color: white;
+  @media print {
   }
 }

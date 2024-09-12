@@ -130,7 +130,7 @@ const Nav = () => {
                   whiteSpace: 'nowrap'
                 }}
               >
-                v1.0
+                v1.2
               </span>
             </Link>
           </div>

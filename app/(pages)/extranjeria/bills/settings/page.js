@@ -16,7 +16,9 @@ const SettingsPage = () => {
   const [thisUser, setThisUser] = useState({})
   const [isLoading, setIsLoading] = useState(false)
 
+  const [company, setCompany] = useState(null)
   const [name, setName] = useState('')
+  const [documentType, setDocumentType] = useState('NIF')
   const [document, setDocument] = useState('')
   const [email, setEmail] = useState('')
   const [address, setAddress] = useState('')
@@ -24,6 +26,33 @@ const SettingsPage = () => {
   const [city, setCity] = useState('')
   const [country, setCountry] = useState('España')
   const router = useRouter()
+
+  const handleUpdate = async () => {
+    setIsLoading(true)
+    try {
+      const companyUpdated = {
+        id: company.id,
+        agentUid: company.agentUid,
+        name,
+        documentType,
+        document,
+        email,
+        address,
+        zipcode,
+        city,
+        country,
+        createdAt: company.createdAt,
+        updatedAt: serverTimestamp()
+      }
+      await Apis.company.PatchCompany(company.id, companyUpdated)
+      toast.success('Datos de empresa registrados con éxito.')
+    } catch (error) {
+      toast.error(`handleUpdate: Error al actualizar los datos de empresa.`)
+      console.error(error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const handleSubmit = async () => {
     setIsLoading(true)
@@ -40,12 +69,11 @@ const SettingsPage = () => {
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       }
-      console.log(company)
       await Apis.company.PostCompany(company)
       toast.success('Datos fiscales registrados con éxito.')
     } catch (error) {
-      console.log(error)
       toast.error('Error al registrar un cliente.')
+      console.error(error)
     } finally {
       setIsLoading(false)
       //router.push('/extranjeria/bills')
@@ -54,6 +82,32 @@ const SettingsPage = () => {
 
   useEffect(() => {
     setThisUser(user)
+  }, [])
+
+  useEffect(() => {
+    const GetCompany = async () => {
+      setIsLoading(true)
+      try {
+        const res = await Apis.company.GetAllCompanies()
+        if ( res && res.length > 0 ) {
+          const company = res[0]
+          setName(company.name)
+          setDocumentType(company.documentType)
+          setDocument(company.document)
+          setEmail(company.email)
+          setAddress(company.address)
+          setZipcode(company.zipcode)
+          setCity(company.city)
+          setCountry(company.country)
+          setCompany(company)
+        }
+      } catch (error) {
+        toast.error(`GetCompany: Error al cargar los datos de empresa.`)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    GetCompany()
   }, [])
 
   return (
@@ -102,6 +156,19 @@ const SettingsPage = () => {
                     </div>
                     <div className="w-full sm:w-4/12">
                       <div className="mb-4">
+                        <span className="block text-sm">Tipo de documento (*)</span>
+                        <select 
+                          className="border rounded-lg px-3 py-3.5 text-sm w-full"
+                          value={documentType}
+                          onChange={e => setDocumentType(e.target.value)}
+                        >
+                          <option value='NIF'>NIF</option>
+                          <option value='CIF'>CIF</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div className="w-full sm:w-4/12">
+                      <div className="mb-4">
                         <span className="block text-sm">NIF/CIF (*)</span>
                         <InputText
                           type='text'
@@ -112,6 +179,9 @@ const SettingsPage = () => {
                         />
                       </div>
                     </div>
+                  </div>
+
+                  <div className="flex gap-6">
                     <div className="w-full sm:w-4/12">
                       <div className="mb-4">
                         <span className="block text-sm">Email (*)</span>
@@ -124,9 +194,6 @@ const SettingsPage = () => {
                         />
                       </div>
                     </div>
-                  </div>
-
-                  <div className="flex gap-6">
                     <div className="w-full sm:w-4/12">
                       <div className="mb-4">
                         <span className="block text-sm">Direccion (*)</span>
@@ -151,6 +218,9 @@ const SettingsPage = () => {
                         />
                       </div>
                     </div>
+                  </div>
+
+                  <div className="flex gap-6">
                     <div className="w-full sm:w-4/12">
                       <div className="mb-4">
                         <span className="block text-sm">Ciudad (*)</span>
@@ -163,9 +233,6 @@ const SettingsPage = () => {
                         />
                       </div>
                     </div>
-                  </div>
-
-                  <div className="flex gap-6">
                     <div className="w-full sm:w-4/12">
                       <div className="mb-4">
                         <span className="block text-sm">País (*)</span>
@@ -181,8 +248,6 @@ const SettingsPage = () => {
                     </div>
                     <div className="w-full sm:w-4/12">
                     </div>
-                    <div className="w-full sm:w-4/12">
-                    </div>
                   </div>
 
                   <div className="flex gap-6">
@@ -195,12 +260,25 @@ const SettingsPage = () => {
                       </Link>
                     </div>
                     <div className="flex justify-start w-full sm:w-6/12">
-                      <button
-                        className="btn btn-success w-6/12"
-                        onClick={handleSubmit}
-                      >
-                        Guardar
-                      </button>
+                      {company ? (
+                        <>
+                          <button
+                            className="btn btn-primary w-6/12"
+                            onClick={handleUpdate}
+                          >
+                            Actualizar
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            className="btn btn-success w-6/12"
+                            onClick={handleSubmit}
+                          >
+                            Guardar
+                          </button>
+                        </>
+                      )}
                     </div>
                   </div>
 

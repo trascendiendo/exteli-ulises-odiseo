@@ -45,13 +45,12 @@ const AddUser = () => {
     }
     await Apis.users.PostUser(user.uid, newUser)
       .then(() => {
-        console.log(newUser)
+        console.info(newUser)
         toast.success('Usuario registrado con éxito.')
       })
       .catch((error) => {
-        console.log(newUser)
         toast.error('Error al crear un usuario.')
-        console.log(error)
+        console.error(error)
       })
       .finally(() => {
         setIsLoading(false)

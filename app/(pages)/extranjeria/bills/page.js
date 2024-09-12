@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link'
-import { Eye } from '@phosphor-icons/react/dist/ssr';
+import { FilePdf } from '@phosphor-icons/react/dist/ssr';
 import toast, { Toaster } from 'react-hot-toast'
 
 import { FilterMatchMode } from 'primereact/api';
@@ -14,6 +14,7 @@ import { IconField } from 'primereact/iconfield';
 import { Dropdown } from 'primereact/dropdown';
 import { Tag } from 'primereact/tag';
 
+import { parsePrice } from '@/app/libs/utils';
 import Apis from '@/app/libs/apis';
 import { Breadcrumbs } from '@/app/ui/components/organisms';
 
@@ -21,29 +22,53 @@ const PageClients = () => {
   const [loading, setLoading] = useState(true)
   const [globalFilterValue, setGlobalFilterValue] = useState('')
   const [bills, setBills] = useState(null)
-  const [customer, setCustomer] = useState(null)
-  const [statuses] = useState(['Pagado', 'Pendiente', 'Vencido', 'Cancelado'])
+  const [statuses] = useState(['Pendiente', 'Pagado', 'Cancelado', 'Vencido'])
   const [filters, setFilters] = useState({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
     number: {value: null, matchMode: FilterMatchMode.STARTS_WITH},
     customer: {value: null, matchMode: FilterMatchMode.STARTS_WITH},
+    createDate: {value: null, matchMode: FilterMatchMode.DATE_IS},
+    paidDate: {value: null, matchMode: FilterMatchMode.DATE_IS},
     total: {value: null, matchMode: FilterMatchMode.STARTS_WITH},
     status: { value: null, matchMode: FilterMatchMode.EQUALS }
   })
   const getSeverity = (status) => {
     switch (status) {
-      case 'Pagado':
-        return 'success'
       case 'Pendiente':
         return 'warning'
-      case 'Vencido':
-        return 'info'
+      case 'Pagado':
+        return 'success'
       case 'Cancelado':
         return 'danger'
+      case 'Vencido':
+        return 'info'
     }
   }
   useEffect(() => {
-
+    const fetchBills = async () => {
+      try {
+        const res = await Apis.bills.GetBills()
+        if ( res ) {
+          const parseRes = (res) => {
+            return res.map(item => ({
+              id: item.id,
+              number: `${item.billSerial}-${item.billNumber}`,
+              customer: `${item.customer.customer.firstName} ${item.customer.customer.lastName}`,
+              createDate: item.createDate,
+              paidDate: item.paidDate,
+              total: parsePrice(item.total),
+              status: item.status
+            }))
+          }
+          const newRes = parseRes(res)
+          setBills(newRes)
+        }
+      } catch (error) {
+        toast.error('Error al cargar la lista de facturas.')
+        console.error(error)
+      }
+    }
+    fetchBills()
   }, [])
   const onGlobalFilterChange = (e) => {
     const value = e.target.value
@@ -51,6 +76,9 @@ const PageClients = () => {
     _filters['global'].value = value
     setFilters(_filters)
     setGlobalFilterValue(value)
+  }
+  const formatCurrency = (value) => {
+    return value.toLocaleString('es-ES', { style: 'currency', currency: 'EUR'})
   }
   const renderHeader = () => {
     return (
@@ -61,6 +89,9 @@ const PageClients = () => {
         </IconField>
       </div>
     )
+  }
+  const priceBodyTemplate = (rowData) => {
+    return formatCurrency(rowData.total)
   }
   const statusBodyTemplate = (rowData) => {
     return (
@@ -98,7 +129,7 @@ const PageClients = () => {
         className='btn btn-primary'
         href={`./bills/${rowData.id}`}
       >
-        Ver más <Eye size={28} />
+        Ver <FilePdf size={28} />
       </Link>
     )
   }
@@ -150,6 +181,8 @@ const PageClients = () => {
                   globalFilterFields={[
                     'number',
                     'customer',
+                    'createDate',
+                    'paidDate',
                     'total',
                     'status'
                   ]}
@@ -173,10 +206,25 @@ const PageClients = () => {
                     filterPlaceholder='Filtrar por cliente'
                     style={{ minWidth: '10rem' }}
                   />
+                  <Column
+                    field='createDate'
+                    header='Registrado'
+                    filter
+                    filterPlaceholder='Filtrar por fecha de creación'
+                    style={{ minWidth: '10rem' }}
+                  />
+                  <Column
+                    field='paidDate'
+                    header='Vencimiento'
+                    filter
+                    filterPlaceholder='Filtrar por vencimiento'
+                    style={{ minWidth: '10rem' }}
+                  />
                   <Column 
                     field='total'
                     header='Total'
                     filter
+                    body={priceBodyTemplate}
                     filterPlaceholder='Buscar por Total'
                     style={{ minWidth: '10rem' }}
                   />

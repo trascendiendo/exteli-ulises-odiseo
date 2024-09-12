@@ -15,7 +15,7 @@ const PagePacks = () => {
   const handleDelete = async (uid) => {
     await Apis.procedures.DeleteProcedure(uid)
       .then(() => {
-        console.log(`Eliminado: ${uid}`)
+        console.info(`Eliminado: ${uid}`)
       })
       .catch((error) => {
         console.error(`error`)

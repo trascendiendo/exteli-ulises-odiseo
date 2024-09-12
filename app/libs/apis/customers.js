@@ -35,6 +35,24 @@ const customers = {
       throw error
     }
   },
+  GetCustomerName: async (uid) => {
+    try {
+      const customerDocRef = doc(db, 'customers', uid)
+      const customerDocSnap = await getDoc(customerDocRef)
+
+      if (customerDocSnap.exists()) {
+        const customerData = customerDocSnap.data()
+        const fullName = `${customerData.customer.firstName} ${customerData.customer.lastName}`
+        return fullName
+      } else {
+        return null
+      }
+    } catch (error) {
+      console.info(`GetCustomerName: Error al obtener los nombres del cliente: ${uid}`)
+      console.error(error)
+      throw error
+    }
+  },
   GetCustomersByStatus: async (status) => {
     try {
       const customersRef = collection(db, 'customers')

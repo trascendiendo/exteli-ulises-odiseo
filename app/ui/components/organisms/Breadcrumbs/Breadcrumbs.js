@@ -2,7 +2,6 @@
 
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { capitalize } from '@/app/libs/utils';
 
 const Breadcrumbs = () => {
   const paths = usePathname()

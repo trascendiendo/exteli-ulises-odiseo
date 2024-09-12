@@ -1,4 +1,4 @@
-import { addDoc, collection, getDocs, query, updateDoc } from "firebase/firestore"
+import { addDoc, collection, doc, getDocs, query, updateDoc } from "firebase/firestore"
 import { db } from '@/app/libs/utils/firebase'
 
 const companies = {

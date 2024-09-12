@@ -42,7 +42,6 @@ const AddPack = () => {
   }
 
   const handleProcedure = (e) => {
-    console.log(e)
     let newArray = [...procedures, e]
     if ( procedures.includes(e) ) {
       newArray = newArray.filter(procedure => procedure !== e)

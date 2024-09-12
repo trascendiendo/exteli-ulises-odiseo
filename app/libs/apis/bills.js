@@ -1,4 +1,4 @@
-import { addDoc, collection, getDoc, getDocs, limit, orderBy } from 'firebase/firestore'
+import { addDoc, collection, doc, getDoc, getDocs, limit, orderBy, query } from 'firebase/firestore'
 import { db } from '@/app/libs/utils/firebase'
 
 const bills = {
@@ -26,7 +26,7 @@ const bills = {
       const bills = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
-      })).sort((a, b) => a.bill.createdAt - b.bill.createdAt)
+      })).sort((a, b) => b.createdAt - a.createdAt)
 
       return bills
     } catch (error) {
