@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }) => {
       }
       setLoading(false)
     })
-  }, [])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <AuthContext.Provider value={{ user, loading }}>

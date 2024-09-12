@@ -82,7 +82,7 @@ const SettingsPage = () => {
 
   useEffect(() => {
     setThisUser(user)
-  }, [])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const GetCompany = async () => {

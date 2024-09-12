@@ -75,7 +75,7 @@ const PageUser = () => {
       }
     }
     fetchUser()
-  }, [])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <>

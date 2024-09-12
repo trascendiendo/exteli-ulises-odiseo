@@ -37,7 +37,7 @@ const Packs = ({
         setError(error)
       }
     }
-  }, [uid])
+  }, [uid]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleUpdate = async (e) => {
 
