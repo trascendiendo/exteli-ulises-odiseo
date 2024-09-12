@@ -5,26 +5,167 @@ import Link from 'next/link'
 import Image from 'next/image';
 import { Eye } from '@phosphor-icons/react/dist/ssr';
 import toast, { Toaster } from 'react-hot-toast'
+
+import { FilterMatchMode } from 'primereact/api';
+import { DataTable } from 'primereact/datatable';
+import { Column } from 'primereact/column';
+import { InputText } from 'primereact/inputtext';
+import { InputIcon } from 'primereact/inputicon';
+import { IconField } from 'primereact/iconfield';
+import { Dropdown } from 'primereact/dropdown';
+import { Tag } from 'primereact/tag';
+
 import Apis from '@/app/libs/apis';
-import { Badge } from '@/app/ui/components/atoms';
 
 const PageUsers = () => {
   const [isLoading, setIsLoading] = useState(false)
-  const [users, setUsers] = useState([])
+  const [users, setUsers] = useState(null)
+  const [globalFilterValue, setGlobalFilterValue] = useState('')
+  const [roles] = useState(['Administrador', 'Colaborador', 'Practicante', 'Super Administrador'])
+  const [statuses] = useState(['Activo', 'Pendiente', 'Baja', 'Inhabilitado'])
+  const [filters, setFilters] = useState({
+    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    name: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    email: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    role: { value: null, matchMode: FilterMatchMode.EQUALS },
+    phone: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    status: { value: null, matchMode: FilterMatchMode.EQUALS }
+  })
+  const getRoles = (role) => {
+    switch (role) {
+      case 'Administrador':
+        return 'success'
+      case 'Colaborador':
+        return 'warning'
+      case 'Practicante':
+        return 'info'
+      case 'Super Administrador':
+        return 'danger'
+    }
+  }
+  const getSeverity = (status) => {
+    switch (status) {
+      case 'Activo':
+        return 'success'
+      case 'Pendiente':
+        return 'warning'
+      case 'Baja':
+        return 'danger'
+      case 'Inhabilitado':
+        return 'info'
+    }
+  }
 
   useEffect(() => {
     const fetchUsers = async () => {
-      setIsLoading(true)
       try {
         const res = await Apis.users.GetAllUsers()
-        if ( res ) setUsers(res)
+        if ( res ) {
+          const parseRes = (res) => {
+            return res.map(item => ({
+              name: `${item.firstName} ${item.lastName}`,
+              ...item
+            }))
+          }
+          const newRes = parseRes(res)
+          setUsers(newRes)
+        }
       } catch (error) {
         toast.error('Error al cargar la lista de usuarios.')
       }
-      setIsLoading(false)
     }
     fetchUsers()
+    setIsLoading(false)
   }, [])
+
+  const onGlobalFilterChange = (e) => {
+    const value = e.target.value
+    let _filters = {...filters}
+    _filters['global'].value = value
+    setFilters(_filters)
+    setGlobalFilterValue(value)
+  }
+  const renderHeader = () => {
+    return (
+      <div className='flex justify-end'> 
+        <IconField iconPosition='left'>
+          <InputIcon className='pi pi-search' />
+          <InputText value={globalFilterValue} onChange={onGlobalFilterChange} placeholder='Búsqueda' />
+        </IconField>
+      </div>
+    )
+  }
+  const rolBodyTemplate = (rowData) => {
+    return (
+      <Tag 
+        value={rowData.role}
+        severity={getRoles(rowData.role)}
+      />
+    )
+  }
+  const statusBodyTemplate = (rowData) => {
+    return (
+      <Tag 
+        value={rowData.status}
+        severity={getSeverity(rowData.status)}
+      />
+    )
+  }
+  const rolItemTemplate = (option) => {
+    return (
+      <Tag 
+        value={option}
+        severity={getRoles(option)}
+      />
+    )
+  }
+  const statusItemTemplate = (option) => {
+    return (
+      <Tag 
+        value={option}
+        severity={getSeverity(option)}
+      />
+    )
+  }
+  const rolRowFilterTemplate = (options) => {
+    return (
+      <Dropdown 
+        value={options.value}
+        options={roles}
+        onChange={(e) => options.filterApplyCallback(e.value)} 
+        itemTemplate={rolItemTemplate} 
+        placeholder="Filtrar por rol" 
+        className="p-column-filter" 
+        showClear 
+        style={{ minWidth: '8rem' }} 
+      />
+    )
+  }
+  const statusRowFilterTemplate = (options) => {
+    return (
+      <Dropdown 
+        value={options.value}
+        options={statuses}
+        onChange={(e) => options.filterApplyCallback(e.value)} 
+        itemTemplate={statusItemTemplate} 
+        placeholder="Filtrar por estado" 
+        className="p-column-filter" 
+        showClear 
+        style={{ minWidth: '8rem' }} 
+      />
+    )
+  }
+  const actionBodyTemplate = (rowData) => {
+    return (
+      <Link
+        className="btn btn-primary"
+        href={`./users/${rowData.id}`}
+      >
+        Ver más <Eye size={28} />
+      </Link>
+    )
+  }
+  const header = renderHeader()
 
   return (
     <>
@@ -66,109 +207,66 @@ const PageUsers = () => {
                 </Link>
               </div>
               <div className="table-responsive">
-                <table className="table mb-0">
-                  <thead>
-                    <tr>
-                      <th>Nombre</th>
-                      <th>Correo electrónico</th>
-                      <th>Rol</th>
-                      <th>Móvil</th>
-                      <th>Status</th>
-                      <th>Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {users && (
-                      users.map(user => (
-                        <tr key={user.id}>
-                          <td>
-                            <div className="flex items-center justify-start">
-                              <div className="">
-                                <Image
-                                  src={user.avatar ? user.avatar : `${user.gender == 'Masculino' ? '/images/avatarUserMale.png' : '/images/avatarUserFem.png'}`}
-                                  height={40}
-                                  width={40}
-                                  alt="Rickon Stark"
-                                  quality={80}
-                                  loading="lazy"
-                                />
-                              </div>
-                              <div className="ml-3">
-                                <h5 className="capitalize mb-0">{user.firstName} {user.lastName}</h5>
-                              </div>
-                            </div>
-                          </td>
-                          <td>
-                            {user.email}
-                          </td>
-                          <td>
-                            {user.role == 'Administrador' && (
-                              <Badge 
-                                className='badge badge__primary'
-                                text={user.role} 
-                              />
-                            )}
-                            {user.role == 'Colaborador' && (
-                              <Badge 
-                                className='badge badge__dark'
-                                text={user.role} 
-                              />
-                            )}
-                            {user.role == 'Practicante' && (
-                              <Badge 
-                                className='badge badge__light'
-                                text={user.role} 
-                              />
-                            )}
-                            {user.role == 'Super Administrador' && (
-                              <Badge 
-                                className='badge badge__secondary'
-                                text={user.role} 
-                              />
-                            )}
-                          </td>
-                          <td>
-                            {user.phone}
-                          </td>
-                          <td>
-                            {user.status == 'Activo' && (
-                              <Badge 
-                                className='badge badge__success'
-                                text={user.status} 
-                              />
-                            )}
-                            {user.status == 'Pendiente' && (
-                              <Badge 
-                                className='badge badge__pending'
-                                text={user.status} 
-                              />
-                            )}
-                            {user.status == 'Baja' && (
-                              <Badge 
-                                className='badge badge__danger'
-                                text={user.status} 
-                              />
-                            )}
-                            {user.status == 'Inhabilitado' && (
-                              <Badge 
-                                className='badge badge__banned'
-                                text={user.status} 
-                              />
-                            )}
-                          </td>
-                          <td>
-                            <Link
-                              className="btn btn-primary"
-                              href={`./users/${user.id}`}
-                            >
-                              Ver más <Eye size={28} />
-                            </Link>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
+                <DataTable
+                  value={users}
+                  paginator
+                  rows={14}
+                  dataKey='id'
+                  filters={filters}
+                  filterDisplay='row'
+                  globalFilterFields={[
+                    'name',
+                    'email',
+                    'role',
+                    'phone',
+                    'status'
+                  ]}
+                  header={header}
+                  rowsPerPageOptions={[
+                    14, 21, 28, 35, 42, 49
+                  ]}
+                  emptyMessage="No se han encontrado usuarios"
+                >
+                  <Column
+                    field='name'
+                    header='Nombre'
+                    filter
+                    filterPlaceholder='Buscar por nombre'
+                  />
+                  <Column
+                    field='email'
+                    header='Correo electrónico'
+                    filter
+                    filterPlaceholder='Buscar por correo electrónico'
+                  />
+                  <Column
+                    field='role'
+                    header='Rol'
+                    showFilterMenu={false}
+                    body={rolBodyTemplate}
+                    filter
+                    filterElement={rolRowFilterTemplate}
+                  />
+                  <Column
+                    field='phone'
+                    header='Movil'
+                    filter
+                    filterPlaceholder='Buscar por móvil'
+                  />
+                  <Column
+                    field='status'
+                    header='Status'
+                    showFilterMenu={false}
+                    body={statusBodyTemplate}
+                    filter
+                    filterElement={statusRowFilterTemplate}
+                  />
+                  <Column
+                    header='Acciones'
+                    body={actionBodyTemplate}
+                    exportable={false}
+                  />
+                </DataTable>
               </div>
             </div>
           </div>

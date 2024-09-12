@@ -30,8 +30,6 @@ const PageAccounting = () => {
     fetchAccounting()
   }, [])
 
-  console.log(accounting)
-
   return (
     <>
       <div
@@ -66,7 +64,7 @@ const PageAccounting = () => {
                 <div className="w-4/12"></div>
                 <Link
                   className="btn btn-success"
-                  href='/extranjeria/nationality/add'
+                  href='/extranjeria/accounting/add'
                 >
                   Agregar registro
                 </Link>
@@ -78,6 +76,7 @@ const PageAccounting = () => {
                       <th>Tipo</th>
                       <th>Monto</th>
                       <th>Descripción</th>
+                      <th>Referencia</th>
                       <th>Registrado por</th>
                       <th>Acciones</th>
                     </tr>
@@ -101,6 +100,7 @@ const PageAccounting = () => {
                           </td>
                           <td>{account.accounting.amount}</td>
                           <td>Concepto: {account.accounting.description}</td>
+                          <td>{account.accounting.reference}</td>
                           <td>{account.accounting.registerdBy.firstName} {account.accounting.registerdBy.lastName}</td>
                           <td>
                             <Link

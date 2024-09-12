@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Cookies from 'universal-cookie';
 import LoadingScreen from '@/app/ui/components/molecules/LoadingScreen'
+import { Breadcrumbs, CardChart, IncommingsByDay, IncommingsByMonth, IncommingsBySemester } from '@/app/ui/components/organisms'
 
 const PageExtranjeria = () => {
   const router = useRouter()
@@ -30,11 +31,7 @@ const PageExtranjeria = () => {
         }}
       >
         <div className="w-full">
-          <ul className="breadcrumbs">
-            <li>
-              
-            </li>
-          </ul>
+          <Breadcrumbs />
         </div>
         <div className="w-full">
           <h2 className="font-bold text-3xl">
@@ -58,67 +55,29 @@ const PageExtranjeria = () => {
       >
         <div className="flex gap-5">
           <div className="w-full sm:w-4/12">
-            <div className="card">
-              <div className="card__body">
-                
-              </div>
-            </div>
+            <IncommingsByDay />
           </div>
           <div className="w-full sm:w-4/12">
-            <div className="card">
-              <div className="card__body">
-                
-              </div>
-            </div>
+            <IncommingsByMonth />
           </div>
           <div className="w-full sm:w-4/12">
-            <div className="card">
-              <div className="card__body">
-                
-              </div>
-            </div>
+            <IncommingsBySemester />
           </div>
         </div>
 
         <div className="flex gap-5 mt-5">
-          <div className="w-full sm:w-7/12">
-            <div className="card">
-              <div className="card__body">
-                
-              </div>
-            </div>
+          <div className="sm:w-7/12">
+            <CardChart />
           </div>
-          <div className="w-full sm:w-5/12">
+          <div className="sm:w-5/12">
             <div className="card">
+              <div className='cart__header border-b p-4'>
+                <h5>Ingresos por mes</h5>
+              </div>
               <div className="card__body">
-                
               </div>
             </div>
             <div className="card mt-5">
-              <div className="card__body">
-                
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex gap-5 mt-5">
-          <div className="w-full sm:w-4/12">
-            <div className="card">
-              <div className="card__body">
-                
-              </div>
-            </div>
-          </div>
-          <div className="w-full sm:w-4/12">
-            <div className="card">
-              <div className="card__body">
-                
-              </div>
-            </div>
-          </div>
-          <div className="w-full sm:w-4/12">
-            <div className="card">
               <div className="card__body">
                 
               </div>

@@ -6,13 +6,11 @@ const PagesLayout = ({ children }) => {
   return (
     <>
       <Nav />
-      <Header />
       <div 
         className="relative pc-container"
         style={{
           marginLeft: '280px',
-          minHeight: 'calc(100vh - 135px)',
-          top: '74px'
+          minHeight: 'calc(100vh - 95px - 74px)',
         }}
       >
         <div 

@@ -9,6 +9,7 @@ import Apis from '@/app/libs/apis'
 import { useAuth } from '@/app/libs/providers/AuthContext';
 import { InputText } from '@/app/ui/components/atoms';
 import LoadingScreen from '@/app/ui/components/molecules/LoadingScreen';
+import { Breadcrumbs } from '@/app/ui/components/organisms';
 
 const AddCustomer = () => {
   const { user } = useAuth()
@@ -30,12 +31,14 @@ const AddCustomer = () => {
   const [documentNumber, setDocumentNumber] = useState('')
   const [nationality, setNationality] = useState('')
   const [procedure, setProcedure] = useState('')
+  const [procedureName, setProcedureName] = useState('')
   const [birthday, setBirthday] = useState('')
   const [gender, setGender] = useState('')
   const [status, setStatus] = useState('')
   const [enterDate, setEnterDate] = useState('')
   const [threeMonths, setThreeMonths] = useState('')
   const [servicePack, setServicePack] = useState('')
+  const [packName, setPackName] = useState('')
   const [totalPrice, setTotalPrice] = useState('')
   const [paid, setPaid] = useState('')
   const [registerdBy, setRegisteredBy] = useState('')
@@ -54,7 +57,7 @@ const AddCustomer = () => {
       type: 'ingreso',
       amount: paid,
       description: `${firstName} ${lastName}`,
-      reference: servicePack == 0 ? procedure : servicePack,
+      reference: servicePack != 0 ? packName : procedureName,
       registerdBy: user,
       createdAt: serverTimestamp()
     }
@@ -109,15 +112,20 @@ const AddCustomer = () => {
   }
 
   const handlePackPrice = (e) => {
-    console.log(e.target.name)
     if (e.target.name == 'selectPack') {
+      const selectedPack = allPacks.find(pack => pack.packs.price == e.target.value)
       setServicePack(e.target.value)
+      setPackName(selectedPack.packs.name)
       setProcedure(0)
+      setProcedureName('')
       setTotalPriceDisabled(true)
       setTotalPrice(e.target.value)
     } else {
+      const selectedProcedure = allProcedures.find(procedure => procedure.procedure.price == e.target.value)
       setProcedure(e.target.value)
+      setProcedureName(selectedProcedure.procedure.name)
       setServicePack(0)
+      setPackName('')
       setTotalPriceDisabled(false)
       setTotalPrice('0.00 (Ingresar precio...)')
     }
@@ -156,11 +164,7 @@ const AddCustomer = () => {
         }}
       >
         <div className="w-full">
-          <ul className="breadcrumbs">
-            <li>
-              <Link href='/'>Home</Link>
-            </li>
-          </ul>
+          <Breadcrumbs />
         </div>
         <div className="w-full">
           <h2 className="font-bold text-3xl">Agregar cliente</h2>
@@ -393,7 +397,8 @@ const AddCustomer = () => {
                             allProcedures.map(procedure => (
                               <option
                                 key={procedure.id}
-                                value={procedure.procedure.name}
+                                value={procedure.procedure.price}
+                                name={procedure.procedure.name}
                               >
                                 {procedure.procedure.name}
                               </option>
@@ -417,7 +422,7 @@ const AddCustomer = () => {
                               <option
                                 key={pack.id}
                                 value={pack.packs.price}
-                                price={pack.packs.name}
+                                name={pack.packs.name}
                               >
                                 {pack.packs.name}
                               </option>

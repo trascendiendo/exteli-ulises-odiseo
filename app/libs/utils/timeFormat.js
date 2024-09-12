@@ -1,10 +1,8 @@
 export default function timeFormat(timestamp) {
-  if (!timestamp) {
-    return null
-  }
-  return new(Intl.DateTimeFormat('es-ES', {
-    dateStyle: 'full',
-    timeStyle: 'long',
-    timeZone: 'Europe/Madrid'
-  }).format(timestamp))
+  const date = new Date(timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000)
+  const day = String(date.getDate()).padStart(2, '0')
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const year = date.getFullYear()
+  
+  return `${day}-${month}-${year}`
 }

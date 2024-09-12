@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import toast, { Toaster } from 'react-hot-toast'
 import Apis from '@/app/libs/apis';
+import { Breadcrumbs } from '@/app/ui/components/organisms';
 
 const PageNationalities = () => {
   const [isLoading, setIsLoading] = useState(false)
@@ -34,11 +35,7 @@ const PageNationalities = () => {
         }}
       >
         <div className="w-full">
-          <ul className="breadcrumbs">
-            <li>
-              <Link href='/'>Home</Link>
-            </li>
-          </ul>
+          <Breadcrumbs />
         </div>
         <div className="w-full">
           <h2 className="font-bold text-3xl">Nacionalidades</h2>

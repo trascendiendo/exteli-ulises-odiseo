@@ -1,7 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import Link from 'next/link'
 import { useParams } from 'next/navigation';
 import LoadingScreen from '@/app/ui/components/molecules/LoadingScreen';

@@ -6,6 +6,7 @@ import { Eye, Trash } from '@phosphor-icons/react/dist/ssr';
 import toast, { Toaster } from 'react-hot-toast'
 import Apis from '@/app/libs/apis';
 import { Badge } from '@/app/ui/components/atoms';
+import { Breadcrumbs } from '@/app/ui/components/organisms';
 
 const PagePacks = () => {
   const [isLoading, setIsLoading] = useState(false)
@@ -14,7 +15,7 @@ const PagePacks = () => {
   const handleDelete = async (uid) => {
     await Apis.procedures.DeleteProcedure(uid)
       .then(() => {
-        console.log(`Eliminado: ${uid}`)
+        console.info(`Eliminado: ${uid}`)
       })
       .catch((error) => {
         console.error(`error`)
@@ -46,11 +47,7 @@ const PagePacks = () => {
         }}
       >
         <div className="w-full">
-          <ul className="breadcrumbs">
-            <li>
-              <Link href='/'>Home</Link>
-            </li>
-          </ul>
+          <Breadcrumbs />
         </div>
         <div className="w-full">
           <h2 className="font-bold text-3xl">Packs</h2>

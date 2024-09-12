@@ -2,28 +2,163 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link'
+import Image from 'next/image';
 import { Eye } from '@phosphor-icons/react/dist/ssr';
 import toast, { Toaster } from 'react-hot-toast'
+
+import { FilterMatchMode } from 'primereact/api';
+import { DataTable } from 'primereact/datatable';
+import { Column } from 'primereact/column';
+import { InputText } from 'primereact/inputtext';
+import { InputIcon } from 'primereact/inputicon';
+import { IconField } from 'primereact/iconfield';
+import { Dropdown } from 'primereact/dropdown';
+import { Tag } from 'primereact/tag';
+
 import Apis from '@/app/libs/apis';
-import { Badge } from '@/app/ui/components/atoms';
+import { Breadcrumbs } from '@/app/ui/components/organisms';
 
 const PageClients = () => {
-  const [isLoading, setIsLoading] = useState(false)
-  const [customers, setCustomers] = useState([])
-
+  const [loading, setLoading] = useState(true)
+  const [globalFilterValue, setGlobalFilterValue] = useState('')
+  const [customers, setCustomers] = useState(null)
+  const [nationalities, setNationalities] = useState(null)
+  const [agents, setAgents] = useState(null)
+  const [statuses] = useState(['Pendiente', 'Activo', 'Incompleto', 'Finalizado'])
+  const [filters, setFilters] = useState({
+    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    name: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    documentNumber: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    nationality: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    agent: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    status: { value: null, matchMode: FilterMatchMode.EQUALS }
+  });
+  const getSeverity = (status) => {
+    switch (status) {
+      case 'Pendiente':
+        return 'warning'
+      case 'Activo':
+        return 'success'
+      case 'Incompleto':
+        return 'danger'
+      case 'Finalizado':
+        return 'info'
+    }
+  }
   useEffect(() => {
-    const fetchClients = async () => {
-      setIsLoading(true)
+    const fetchNationalities = async () => {
+      try {
+        const res = await Apis.nationalities.GetAllNationalities()
+        if (res) {
+          const parseRes = (res) => {
+            return res.map(item => ({
+              name: item.nationality.country
+            }))
+          }
+          const newRes = parseRes(res)
+          setNationalities(newRes)
+        }
+      } catch (error) {
+        toast.error('Error al cargar la lista de nacionalidades.')
+      }
+    }
+    const fetchAgents = async () => {
+      try {
+        const res = await Apis.users.GetAllUsers()
+        if (res) {
+          const parseRes = (res) => {
+            return res.map(item => ({
+              name: `${item.firstName} ${item.lastName}`
+            }))
+          }
+          const newRes = parseRes(res)
+          setAgents(newRes)
+        }
+      } catch (error) {
+        toast.error('Error al cargar la lista de agentes.')
+      }
+    }
+    const fetchCustomers = async () => {
       try {
         const res = await Apis.customers.GetAllCustomers()
-        if ( res ) setCustomers(res)
+        if ( res ) {
+          const parseRes = (res) => {
+            return res.map(item => ({
+              id: item.id,
+              name: `${item.customer.firstName} ${item.customer.lastName}`,
+              ...item.customer
+            }))
+          }
+          const newRes = parseRes(res)
+          setCustomers(newRes)
+        } 
       } catch (error) {
         toast.error('Error al cargar la lista de clientes.')
       }
-      setIsLoading(false)
     }
-    fetchClients()
+    fetchNationalities()
+    fetchAgents()
+    fetchCustomers()
+    setLoading(false)
   }, [])
+  const onGlobalFilterChange = (e) => {
+    const value = e.target.value
+    let _filters = {...filters}
+    _filters['global'].value = value
+    setFilters(_filters)
+    setGlobalFilterValue(value)
+  }
+  const renderHeader = () => {
+    return (
+      <div className='flex justify-end'> 
+        <IconField iconPosition='left'>
+          <InputIcon className='pi pi-search' />
+          <InputText value={globalFilterValue} onChange={onGlobalFilterChange} placeholder='Búsqueda' />
+        </IconField>
+      </div>
+    )
+  }
+  const statusBodyTemplate = (rowData) => {
+    return (
+      <Tag 
+        value={rowData.status}
+        severity={getSeverity(rowData.status)}
+      />
+    )
+  }
+  const statusItemTemplate = (option) => {
+    return (
+      <Tag 
+        value={option}
+        severity={getSeverity(option)}
+      />
+    )
+  }
+  const statusRowFilterTemplate = (options) => {
+    return (
+      <Dropdown 
+        value={options.value}
+        options={statuses}
+        onChange={(e) => options.filterApplyCallback(e.value)} 
+        itemTemplate={statusItemTemplate} 
+        placeholder="Filtrar por estado" 
+        className="p-column-filter" 
+        showClear 
+        style={{ minWidth: '8rem' }} 
+      />
+    )
+  }
+  const actionBodyTemplate = (rowData) => {
+    return (
+      <Link
+        className="btn btn-primary"
+        href={`./customers/${rowData.id}`}
+      >
+        Ver más <Eye size={28} />
+      </Link>
+    )
+  }
+  const header = renderHeader()
 
   return (
     <>
@@ -36,11 +171,7 @@ const PageClients = () => {
         }}
       >
         <div className="w-full">
-          <ul className="breadcrumbs">
-            <li>
-              <Link href='/'>Home</Link>
-            </li>
-          </ul>
+          <Breadcrumbs />
         </div>
         <div className="w-full">
           <h2 className="font-bold text-3xl">Clientes</h2>
@@ -65,78 +196,71 @@ const PageClients = () => {
                 </Link>
               </div>
               <div className="table-responsive">
-                <table className="table mb-0">
-                  <thead>
-                    <tr>
-                      <th>Nombre</th>
-                      <th>Pasaporte</th>
-                      <th>Nacionalidad</th>
-                      <th>Agente</th>
-                      <th>Status</th>
-                      <th>Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {customers && (
-                      customers.map(customer => (
-                        <tr key={customer.id}>
-                          <td>
-                            {customer.customer.firstName} {customer.customer.lastName}
-                          </td>
-                          <td>
-                            <Badge 
-                              className='badge badge__primary mr-2'
-                              text={customer.customer.documentType} 
-                            />
-                            <code>
-                              {customer.customer.documentNumber}
-                            </code>
-                          </td>
-                          <td>
-                            {customer.customer.nationality}
-                          </td>
-                          <td>
-                            {customer.customer.agent}
-                          </td>
-                          <td>
-                            {customer.customer.status == 'Pendiente' && (
-                              <Badge 
-                              className='badge badge__banned'
-                              text={customer.customer.status} 
-                              />
-                            )}
-                            {customer.customer.status == 'Activo' && (
-                              <Badge 
-                                className='badge badge__success'
-                                text={customer.customer.status} 
-                              />
-                            )}
-                            {customer.customer.status == 'Incompleto' && (
-                              <Badge 
-                                className='badge badge__danger'
-                                text={customer.customer.status} 
-                              />
-                            )}
-                            {customer.customer.status == 'Finalizado' && (
-                              <Badge 
-                                className='badge badge__primary'
-                                text={customer.customer.status} 
-                              />
-                            )}
-                          </td>
-                          <td>
-                            <Link
-                              className="btn btn-primary"
-                              href={`./customers/${customer.id}`}
-                            >
-                              Ver más <Eye size={28} />
-                            </Link>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
+                <DataTable 
+                  value={customers}
+                  paginator
+                  rows={14}
+                  dataKey='id'
+                  filters={filters}
+                  filterDisplay='row'
+                  globalFilterFields={[
+                    'name',
+                    'documentNumber',
+                    'nationality.name',
+                    'agent.name',
+                    'status'
+                  ]}
+                  header={header}
+                  rowsPerPageOptions={[
+                    14, 21, 28, 35, 42, 49
+                  ]}
+                  emptyMessage="No se han encontrado clientes"
+                >
+                  <Column
+                    field='name'
+                    header='Nombre'
+                    filter
+                    filterPlaceholder='Buscar nombre'
+                    style={{ minWidth: '10rem' }}
+                  />
+                  <Column 
+                    field='documentNumber'
+                    header='Pasaporte'
+                    filter
+                    filterPlaceholder='Buscar por pasaporte'
+                    style={{ minWidth: '10rem' }}
+                  />
+                  <Column 
+                    field='nationality'
+                    header='Nacionalidad'
+                    filter
+                    filterPlaceholder='Buscar por nacionalidad'
+                    style={{ minWidth: '10rem' }}
+                  />
+                  <Column 
+                    field='agent'
+                    header='Agente'
+                    filter
+                    filterPlaceholder='Buscar agente'
+                    style={{ minWidth: '10rem' }}
+                  />
+                  <Column 
+                    field='status' 
+                    header='Status' 
+                    showFilterMenu={false}
+                    filterMenuStyle={{ width: '8rem' }}
+                    style={{ minWidth: '8rem' }}
+                    body={statusBodyTemplate}
+                    filter
+                    filterElement={statusRowFilterTemplate}
+                  />
+                  <Column 
+                    header='Acciones'
+                    body={actionBodyTemplate} 
+                    exportable={false}
+                    style={{ minWidth: '10rem' }}
+                  />
+                </DataTable>
               </div>
             </div>
           </div>

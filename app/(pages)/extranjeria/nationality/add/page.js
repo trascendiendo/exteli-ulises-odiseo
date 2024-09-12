@@ -1,13 +1,13 @@
 'use client'
 
 import { useState } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { serverTimestamp } from "firebase/firestore"
 import toast, { Toaster } from 'react-hot-toast'
 import Apis from '@/app/libs/apis';
 import { InputText } from '@/app/ui/components/atoms';
 import LoadingScreen from '@/app/ui/components/molecules/LoadingScreen';
+import { Breadcrumbs } from '@/app/ui/components/organisms';
 
 const AddNationality = () => {
   const [isLoading, setIsLoading] = useState(false)
@@ -47,11 +47,7 @@ const AddNationality = () => {
         }}
       >
         <div className="w-full">
-          <ul className="breadcrumbs">
-            <li>
-              <Link href='/'>Home</Link>
-            </li>
-          </ul>
+          <Breadcrumbs />
         </div>
         <div className="w-full">
           <h2 className="font-bold text-3xl">Agregar nacionalidad</h2>

@@ -36,7 +36,6 @@ export const AuthProvider = ({ children }) => {
       setIsLoading(true)
       const res = await signInWithEmailAndPassword(auth, email, password)
       if ( res ) {
-        console.log(res.user)
         const token = res.user.uid
         const user = {
           email: res.user.email,
@@ -65,7 +64,7 @@ export const AuthProvider = ({ children }) => {
   }
 
   const handleLogout = () => {
-    console.log('ELI Token removing •͡˘㇁•͡˘')
+    console.info('ELI Token removing •͡˘㇁•͡˘')
     cookies.remove('eli-token', { path : '/' })
     cookies.remove('user', { path : '/' })
     signOut(auth)

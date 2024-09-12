@@ -2,12 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link'
 import { useParams } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast'
 import Cookies from 'universal-cookie';
 import LoadingScreen from '@/app/ui/components/molecules/LoadingScreen';
-import { Timeline } from '@/app/ui/components/organisms';
+import { Breadcrumbs, Timeline } from '@/app/ui/components/organisms';
 import { CardCustomer } from '@/app/ui/components/organisms';
 import { DataCustomer } from '@/app/ui/components/organisms';
 import { TitleCustomer } from '@/app/ui/components/organisms';
@@ -43,11 +42,7 @@ const PageCustomer = () => {
             }}
           >
             <div className="w-full">
-              <ul className="breadcrumbs">
-                <li>
-                  <Link href='/'>Home</Link>
-                </li>
-              </ul>
+              <Breadcrumbs />
             </div>
             <div className="w-full">
               <TitleCustomer 
@@ -70,25 +65,26 @@ const PageCustomer = () => {
                 </div>
               </div>
               <div className="card mt-4">
-                <div className="card__header border-b p-6">
+                <div className="card__header border-b p-4">
                   <h5 className="font-semibold text-sm">Comentarios</h5>
                 </div>
                 <div className="card__body">
                   <Timeline 
                     uid={uid}
-                    agent={thisUser.id}
+                    sesionUser={`${thisUser.firstName} ${thisUser.lastName}`}
                   />
                 </div>
               </div>
             </div>
             <div className="w-full sm:w-6/12">
               <div className="card">
-                <div className="card__header border-b p-6">
+                <div className="card__header border-b p-4">
                   <h5 className="font-semibold text-sm">Información personal</h5>
                 </div>
                 <div className="card__body">
                   <DataCustomer
                     uid={uid}
+                    canEdit={thisUser.role}
                   />
                 </div>
               </div>

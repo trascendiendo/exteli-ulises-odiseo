@@ -1,5 +1,7 @@
 import accounting from '@/app/libs/apis/accounting'
+import company from '@/app/libs/apis/company'
 import customers from '@/app/libs/apis/customers'
+import bills from '@/app/libs/apis/bills'
 import dashboard from '@/app/libs/apis/dashboard'
 import general from '@/app/libs/apis/general'
 import nationalities from '@/app/libs/apis/nationalities'
@@ -11,7 +13,9 @@ import users from '@/app/libs/apis/users'
 
 const apis = {
   accounting,
+  company,
   customers,
+  bills,
   dashboard,
   general,
   nationalities,

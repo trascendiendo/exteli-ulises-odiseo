@@ -26,11 +26,29 @@ const customers = {
       const customers = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
-      }))
+      })).sort((a, b) => a.customer.createdAt - b.customer.createdAt)
 
       return customers
     } catch (error) {
       console.info(`GetAllCustomers: Error al obtener clientes`)
+      console.error(error)
+      throw error
+    }
+  },
+  GetCustomerName: async (uid) => {
+    try {
+      const customerDocRef = doc(db, 'customers', uid)
+      const customerDocSnap = await getDoc(customerDocRef)
+
+      if (customerDocSnap.exists()) {
+        const customerData = customerDocSnap.data()
+        const fullName = `${customerData.customer.firstName} ${customerData.customer.lastName}`
+        return fullName
+      } else {
+        return null
+      }
+    } catch (error) {
+      console.info(`GetCustomerName: Error al obtener los nombres del cliente: ${uid}`)
       console.error(error)
       throw error
     }
@@ -53,6 +71,25 @@ const customers = {
       throw error
     }
   },
+  GetAllCustomersByAgent: async (agentUid) => {
+    try {
+      const customersRef = collection(db, 'customers')
+      const q = query(customersRef, where('customer.agent', '==', agentUid))
+      //const q = query(customersRef, where('agentUid', '', agentUid))
+      const querySnapshot = await getDocs(q)
+
+      const customers = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }))
+      
+      return customers
+    } catch (error) {
+      console.info(`GetAllCustomersByAgent: Error al obtener usuarios del agente ${agentUid}`)
+      console.error(error)
+      throw error
+    }
+  },
   PostCustomer: async (customer) => {
     try {
       await addDoc(collection(db, 'customers'), {
@@ -69,7 +106,7 @@ const customers = {
       const customerDocRef = doc(db, 'customers', uid)
       await updateDoc(customerDocRef, customer)
     } catch (error) {
-      console.info(`PatchCustomer: Error al actualizar al usuario: ${uid}`)
+      console.info(`PatchCustomer: Error al actualizar usuario: ${uid}`)
       console.error(error)
       throw error
     }

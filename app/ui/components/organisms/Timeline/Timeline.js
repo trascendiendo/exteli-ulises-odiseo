@@ -6,9 +6,11 @@ import { useAuth } from '@/app/libs/providers/AuthContext';
 import SkeletonTimeline from "@/app/ui/components/skeletons/organisms/Timeline/Timeline";
 
 const Customer = ({
-  uid
+  uid,
+  sesionUser
 }) => {
   const { user } = useAuth()
+  const [agent, setAgent] = useState(null)
   const [customer, setCustomer] = useState(null)
   const [timeline, setTimeline] = useState(null)
   const [comment, setComment] = useState('')
@@ -39,6 +41,7 @@ const Customer = ({
       try {
         const resCustomer = await Apis.customers.GetCustomer(uid)
         setCustomer(resCustomer.customer.timeline)
+        setAgent(resCustomer.customer.agent)
         const resTimeline = await Apis.timelines.GetLine(resCustomer.customer.timeline)
         setTimeline(resTimeline)
       } catch (error) {
@@ -85,35 +88,37 @@ const Customer = ({
             ))
           )}
         </div>
-        <div className='timeline__line mt-6 md:w-10/12'>
-          <span className="block text-sm">Dejar un comentario</span>
-          <textarea
-            className={`block border mt-2 rounded-lg px-3 py-3.5 text-sm w-full`}
-            style={{ resize: 'none'}}
-            placeholder='Comentario...'
-            rows='7'
-            value={comment}
-            onChange={e => setComment(e.target.value)}
-            required
-          >
-          </textarea>
-          <button
-            className="btn btn-primary mt-4 w-full md:w-5/12"
-            onClick={handleLineSubmit}
-          >
-            Registrar
-          </button>
-        </div>
+        {sesionUser == agent && (
+          <div className='timeline__line mt-6 md:w-10/12'>
+            <span className="block text-sm">Dejar un comentario</span>
+            <textarea
+              className={`block border mt-2 rounded-lg px-3 py-3.5 text-sm w-full`}
+              style={{ resize: 'none'}}
+              placeholder='Comentario...'
+              rows='7'
+              value={comment}
+              onChange={e => setComment(e.target.value)}
+              required
+            >
+            </textarea>
+            <button
+              className="btn btn-primary mt-4 w-full md:w-5/12"
+              onClick={handleLineSubmit}
+            >
+              Registrar
+            </button>
+          </div>
+        )}
       </div>
       <Toaster />
     </>
   )
 }
 
-const Timeline = ({ uid }) => {
+const Timeline = ({ uid, sesionUser }) => {
   return (
     <Suspense fallback={<SkeletonTimeline />}>
-      <Customer uid={uid} />
+      <Customer uid={uid} sesionUser={sesionUser} />
     </Suspense>
   )
 }
