@@ -59,15 +59,8 @@ const Nav = () => {
 
   const handleLogout = async () => {
     setLoading(true)
-    try {
-      await signOut(auth)
-      cookies.remove('user')
-      router.push('/login')
-    } catch (error) {
-      console.info('Nav/Nav.js')
-      console.error(`Error al desconectarse: ${error}`)
-    }
-    setLoading(false)
+    cookies.set('user', '', { path: '/' })
+    router.push('/')
   }
 
   useEffect(() => {

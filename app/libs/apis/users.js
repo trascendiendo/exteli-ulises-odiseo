@@ -2,6 +2,27 @@ import { collection, doc, getDoc, getDocs, query, setDoc, where } from 'firebase
 import { db } from '@/app/libs/utils/firebase'
 
 const users = {
+  Login: async (email, password) => {
+    const q = query(collection(db, 'users'), where('email', '==', email))
+    const querySnapshot = await getDocs(q)
+
+    if ( querySnapshot.empty ) {
+      return null
+    }
+
+    const userDoc = querySnapshot.docs[0]
+    const user = userDoc.data()
+
+    const isPasswordValid = password = user.password
+    if ( !isPasswordValid ) {
+      return null
+    }
+
+    return {
+      uid: userDoc.id,
+      ...user
+    }
+  },
   GetUser: async (uid) => {
     try {
       const userDocRef = doc(db, 'users', uid)

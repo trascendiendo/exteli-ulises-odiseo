@@ -6,13 +6,11 @@ import Link from 'next/link';
 import { serverTimestamp } from 'firebase/firestore'
 import toast, { Toaster } from 'react-hot-toast'
 import Apis from '@/app/libs/apis'
-import { useAuth } from '@/app/libs/providers/AuthContext';
 import { InputText } from '@/app/ui/components/atoms';
 import LoadingScreen from '@/app/ui/components/molecules/LoadingScreen';
 import { Breadcrumbs } from '@/app/ui/components/organisms';
 
 const SettingsPage = () => {
-  const { user } = useAuth()
   const [thisUser, setThisUser] = useState({})
   const [isLoading, setIsLoading] = useState(false)
 
@@ -81,7 +79,13 @@ const SettingsPage = () => {
   }
 
   useEffect(() => {
-    setThisUser(user)
+    const getUser = () => {
+      const userRes = cookies.get('user')
+      if ( userRes ) {
+        setThisUser(userRes)
+      }
+    }
+    getUser()
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {

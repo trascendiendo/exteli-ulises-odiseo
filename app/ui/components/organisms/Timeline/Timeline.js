@@ -1,15 +1,16 @@
 import { Suspense, useEffect, useState } from "react"
 import { serverTimestamp } from 'firebase/firestore'
 import toast, { Toaster } from 'react-hot-toast'
+import Cookies from 'universal-cookie';
 import Apis from '@/app/libs/apis';
-import { useAuth } from '@/app/libs/providers/AuthContext';
 import SkeletonTimeline from "@/app/ui/components/skeletons/organisms/Timeline/Timeline";
 
 const Customer = ({
   uid,
   sesionUser
 }) => {
-  const { user } = useAuth()
+  const cookies = new Cookies
+  const [user, setUser] = useState({})
   const [agent, setAgent] = useState(null)
   const [customer, setCustomer] = useState(null)
   const [timeline, setTimeline] = useState(null)
@@ -35,6 +36,14 @@ const Customer = ({
          window.location.reload()
       })
   }
+
+  useEffect(() => {
+    const getUser = () => {
+      const userRes = cookies.get('user')
+      if ( userRes ) setUser(userRes)
+    }
+    getUser()
+  }, [])
 
   useEffect(() => {
     const fetchData = async () => {

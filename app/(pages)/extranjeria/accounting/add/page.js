@@ -1,18 +1,19 @@
 'use client'
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { serverTimestamp } from "firebase/firestore"
 import toast, { Toaster } from 'react-hot-toast'
 import Apis from '@/app/libs/apis';
-import { useAuth } from '@/app/libs/providers/AuthContext';
 import { InputText } from '@/app/ui/components/atoms';
 import LoadingScreen from '@/app/ui/components/molecules/LoadingScreen';
 import { Breadcrumbs } from '@/app/ui/components/organisms';
+import Cookies from 'universal-cookie';
 
 const AddAccount = () => {
-  const { user } = useAuth()
+  const cookies = new Cookies
   const [isLoading, setIsLoading] = useState(false)
+  const [user, setUser] = useState({})
   const [type, setType] = useState('')
   const [amount, setAmount] = useState('')
   const [description, setDescription] = useState('')
@@ -42,6 +43,14 @@ const AddAccount = () => {
         router.push('/extranjeria/accounting')
       })
   }
+
+  useEffect(() => {
+    const getUser = () => {
+      const userRes = cookies.get('user')
+      if ( userRes ) setUser(userRes)
+    }
+    getUser()
+  }, [])
 
   return (
     <>

@@ -7,16 +7,16 @@ import { serverTimestamp } from 'firebase/firestore'
 import toast, { Toaster } from 'react-hot-toast'
 import { PDFViewer } from '@react-pdf/renderer';
 import { X } from '@phosphor-icons/react';
+import Cookies from 'universal-cookie';
 import Apis from '@/app/libs/apis'
 import { parsePrice } from '@/app/libs/utils';
-import { useAuth } from '@/app/libs/providers/AuthContext';
 import { InputText } from '@/app/ui/components/atoms';
 import LoadingScreen from '@/app/ui/components/molecules/LoadingScreen';
 import { Breadcrumbs } from '@/app/ui/components/organisms';
 import { Document } from '@/app/ui/components/wrappers'
 
 const AddBill = () => {
-  const { user } = useAuth()
+  const cookies = new Cookies
   const [thisUser, setThisUser] = useState({})
   const [isLoading, setIsLoading] = useState(false)
   const [provider, setProvider] = useState({})
@@ -245,24 +245,19 @@ const AddBill = () => {
   }
 
   useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true)
-      try {
-        setThisUser(user)
-      } catch (error) {
-        console.error(`fetchData: Error al obtener data del usuario`)
-      }
-      setIsLoading(false)
+    const getUser = () => {
+      const userRes = cookies.get('user')
+      if ( userRes ) setThisUser(userRes)
     }
-    fetchData()
-  }, [user])
+    getUser()
+  }, [])
 
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true)
       try {
-        if ( user ) {
-          const resCustomers = await Apis.customers.GetAllCustomersByAgent(`${user.firstName} ${user.lastName}`)
+        if ( thisUser ) {
+          const resCustomers = await Apis.customers.GetAllCustomersByAgent(`${thisUser.firstName} ${thisUser.lastName}`)
           await getCompanyData()
           setMyCustomers(resCustomers)
         }
