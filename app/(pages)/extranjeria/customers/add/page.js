@@ -5,14 +5,15 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { serverTimestamp } from 'firebase/firestore'
 import toast, { Toaster } from 'react-hot-toast'
+import Cookies from 'universal-cookie';
 import Apis from '@/app/libs/apis'
-import { useAuth } from '@/app/libs/providers/AuthContext';
 import { InputText } from '@/app/ui/components/atoms';
 import LoadingScreen from '@/app/ui/components/molecules/LoadingScreen';
 import { Breadcrumbs } from '@/app/ui/components/organisms';
 
 const AddCustomer = () => {
-  const { user } = useAuth()
+  const cookies = new Cookies
+  const [user, setUser] = useState({})
   const [thisUser, setThisUser] = useState({})
   const [allNationalities, setAllNationalities] = useState({})
   const [allProcedures, setAllProcedures] = useState({})
@@ -130,6 +131,14 @@ const AddCustomer = () => {
       setTotalPrice('0.00 (Ingresar precio...)')
     }
   }
+
+  useEffect(() => {
+    const getUser = () => {
+      const userRes = cookies.get('user')
+      if ( userRes ) setUser(userRes)
+    }
+    getUser()
+  }, [])
 
   useEffect(() => {
     const fetchData = async () => {
