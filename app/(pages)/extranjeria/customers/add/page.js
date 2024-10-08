@@ -21,6 +21,7 @@ const AddCustomer = () => {
   const [allAgents, setAllAgents] = useState({})
 
   const [isLoading, setIsLoading] = useState(false)
+  const [createdAt, setCreatedAt] = useState(null)
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
@@ -70,8 +71,8 @@ const AddCustomer = () => {
         toast.success('Ingreso registrado con éxito.')
       }
       const customer = {
-        firstName,
-        lastName,
+        firstName: firstName.toLowerCase(),
+        lastName: lastName.toLowerCase(),
         email,
         phone,
         phoneSecondary,
@@ -91,16 +92,17 @@ const AddCustomer = () => {
         paid,
         registerdBy: `${user.firstName} ${user.lastName}`,
         timeline: timelineUid,
-        createdAt: serverTimestamp(),
+        createdAt: createdAt ? createdAt : serverTimestamp(),
         updatedAt: serverTimestamp()
       }
-      await Apis.customers.PostCustomer(customer)
-      toast.success('Cliente registrado con éxito.')
+      console.log(customer)
+      //await Apis.customers.PostCustomer(customer)
+      //toast.success('Cliente registrado con éxito.')
     } catch (error) {
       toast.error('Error al registrar un cliente.')
     } finally {
       setIsLoading(false)
-      router.push('/extranjeria/customers')
+      //router.push('/extranjeria/customers')
     }
   }
 
@@ -122,13 +124,18 @@ const AddCustomer = () => {
       setTotalPriceDisabled(true)
       setTotalPrice(e.target.value)
     } else {
-      const selectedProcedure = allProcedures.find(procedure => procedure.procedure.price == e.target.value)
-      setProcedure(e.target.value)
-      setProcedureName(selectedProcedure.procedure.name)
-      setServicePack(0)
-      setPackName('')
-      setTotalPriceDisabled(false)
-      setTotalPrice('0.00 (Ingresar precio...)')
+      if ( e.target.value != 0 ) {
+        const selectedProcedure = allProcedures.find(procedure => procedure.procedure.price == e.target.value)
+        setProcedure(e.target.value)
+        setProcedureName(selectedProcedure.procedure.name)
+        setServicePack(0)
+        setPackName('')
+        setTotalPriceDisabled(false)
+        setTotalPrice(e.target.value)
+      } else {
+        setTotalPriceDisabled(true)
+        setTotalPrice('')
+      }
     }
   }
 
@@ -190,6 +197,37 @@ const AddCustomer = () => {
             <div className="card__body">
               <div className="form flex justify-center">
                 <div className="w-6/12">
+
+                  <div className="flex gap-6">
+                    <div className="w-full sm:w-6/12">
+                      <div className="mb-3">
+                        <strong>Datos de creación</strong>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-6">
+                    <div className="w-full sm:w-6/12">
+                      <div className="mb-4">
+                        <span className="block text-sm">Fecha de creación</span>
+                        <InputText
+                          type='date'
+                          value={createdAt}
+                          onChange={e => setCreatedAt(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <div className="w-full sm:w-6/12">
+                    </div>
+                  </div>
+
+                  <div className="flex gap-6">
+                    <div className="w-full sm:w-6/12">
+                      <div className="mb-3">
+                        <strong>Datos personales</strong>
+                      </div>
+                    </div>
+                  </div>
 
                   <div className="flex gap-6">
                     <div className="w-full sm:w-6/12">
@@ -329,6 +367,14 @@ const AddCustomer = () => {
                     <div className="w-full sm:w-6/12"></div>
                   </div>
 
+                  <div className="flex gap-6 mt-4">
+                    <div className="w-full sm:w-6/12">
+                      <div className="mb-3">
+                        <strong>Datos migratorios</strong>
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="flex gap-6">
                     <div className="w-full sm:w-6/12">
                       <div className="mb-4"> 
@@ -390,6 +436,14 @@ const AddCustomer = () => {
                     </div>
                   </div>
 
+                  <div className="flex gap-6 mt-4">
+                    <div className="w-full sm:w-6/12">
+                      <div className="mb-3">
+                        <strong>Datos del servicio</strong>
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="flex gap-6">
                     <div className="w-full sm:w-6/12">
                       <div className="mb-4"> 
@@ -424,6 +478,7 @@ const AddCustomer = () => {
                           value={servicePack}
                           name='selectPack'
                           onChange={e => handlePackPrice(e)}
+                          disabled={!totalPriceDisabled}
                         >
                           <option value="0">Seleccionar pack</option>
                           {Object.keys(allPacks).length && (
@@ -464,6 +519,14 @@ const AddCustomer = () => {
                           onChange={e => setPaid(e.target.value)}
                           required
                         />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-6 mt-4">
+                    <div className="w-full sm:w-6/12">
+                      <div className="mb-3">
+                        <strong>Datos del sistema</strong>
                       </div>
                     </div>
                   </div>
@@ -529,6 +592,7 @@ const AddCustomer = () => {
                       </Link>
                     </div>
                   </div>
+
                   <InputText
                     type='hidden'
                     value={registerdBy}

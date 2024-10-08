@@ -8,6 +8,7 @@ import { signOut } from 'firebase/auth';
 import Cookies from 'universal-cookie';
 import { 
   ChartLine,
+  ChatCircleDots,
   DotsThreeVertical,
   FileDoc,
   Flag,
@@ -149,12 +150,14 @@ const Nav = () => {
                   <li className="pc-caption">
                     <label>Extranjería</label>
                   </li>
+
                   <li className="pc-item">
                     <Link href='/extranjeria'>
                       <span className="pc-micon"><Speedometer size={24} /></span>
                       <span className="pc-mtext">Dashboard</span>
                     </Link>
                   </li>
+
                   <li className="pc-item pc-hasmenu">
                     <a href="#" onClick={e => handleSubmenu(e)}>
                       <span className="pc-micon"><FolderUser size={24} /></span>
@@ -179,6 +182,7 @@ const Nav = () => {
                       </li>
                     </ul>
                   </li>
+
                   <li className="pc-item pc-hasmenu">
                     <a href="#" onClick={e => handleSubmenu(e)}>
                       <span className="pc-micon"><Invoice size={24} /></span>
@@ -204,6 +208,36 @@ const Nav = () => {
                       <li className="pc-item">
                         <Link href='/extranjeria/bills/settings'>
                           <span className="pc-mtext">Ajustes</span>
+                        </Link>
+                      </li>
+                    </ul>
+                  </li>
+
+                  <li className="pc-item pc-hasmenu">
+                    <a href="#" onClick={e => handleSubmenu(e)}>
+                      <span className="pc-micon"><ChatCircleDots size={24} /></span>
+                      <span className='pc-mtext'>
+                        Difusión
+                      </span>
+                      <span className="pc-arrow">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                      </span>
+                      <span className="pc-badge"></span>
+                    </a>
+                    <ul className="pc-submenu" style={{ display: 'none' }}>
+                      <li className="pc-item">
+                        <Link href='/extranjeria/rrss'>
+                          <span className="pc-mtext">Dashboard</span>
+                        </Link>
+                      </li>
+                      <li className="pc-item">
+                        <Link href='/extranjeria/rrss/lists'>
+                          <span className="pc-mtext">Listas de difusión</span>
+                        </Link>
+                      </li>
+                      <li className="pc-item">
+                        <Link href='/extranjeria/rrss/whatsapp'>
+                          <span className="pc-mtext">Whatsapp</span>
                         </Link>
                       </li>
                     </ul>
@@ -244,6 +278,7 @@ const Nav = () => {
                           </li>
                         </ul>
                       </li>
+
                       <li className="pc-item pc-hasmenu">
                         <a href="#" onClick={e => handleSubmenu(e)}>
                           <span className="pc-micon"><Stack size={24} /></span>
@@ -268,9 +303,11 @@ const Nav = () => {
                           </li>
                         </ul>
                       </li>
+
                       <li className="pc-caption">
                         <label>Ajustes</label>
                       </li>
+
                       <li className="pc-item pc-hasmenu">
                         <a href="#" onClick={e => handleSubmenu(e)}>
                           <span className="pc-micon"><FileDoc size={24} /></span>
@@ -345,6 +382,7 @@ const Nav = () => {
                           </li>
                         </ul>
                       </li>
+
                       <li className="pc-item pc-hasmenu">
                         <a href="#" onClick={e => handleSubmenu(e)}>
                           <span className="pc-micon"><Flag size={24} /></span>

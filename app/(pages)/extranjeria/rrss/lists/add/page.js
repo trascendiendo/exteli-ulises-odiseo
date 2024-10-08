@@ -1,39 +1,32 @@
 'use client'
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link'
-import Image from 'next/image';
-import { Eye } from '@phosphor-icons/react/dist/ssr';
+import { useRouter } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast'
-
 import { FilterMatchMode } from 'primereact/api';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { InputText } from 'primereact/inputtext';
-import { InputIcon } from 'primereact/inputicon';
-import { IconField } from 'primereact/iconfield';
 import { Dropdown } from 'primereact/dropdown';
 import { Tag } from 'primereact/tag';
 
 import Apis from '@/app/libs/apis';
 import { Breadcrumbs } from '@/app/ui/components/organisms';
 
-const PageClients = () => {
+const AddList = () => {
   const [loading, setLoading] = useState(true)
+  const router = useRouter()
   const [globalFilterValue, setGlobalFilterValue] = useState('')
   const [customers, setCustomers] = useState(null)
-  const [nationalities, setNationalities] = useState(null)
-  const [agents, setAgents] = useState(null)
+  const [selectedCustomers, setSelectedCustomers] = useState([])
+  const [listName, setListName] = useState('')
   const [statuses] = useState(['Pendiente', 'Activo', 'Incompleto', 'Finalizado'])
   const [filters, setFilters] = useState({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
     name: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-    documentNumber: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-    phone: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
     nationality: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-    agent: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
     status: { value: null, matchMode: FilterMatchMode.EQUALS }
-  });
+  })
+
   const getSeverity = (status) => {
     switch (status) {
       case 'Pendiente':
@@ -46,39 +39,8 @@ const PageClients = () => {
         return 'info'
     }
   }
+
   useEffect(() => {
-    const fetchNationalities = async () => {
-      try {
-        const res = await Apis.nationalities.GetAllNationalities()
-        if (res) {
-          const parseRes = (res) => {
-            return res.map(item => ({
-              name: item.nationality.country
-            }))
-          }
-          const newRes = parseRes(res)
-          setNationalities(newRes)
-        }
-      } catch (error) {
-        toast.error('Error al cargar la lista de nacionalidades.')
-      }
-    }
-    const fetchAgents = async () => {
-      try {
-        const res = await Apis.users.GetAllUsers()
-        if (res) {
-          const parseRes = (res) => {
-            return res.map(item => ({
-              name: `${item.firstName} ${item.lastName}`
-            }))
-          }
-          const newRes = parseRes(res)
-          setAgents(newRes)
-        }
-      } catch (error) {
-        toast.error('Error al cargar la lista de agentes.')
-      }
-    }
     const fetchCustomers = async () => {
       try {
         const res = await Apis.customers.GetAllCustomers()
@@ -97,11 +59,27 @@ const PageClients = () => {
         toast.error('Error al cargar la lista de clientes.')
       }
     }
-    fetchNationalities()
-    fetchAgents()
     fetchCustomers()
     setLoading(false)
   }, [])
+  const handleSubmit = async () => {
+    setLoading(true)
+    const list = {
+      nombre: listName,
+      selectedCustomers
+    }
+    await Apis.rrss.PostLists(list)
+      .then(() => {
+        toast.success('Lista de Difusión registrada con éxito.')
+      })
+      .catch((error) => {
+        toast.error('Error al registrar una Lista de Difusión.')
+      })
+      .finally(() => {
+        setLoading(false)
+        router.push('/extranjeria/rrss/lists')
+      })
+  }
   const onGlobalFilterChange = (e) => {
     const value = e.target.value
     let _filters = {...filters}
@@ -109,13 +87,37 @@ const PageClients = () => {
     setFilters(_filters)
     setGlobalFilterValue(value)
   }
+  const handleCustomerSelection = (rowData) => {
+    setSelectedCustomers(prevSelected => {
+      const isAlreadySelected = prevSelected.some(customer => customer.id === rowData.id)
+      if ( isAlreadySelected ) {
+        return prevSelected.filter(customer => customer.id !== rowData.id)
+      } else {
+        return [...prevSelected, { nombre: rowData.name, numero: rowData.phone }]
+      }
+    })
+  }
   const renderHeader = () => {
     return (
-      <div className='flex justify-end'> 
-        <IconField iconPosition='left'>
-          <InputIcon className='pi pi-search' />
-          <InputText value={globalFilterValue} onChange={onGlobalFilterChange} placeholder='Búsqueda' />
-        </IconField>
+      <div className='flex gap-4 items-end justify-start'> 
+        <div className='flex flex-col w-2/12'>
+          <span className='font-bold pb-2'>Nombre de la Lista</span>
+          <input 
+            className='font-normal p-inputtext' 
+            type='text'
+            value={listName}
+            onChange={e => setListName(e.target.value)}
+          />
+        </div>
+        <div className='flex flex-col'>
+          <button
+            className='btn btn-success font-bold uppercase'
+            style={{ padding: '0.75rem 1.25rem' }}
+            onClick={handleSubmit}
+          >
+            Guardar
+          </button>
+        </div>
       </div>
     )
   }
@@ -151,12 +153,13 @@ const PageClients = () => {
   }
   const actionBodyTemplate = (rowData) => {
     return (
-      <Link
-        className="btn btn-primary"
-        href={`./customers/${rowData.id}`}
-      >
-        Ver más <Eye size={28} />
-      </Link>
+      <label className='cursor-pointer pb-2 pl-2 pt-2 pr-6' >
+        <input
+          id={rowData.id}
+          type='checkbox'
+          onChange={() => handleCustomerSelection(rowData)}
+        />
+      </label>
     )
   }
   const header = renderHeader()
@@ -175,7 +178,7 @@ const PageClients = () => {
           <Breadcrumbs />
         </div>
         <div className="w-full">
-          <h2 className="font-bold text-3xl">Clientes</h2>
+          <h2 className="font-bold text-3xl">Agregar Lista de Difusión</h2>
         </div>
       </div>
       <div
@@ -188,35 +191,27 @@ const PageClients = () => {
           <div className="card">
             <div className="card__body">
               <div className="w-full flex justify-between mb-5">
-                <div className="w-4/12"></div>
-                <Link
-                  className="btn btn-success"
-                  href='/extranjeria/customers/add'
-                >
-                  Agregar cliente
-                </Link>
               </div>
               <div className="table-responsive">
-                <DataTable 
+                <DataTable
                   value={customers}
-                  paginator
-                  rows={14}
                   dataKey='id'
                   filters={filters}
                   filterDisplay='row'
                   globalFilterFields={[
                     'name',
-                    'documentNumber',
                     'nationality.name',
-                    'agent.name',
                     'status'
                   ]}
                   header={header}
-                  rowsPerPageOptions={[
-                    14, 21, 28, 35, 42, 49
-                  ]}
                   emptyMessage="No se han encontrado clientes"
                 >
+                  <Column
+                    header='Agregar'
+                    body={actionBodyTemplate} 
+                    exportable={false}
+                    style={{ minWidth: '1rem' }}
+                  />
                   <Column
                     field='name'
                     header='Nombre'
@@ -225,58 +220,30 @@ const PageClients = () => {
                     style={{ minWidth: '10rem' }}
                   />
                   <Column 
-                    field='documentNumber'
-                    header='Documentación'
-                    filter
-                    filterPlaceholder='Buscar por documentación'
-                    style={{ minWidth: '10rem' }}
-                  />
-                  <Column
-                    field='phone'
-                    header='Móvil'
-                    filter
-                    filterPlaceholder='Buscar móvil'
-                    style={{ minWidth: '10rem' }}
-                  />
-                  <Column 
                     field='nationality'
                     header='Nacionalidad'
                     filter
                     filterPlaceholder='Buscar por nacionalidad'
-                    style={{ minWidth: '10rem' }}
-                  />
-                  <Column 
-                    field='agent'
-                    header='Agente'
-                    filter
-                    filterPlaceholder='Buscar agente'
-                    style={{ minWidth: '10rem' }}
+                    style={{ minWidth: '5rem' }}
                   />
                   <Column 
                     field='status' 
                     header='Status' 
                     showFilterMenu={false}
-                    style={{ width: '8rem' }}
+                    filterMenuStyle={{ width: '8rem' }}
+                    style={{ minWidth: '8rem' }}
                     body={statusBodyTemplate}
                     filter
                     filterElement={statusRowFilterTemplate}
-                  />
-                  <Column 
-                    header='Acciones'
-                    body={actionBodyTemplate} 
-                    exportable={false}
-                    style={{ width: '12rem' }}
                   />
                 </DataTable>
               </div>
             </div>
           </div>
         </div>
-        <Toaster />
       </div>
     </>
   )
 }
 
-//export default WithAuth()
-export default PageClients
+export default AddList

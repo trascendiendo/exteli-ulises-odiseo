@@ -7,6 +7,7 @@ import general from '@/app/libs/apis/general'
 import nationalities from '@/app/libs/apis/nationalities'
 import packs from '@/app/libs/apis/packs'
 import procedures from '@/app/libs/apis/procedures'
+import rrss from '@/app/libs/apis/rrss'
 import tasks from '@/app/libs/apis/tasks'
 import timelines from '@/app/libs/apis/timeline'
 import users from '@/app/libs/apis/users'
@@ -21,6 +22,7 @@ const apis = {
   nationalities,
   packs,
   procedures,
+  rrss,
   tasks,
   timelines,
   users
