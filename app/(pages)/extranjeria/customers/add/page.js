@@ -116,14 +116,13 @@ const AddCustomer = () => {
         createdAt: createdAt ? createdAt : serverTimestamp(),
         updatedAt: serverTimestamp()
       }
-      console.log(customer)
-      //await Apis.customers.PostCustomer(customer)
-      //toast.success('Cliente registrado con éxito.')
+      await Apis.customers.PostCustomer(customer)
+      toast.success('Cliente registrado con éxito.')
     } catch (error) {
       toast.error('Error al registrar un cliente.')
     } finally {
       setIsLoading(false)
-      //router.push('/extranjeria/customers')
+      router.push('/extranjeria/customers')
     }
   }
 
