@@ -21,7 +21,7 @@ const AddCustomer = () => {
   const [allAgents, setAllAgents] = useState({})
 
   const [isLoading, setIsLoading] = useState(false)
-  const [createdAt, setCreatedAt] = useState(null)
+  const [createdAt, setCreatedAt] = useState(undefined)
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
@@ -46,6 +46,27 @@ const AddCustomer = () => {
   const [registerdBy, setRegisteredBy] = useState('')
   const [totalPriceDisabled, setTotalPriceDisabled] = useState(true)
   const router = useRouter()
+
+  const handleProcedureAndPack = (e) => {
+    if (e.target.name == 'selectPack') {
+      const selectedPack = allPacks.find(pack => pack.packs.price == e.target.value)
+      setServicePack(e.target.value)
+      setPackName(selectedPack.packs.name)
+      setProcedure(0)
+      setProcedureName('')
+    } else {
+      if ( e.target.value != 0 ) {
+        const selectedProcedure = allProcedures.find(procedure => procedure.procedure.price == e.target.value)
+        setProcedure(e.target.value)
+        setProcedureName(selectedProcedure.procedure.name)
+        setServicePack(0)
+        setPackName('')
+      } else {
+        setTotalPriceDisabled(true)
+        setTotalPrice('')
+      }
+    }
+  }
 
   const handleSubmit = async () => {
     setIsLoading(true)
@@ -81,14 +102,14 @@ const AddCustomer = () => {
         documentType,
         documentNumber,
         nationality,
-        procedure,
+        procedure: procedureName,
         birthday,
         gender,
         status,
         enterDate,
         threeMonths,
-        servicePack,
-        totalPrice,
+        servicePack: packName,
+        totalPrice: totalPrice,
         paid,
         registerdBy: `${user.firstName} ${user.lastName}`,
         timeline: timelineUid,
@@ -112,31 +133,6 @@ const AddCustomer = () => {
     let today = new Date().getTime()
     enter.setDate(enter.getDate() + 90)
     setThreeMonths( enter <= today )
-  }
-
-  const handlePackPrice = (e) => {
-    if (e.target.name == 'selectPack') {
-      const selectedPack = allPacks.find(pack => pack.packs.price == e.target.value)
-      setServicePack(e.target.value)
-      setPackName(selectedPack.packs.name)
-      setProcedure(0)
-      setProcedureName('')
-      setTotalPriceDisabled(true)
-      setTotalPrice(e.target.value)
-    } else {
-      if ( e.target.value != 0 ) {
-        const selectedProcedure = allProcedures.find(procedure => procedure.procedure.price == e.target.value)
-        setProcedure(e.target.value)
-        setProcedureName(selectedProcedure.procedure.name)
-        setServicePack(0)
-        setPackName('')
-        setTotalPriceDisabled(false)
-        setTotalPrice(e.target.value)
-      } else {
-        setTotalPriceDisabled(true)
-        setTotalPrice('')
-      }
-    }
   }
 
   useEffect(() => {
@@ -422,10 +418,9 @@ const AddCustomer = () => {
                         <span className="block text-sm">¿Cumple 90 días en España?</span>
                         <select
                           className="border rounded-lg px-3 py-3.5 text-sm w-full"
-                          value={threeMonths}
+                          defaultValue={threeMonths}
                           disabled
                         >
-                          <option value="">Calculando...</option>
                           {threeMonths ? (
                             <option value={threeMonths}>Sí</option>
                           ) : (
@@ -452,7 +447,7 @@ const AddCustomer = () => {
                           className="border rounded-lg px-3 py-3.5 text-sm w-full"
                           value={procedure}
                           name='selectProcedure'
-                          onChange={e => handlePackPrice(e)}
+                          onChange={e => handleProcedureAndPack(e)}
                         >
                           {/** TODO: Consumir trámites */}
                           <option value="0">Seleccionar trámite</option>
@@ -477,8 +472,8 @@ const AddCustomer = () => {
                           className="border rounded-lg px-3 py-3.5 text-sm w-full"
                           value={servicePack}
                           name='selectPack'
-                          onChange={e => handlePackPrice(e)}
                           disabled={!totalPriceDisabled}
+                          onChange={e => handleProcedureAndPack(e)}
                         >
                           <option value="0">Seleccionar pack</option>
                           {Object.keys(allPacks).length && (
@@ -505,8 +500,8 @@ const AddCustomer = () => {
                         <InputText
                           type='text'
                           value={totalPrice}
-                          placeholder="Calculando..."
-                          disabled={totalPriceDisabled}
+                          onChange={e => setTotalPrice(e.target.value)}
+                          required
                         />
                       </div>
                     </div>

@@ -24,7 +24,6 @@ const PageLists = () => {
     }
     fetchLists()
   }, [])
-  console.log(lists)
 
   return (
     <>

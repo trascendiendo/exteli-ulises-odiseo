@@ -5,12 +5,14 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { serverTimestamp } from 'firebase/firestore'
 import toast, { Toaster } from 'react-hot-toast'
+import Cookies from 'universal-cookie';
 import Apis from '@/app/libs/apis'
 import { InputText } from '@/app/ui/components/atoms';
 import LoadingScreen from '@/app/ui/components/molecules/LoadingScreen';
 import { Breadcrumbs } from '@/app/ui/components/organisms';
 
 const SettingsPage = () => {
+  const cookies = new Cookies
   const [thisUser, setThisUser] = useState({})
   const [isLoading, setIsLoading] = useState(false)
 

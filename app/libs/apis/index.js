@@ -11,6 +11,7 @@ import rrss from '@/app/libs/apis/rrss'
 import tasks from '@/app/libs/apis/tasks'
 import timelines from '@/app/libs/apis/timeline'
 import users from '@/app/libs/apis/users'
+import wa from '@/app/libs/apis/wa'
 
 const apis = {
   accounting,
@@ -25,7 +26,8 @@ const apis = {
   rrss,
   tasks,
   timelines,
-  users
+  users,
+  wa
 }
 
 export default apis
