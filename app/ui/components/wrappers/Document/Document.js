@@ -135,13 +135,13 @@ const Document = ({
   provider,
   customerData,
   createDate,
-  paidDate,
   rowsData,
   subtotal,
   descuentos,
   ivas,
   irpfs,
   total,
+  paymentMethod,
   notes
  }) => {
 
@@ -186,18 +186,29 @@ const Document = ({
             <View style={styles.tableColw6d12}>
               <View style={styles.tableColw12d12}>
                 <Text style={styles.fontExtralight}>
-                  {customerData.customer.firstName} {customerData.customer.lastName}
+                  {customerData.customer ?
+                    <>
+                      {customerData.customer.firstName} {customerData.customer.lastName}
+                    </> :
+                    <>
+                      {customerData}
+                    </>
+                  }
                 </Text>
-                <View style={styles.tableFull}>
-                  <View style={styles.tableRow}>
-                    <View>
-                      <Text style={styles.fontBold}>{customerData.customer.documentType}: </Text>
+                {customerData.customer &&
+                  <>
+                    <View style={styles.tableFull}>
+                      <View style={styles.tableRow}>
+                        <View>
+                          <Text style={styles.fontBold}>{customerData.customer.documentType}: </Text>
+                        </View>
+                        <View>
+                          <Text style={styles.fontExtralight}>{customerData.customer.documentNumber}</Text>
+                        </View>
+                      </View>
                     </View>
-                    <View>
-                      <Text style={styles.fontExtralight}>{customerData.customer.documentNumber}</Text>
-                    </View>
-                  </View>
-                </View>
+                  </>
+                }
               </View>
             </View>
             <View style={styles.tableColw6d12}>
@@ -208,17 +219,6 @@ const Document = ({
                   </View>
                   <View style={styles.tableColw6d12}>
                     <Text style={styles.fontExtralight}>{createDate}</Text>
-                  </View>
-                </View>
-              </View>
-
-              <View style={styles.tableFull}>
-                <View style={styles.tableRow}>
-                  <View style={styles.tableColw6d12}>
-                    <Text style={styles.fontBold}>Fecha de vencimiento:</Text>
-                  </View>
-                  <View style={styles.tableColw6d12}>
-                    <Text style={styles.fontExtralight}>{paidDate}</Text>
                   </View>
                 </View>
               </View>
@@ -280,8 +280,8 @@ const Document = ({
 
         <View style={[styles.tableFull, styles.section]}>
           <View style={styles.tableRow}>
-            <View style={styles.tableColw7d12}></View>
-            <View style={styles.tableColw5d12}>
+            <View style={styles.tableColw6d12}></View>
+            <View style={styles.tableColw6d12}>
               <View style={styles.totalsBox}>
                 <View style={[styles.tableFull, styles.mb1]}>
                   <View style={styles.tableRow}>
@@ -341,6 +341,7 @@ const Document = ({
         {/** aqui hay error */}
         <View style={styles.section}>
           <Text style={styles.fontBold}>Notas:</Text>
+          <Text>Medio de pago: {paymentMethod}</Text>
           <Text>{notes}</Text>
         </View>
       </Page>

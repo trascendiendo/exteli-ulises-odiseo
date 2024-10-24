@@ -22,11 +22,12 @@ const AddBill = () => {
   const [provider, setProvider] = useState({})
   const [myCustomers, setMyCustomers] = useState({})
   const [customerData, setCustomerData] = useState({})
+  const [nonRegisteredUser, setNonRegisteredUser] = useState('')
+  const [registeredCustomer, setRegisteredCustomer] = useState(true)
   const [createDate, setCreateDate] = useState(new Date().toISOString().split('T')[0])
   const [billSerial, setBillSerial] = useState('2024')
   const [billNumber, setBillNumber] = useState('0000000')
-  const [dueDate, setDueDate] = useState('')
-  const [paidDate, setPaidDate] = useState('')
+  const [paymentMethod, setPaymentMethod] = useState('')
   const [rows, setRows] = useState([{}])
   const [rowsData, setRowsdata] = useState([])
   const [notes, setNotes] = useState('')
@@ -34,6 +35,8 @@ const AddBill = () => {
   const [ivas, setIvas] = useState([])
   const [irpfs, setIrpfs] = useState([])
   const [descuentos, setDescuentos] = useState(0.00)
+  const [ivaInBase, setIvaInBase] = useState(false)
+  const [checkivaInBase, setCheckIvaInBase] = useState(false)
   const [total, setTotal] = useState(0.00)
   const [status, setStatus] = useState('pendiente')
   const router = useRouter()
@@ -88,25 +91,6 @@ const AddBill = () => {
     })
   }
 
-  const calculatePaidDate = () => {
-    if ( dueDate === 'manual' ) {
-      setPaidDate('')
-      setStatus('Pendiente')
-      return
-    }
-
-    const daysToAdd = parseInt(dueDate)
-    if ( !isNaN(daysToAdd) ) {
-      const newPaidDate = new Date(createDate)
-      newPaidDate.setDate(newPaidDate.getDate() + daysToAdd)
-      setPaidDate(newPaidDate.toISOString().split('T')[0])
-      setStatus('Pendiente')
-    } else {
-      setPaidDate(createDate)
-      setStatus('Pagado')
-    }
-  }
-
   const calculateSubtotal = () => {
     const newTotal = rows.reduce((acc, _, index) => {
       const baseValue = parseFloat(document.querySelector(`input[name='base-${index + 1}']`).value) || 0
@@ -116,6 +100,7 @@ const AddBill = () => {
     calculateIvas()
     calculateIrpfs()
     setSubtotal(newTotal)
+    setIvaInBase(true)
   }
 
   const calculateDtos = () => {
@@ -220,9 +205,8 @@ const AddBill = () => {
         billSerial,
         billNumber,
         provider,
-        customer: customerData,
+        customer: registeredCustomer ? customerData : nonRegisteredUser,
         createDate,
-        paidDate,
         description,
         subtotal,
         descuentos,
@@ -244,6 +228,26 @@ const AddBill = () => {
     }
   }
 
+  const handleRegisteredCustomer = () => {
+    setRegisteredCustomer(!registeredCustomer)
+  }
+
+  const handleIncludeIVAinBASE = () => {
+    console.log(`nueva base imponible: ${subtotal - ((subtotal * ivas[0].iva) / 100)}`)
+    console.log(`iva: ${ivas[0].iva}% - ${(subtotal * ivas[0].iva) / 100 }`)
+    console.log(`nuevo total: ${subtotal}`)
+    setSubtotal( subtotal - ((subtotal * ivas[0].iva)/100) )
+    setTotal( subtotal )
+  }
+
+  const checkForIVAinBase = () => {
+    if ( rows.length == 1 ) {
+      setCheckIvaInBase(true)
+    } else {
+      setCheckIvaInBase(false)
+    }
+  }
+
   useEffect(() => {
     const getUser = () => {
       const userRes = cookies.get('user')
@@ -257,7 +261,7 @@ const AddBill = () => {
       setIsLoading(true)
       try {
         if ( thisUser ) {
-          const resCustomers = await Apis.customers.GetAllCustomersByAgent(`${thisUser.firstName} ${thisUser.lastName}`)
+          const resCustomers = await Apis.customers.GetAllCustomers()
           await getCompanyData()
           setMyCustomers(resCustomers)
         }
@@ -272,16 +276,16 @@ const AddBill = () => {
   }, [thisUser]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    calculatePaidDate()
-  }, [createDate, dueDate]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => {
     calculateSubtotal()
   }, [rows]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     calculateTotal()
   }, [subtotal, ivas]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    checkForIVAinBase()
+  }, [rows])
 
   useEffect(() => {
     const getLastBill = async () => {
@@ -332,35 +336,68 @@ const AddBill = () => {
               <div className="form flex justify-center">
                 <div className="w-10/12">
 
-                  <div className="flex gap-4">
+                  <div className="flex gap-4 mb-4">
                     <div className="w-4/12">
-                      <div className="mb-4">
-                        <span className="block text-sm">Cliente (*)</span>
-                        <select
-                          name='customer'
-                          className="border rounded-lg px-3 py-3.5 text-sm w-full"
-                          required
-                          onChange={(e) => {
-                            const selectedId = e.target.value;
-                            const selectedCustomer = myCustomers.find(customer => customer.id === selectedId);
-                            getCustomerData(selectedCustomer.id)
-                          }}
-                        >
-                          <option value="">Seleccionar cliente</option>
-                          {myCustomers.length > 0 && (
-                            myCustomers.map(customer => (
-                              <option
-                                key={customer.id}
-                                value={customer.id}
-                              >
-                                {`${customer.customer.firstName} ${customer.customer.lastName}`}
-                              </option>
-                            ))
-                          )}
-                        </select>
-                      </div>
+                      <span className="block text-sm">Cliente (*)</span>
+                      {registeredCustomer ?
+                        <>
+                          <select
+                            name='customer'
+                            className="border rounded-lg px-3 py-3.5 text-sm w-full"
+                            required
+                            onChange={(e) => {
+                              const selectedId = e.target.value;
+                              const selectedCustomer = myCustomers.find(customer => customer.id === selectedId);
+                              getCustomerData(selectedCustomer.id)
+                            }}
+                          >
+                            <option value="">Seleccionar cliente</option>
+                            {myCustomers.length > 0 && (
+                              myCustomers.map(customer => (
+                                <option
+                                  key={customer.id}
+                                  value={customer.id}
+                                >
+                                  {`${customer.customer.firstName} ${customer.customer.lastName}`}
+                                </option>
+                              ))
+                            )}
+                          </select>
+                        </> :
+                        <>
+                          <InputText
+                            name='nonRegisteredUser'
+                            type='text'
+                            placeholder='Ingresar cliente'
+                            required
+                            autoComplete='off'
+                            onChange={e => setNonRegisteredUser(e.target.value)}
+                          />
+                        </>
+                      }
                     </div>
-                    <div className="nouser-select w-4/12"></div>
+                    <div className="flex items-end w-4/12">
+                      {registeredCustomer ? 
+                        <>
+                          <button
+                            className='btn btn-success uppercase'
+                            style={{ height: '48px' }}
+                            onClick={handleRegisteredCustomer}
+                          >
+                            Cambiar a cliente no registrado
+                          </button>
+                        </> : 
+                        <>
+                          <button
+                            className='btn btn-secondary uppercase'
+                            style={{ height: '48px' }}
+                            onClick={handleRegisteredCustomer}
+                          >
+                            Cambiar a cliente registrado
+                          </button>
+                        </>
+                      }
+                    </div>
                     <div className="nouser-select w-4/12"></div>
                   </div>
 
@@ -392,40 +429,9 @@ const AddBill = () => {
                         />
                       </div>
                     </div>
-                    <div className="w-3/12">
-                      <div className="mb-4">
-                        <span className="block text-sm">Vencimiento (*)</span>
-                        <select
-                          name='dueDate'
-                          className="border rounded-lg px-3 py-3.5 text-sm w-full"
-                          value={dueDate}
-                          onChange={(e) => setDueDate(e.target.value)}
-                          required
-                        >
-                          <option value="">Seleccionar opción</option>
-                          <option value="hoy">Hoy</option>
-                          <option value="7">7 días</option>
-                          <option value="15">15 días</option>
-                          <option value="30">30 días</option>
-                          <option value="45">45 días</option>
-                          <option value="60">60 días</option>
-                          <option value="manual">Elegir fecha</option>
-                        </select>
-                      </div>
+                    <div className="nouser-select w-3/12">
                     </div>
-                    <div className="w-3/12">
-                      <div className="mb-4">
-                        <span className="block text-sm">Fecha de pago (*)</span>
-                        <InputText
-                          name='paidDate'
-                          type='date'
-                          value={paidDate}
-                          onChange={(e) => setPaidDate(e.target.value)}
-                          required={dueDate === 'manual'}
-                          disabled={dueDate !== 'manual'}
-                          autoComplete='off'
-                        />
-                      </div>
+                    <div className="nouser-select w-3/12">
                     </div>
                   </div>
 
@@ -517,13 +523,35 @@ const AddBill = () => {
                   <div className="flex gap-4">
                     <div className="mb-4 w-3/12">
                       <button
-                        className='btn btn-primary'
+                        className='btn btn-primary uppercase'
                         type='button'
                         onClick={handleAddRow}
                       >
                         Agregar
                       </button>
                     </div>
+                  </div>
+
+                  <div className="flex gap-4">
+                    <div className="w-4/12">
+                      <div className="mb-4">
+                        <span className="block text-sm">Medio de pago</span>
+                        <select
+                          name='paymentMethod'
+                          className="border rounded-lg px-3 py-3.5 text-sm w-full"
+                          value={paymentMethod}
+                          onChange={(e) => setPaymentMethod(e.target.value)}
+                          required
+                        >
+                          <option value="">Seleccionar opción</option>
+                          <option value="Efectivo">Efectivo</option>
+                          <option value="Bizum">Bizum</option>
+                          <option value="Tarjeta">Tarjeta</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div className="nouser-select w-4/12"></div>
+                    <div className="nouser-select w-4/12"></div>
                   </div>
 
                   <div className="flex gap-4">
@@ -548,19 +576,18 @@ const AddBill = () => {
                   </div>
 
                   <div className="flex gap-4 mb-4">
-                    <div className="nouser-select w-3/12"></div>
-                    <div className="nouser-select w-3/12"></div>
-                    <div className="nouser-select w-3/12"></div>
-                    <div className="w-3/12">
+                    <div className="nouser-select w-4/12"></div>
+                    <div className="nouser-select w-4/12"></div>
+                    <div className="w-4/12">
                       <div className='bg-gray-200 rounded-xl px-4 py-3'>
 
                         {subtotal !== 0.00 && (
                           <>
                             <div className='flex gap-4 mb-1'>
-                              <div className="w-6/12">
+                              <div className="w-7/12">
                                 <span className="block font-extralight text-base">Base imponible</span>
                               </div>
-                              <div className="text-right w-6/12">
+                              <div className="text-right w-5/12">
                                 <span className="block font-extralight text-base row__total-value">
                                   {parsePrice(subtotal)} €
                                 </span>
@@ -572,10 +599,10 @@ const AddBill = () => {
                                 ? ivas.map((iva, index) => (
                                   iva.iva !== 0 && (
                                     <div className='flex gap-4 mb-1 row__iva-item' key={index}>
-                                      <div className="w-6/12">
+                                      <div className="w-7/12">
                                         <span className="block font-extralight text-base">IVA {iva.iva} %</span>
                                       </div>
-                                      <div className="text-right w-6/12">
+                                      <div className="text-right w-5/12">
                                         <span className="block font-extralight text-base row__iva-value">
                                           {parsePrice(iva.value)} €
                                         </span>
@@ -585,10 +612,10 @@ const AddBill = () => {
                                 ))
                                 : ivas[0]?.iva !== 0 && (
                                     <div className='flex gap-4 mb-1 row__iva-item'>
-                                      <div className="w-6/12">
+                                      <div className="w-7/12">
                                         <span className="block font-extralight text-base">IVA {ivas[0]?.iva} %</span>
                                       </div>
-                                      <div className="text-right w-6/12">
+                                      <div className="text-right w-5/12">
                                         <span className="block font-extralight text-base row__iva-value">
                                           {parsePrice(ivas[0]?.value || 0)} €
                                         </span>
@@ -603,10 +630,10 @@ const AddBill = () => {
                                 ? irpfs.map((irpf, index) => (
                                   irpf.irpf !== 0 && (
                                     <div className='flex gap-4 mb-1 row__irpf-item' key={index}>
-                                      <div className="w-6/12">
+                                      <div className="w-7/12">
                                         <span className="block font-extralight text-base">IRPF</span>
                                       </div>
-                                      <div className="text-right w-6/12">
+                                      <div className="text-right w-5/12">
                                         <span className="block font-extralight text-base row__iva-value">
                                           -{parsePrice(irpf.value)} €
                                         </span>
@@ -616,10 +643,10 @@ const AddBill = () => {
                                 ))
                                 : irpfs[0]?.irpf !== 0 && (
                                     <div className='flex gap-4 mb-1 row__irpf-item'>
-                                      <div className="w-6/12">
+                                      <div className="w-7/12">
                                         <span className="block font-extralight text-base">IRPF {irpfs[0]?.irpf}</span>
                                       </div>
-                                      <div className="text-right w-6/12">
+                                      <div className="text-right w-5/12">
                                         <span className="block font-extralight text-base row__irpf-value">
                                           -{parsePrice(irpfs[0]?.value || 0)} €
                                         </span>
@@ -633,10 +660,10 @@ const AddBill = () => {
 
                         {descuentos !== 0.00 && (
                           <div className='flex gap-4 mb-1'>
-                            <div className="w-6/12">
+                            <div className="w-7/12">
                               <span className="block font-extralight text-base">Descuentos</span>
                             </div>
-                            <div className="text-right w-6/12">
+                            <div className="text-right w-5/12">
                               <span className="block font-extralight text-base row__total-value">
                                 {parsePrice(descuentos)} €
                               </span>
@@ -645,10 +672,10 @@ const AddBill = () => {
                         )}
 
                         <div className='flex gap-4'>
-                          <div className="w-6/12">
+                          <div className="w-7/12">
                             <span className="block font-semibold text-base">Total</span>
                           </div>
-                          <div className="text-right w-6/12">
+                          <div className="text-right w-5/12">
                             <span className="block font-semibold text-base row__total-value">
                               {parsePrice(total)} €
                             </span>
@@ -659,20 +686,42 @@ const AddBill = () => {
                     </div>
                   </div>
 
+                  {checkivaInBase && 
+                    <>
+                      {total != 0.00 && 
+                        <>
+                          <div className="flex gap-4 mb-4">
+                            <div className="nouser-select w-4/12"></div>
+                            <div className="nouser-select w-4/12"></div>
+                            <div className="w-4/12">
+                              <button
+                                className='btn btn-secondary w-full'
+                                onClick={handleIncludeIVAinBASE}
+                                disabled={!ivaInBase}
+                              >
+                                Incluir IVA en la BASE
+                              </button>
+                            </div>
+                          </div>
+                        </>
+                      }
+                    </>
+                  }
+
                   <div className="flex gap-4">
                     <div className="mb-4 w-2/12">
                       <button
-                        className='btn btn-primary w-full'
+                        className='btn btn-primary w-full uppercase'
                         //onClick={handleSubmit}
                         onClick={showDocument}
-                        disabled={Object.keys(customerData).length === 0}
+                        disabled={registeredCustomer ? Object.keys(customerData).length === 0 : nonRegisteredUser == '' }
                       >
                         Previsualizar
                       </button>
                     </div>
                     <div className="mb-4 w-2/12">
                       <Link
-                        className='btn btn-danger w-full'
+                        className='btn btn-danger w-full uppercase'
                         href={`./`}
                       >
                         Cancelar
@@ -694,23 +743,35 @@ const AddBill = () => {
                   <X size={32} />
                 </button>
               </div>
-              <PDFViewer style={{ height: 'calc(100% - 43px - 39px)', width: '100%' }}>
+              <PDFViewer style={{ height: 'calc(100% - 200px)', width: '100%' }}>
                 <Document
                   billSerial={billSerial}
                   billNumber={billNumber}
                   provider={provider}
-                  customerData={customerData}
+                  customerData={registeredCustomer ? customerData : nonRegisteredUser}
                   createDate={createDate}
-                  paidDate={paidDate}
                   rowsData={rowsData}
                   subtotal={subtotal}
                   descuentos={descuentos}
                   ivas={ivas}
                   irpfs={irpfs}
                   total={total}
+                  paymentMethod={paymentMethod}
                   notes={notes}
                 />
               </PDFViewer>
+              <div className='flex justify-center mt-4'>
+                <div className='flex justify-between w-7/12'>
+                  <div className='rounded-2xl px-4 py-3 text-center' style={{ backgroundColor: '#FFCDD2' }}>
+                    <strong>
+                      IMPORTANTE
+                    </strong>
+                    <p>
+                      Esta es una previsualización, el documento aún no se ha guardado en el sistema.
+                    </p>
+                  </div>
+                </div>
+              </div>
               <div className='flex justify-center mt-4'>
                 <div className='flex justify-between w-3/12'>
                   <button

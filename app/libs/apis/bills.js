@@ -1,4 +1,4 @@
-import { addDoc, collection, doc, getDoc, getDocs, limit, orderBy, query } from 'firebase/firestore'
+import { addDoc, collection, doc, getDoc, getDocs, limit, orderBy, query, updateDoc } from 'firebase/firestore'
 import { db } from '@/app/libs/utils/firebase'
 
 const bills = {
@@ -103,8 +103,15 @@ const bills = {
       throw error
     }
   },
-  DeleteBill: async (uid, bill) => {
-    
+  CancelBill: async (uid) => {
+    try {
+      const billDocRef = doc(db, 'bills', uid)
+      await updateDoc(billDocRef, { status: 'Cancelado' })
+    } catch (error) {
+      console.info(`CancelBill: Error al cancelar la factura ${uid}`)
+      console.error(error)
+      throw error
+    }
   }
 }
 

@@ -87,7 +87,7 @@ const AddCustomer = () => {
     try {
       const timelineRef = await Apis.timelines.PostTimeline(timeline)
       const timelineUid = timelineRef.id
-      if (paid > 0) {
+      if ( paid > 0 && createdAt != undefined ) {
         await Apis.accounting.PostAccounting(accounting)
         toast.success('Ingreso registrado con éxito.')
       }
