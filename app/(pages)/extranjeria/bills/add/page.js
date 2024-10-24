@@ -35,6 +35,8 @@ const AddBill = () => {
   const [ivas, setIvas] = useState([])
   const [irpfs, setIrpfs] = useState([])
   const [descuentos, setDescuentos] = useState(0.00)
+  const [ivaInBase, setIvaInBase] = useState(false)
+  const [checkivaInBase, setCheckIvaInBase] = useState(false)
   const [total, setTotal] = useState(0.00)
   const [status, setStatus] = useState('pendiente')
   const router = useRouter()
@@ -98,6 +100,7 @@ const AddBill = () => {
     calculateIvas()
     calculateIrpfs()
     setSubtotal(newTotal)
+    setIvaInBase(true)
   }
 
   const calculateDtos = () => {
@@ -229,6 +232,22 @@ const AddBill = () => {
     setRegisteredCustomer(!registeredCustomer)
   }
 
+  const handleIncludeIVAinBASE = () => {
+    console.log(`nueva base imponible: ${subtotal - ((subtotal * ivas[0].iva) / 100)}`)
+    console.log(`iva: ${ivas[0].iva}% - ${(subtotal * ivas[0].iva) / 100 }`)
+    console.log(`nuevo total: ${subtotal}`)
+    setSubtotal( subtotal - ((subtotal * ivas[0].iva)/100) )
+    setTotal( subtotal )
+  }
+
+  const checkForIVAinBase = () => {
+    if ( rows.length == 1 ) {
+      setCheckIvaInBase(true)
+    } else {
+      setCheckIvaInBase(false)
+    }
+  }
+
   useEffect(() => {
     const getUser = () => {
       const userRes = cookies.get('user')
@@ -242,7 +261,7 @@ const AddBill = () => {
       setIsLoading(true)
       try {
         if ( thisUser ) {
-          const resCustomers = await Apis.customers.GetAllCustomersByAgent(`${thisUser.firstName} ${thisUser.lastName}`)
+          const resCustomers = await Apis.customers.GetAllCustomers()
           await getCompanyData()
           setMyCustomers(resCustomers)
         }
@@ -263,6 +282,10 @@ const AddBill = () => {
   useEffect(() => {
     calculateTotal()
   }, [subtotal, ivas]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    checkForIVAinBase()
+  }, [rows])
 
   useEffect(() => {
     const getLastBill = async () => {
@@ -406,9 +429,9 @@ const AddBill = () => {
                         />
                       </div>
                     </div>
-                    <div className="w-3/12">
+                    <div className="nouser-select w-3/12">
                     </div>
-                    <div className="w-3/12">
+                    <div className="nouser-select w-3/12">
                     </div>
                   </div>
 
@@ -510,7 +533,7 @@ const AddBill = () => {
                   </div>
 
                   <div className="flex gap-4">
-                    <div className="w-7/12">
+                    <div className="w-4/12">
                       <div className="mb-4">
                         <span className="block text-sm">Medio de pago</span>
                         <select
@@ -527,11 +550,8 @@ const AddBill = () => {
                         </select>
                       </div>
                     </div>
-                    <div className="nouser-select w-1/12"></div>
-                    <div className="nouser-select w-1/12"></div>
-                    <div className="nouser-select w-1/12"></div>
-                    <div className="nouser-select w-1/12"></div>
-                    <div className="nouser-select w-1/12"></div>
+                    <div className="nouser-select w-4/12"></div>
+                    <div className="nouser-select w-4/12"></div>
                   </div>
 
                   <div className="flex gap-4">
@@ -665,6 +685,28 @@ const AddBill = () => {
                       </div>
                     </div>
                   </div>
+
+                  {checkivaInBase && 
+                    <>
+                      {total != 0.00 && 
+                        <>
+                          <div className="flex gap-4 mb-4">
+                            <div className="nouser-select w-4/12"></div>
+                            <div className="nouser-select w-4/12"></div>
+                            <div className="w-4/12">
+                              <button
+                                className='btn btn-secondary w-full'
+                                onClick={handleIncludeIVAinBASE}
+                                disabled={!ivaInBase}
+                              >
+                                Incluir IVA en la BASE
+                              </button>
+                            </div>
+                          </div>
+                        </>
+                      }
+                    </>
+                  }
 
                   <div className="flex gap-4">
                     <div className="mb-4 w-2/12">

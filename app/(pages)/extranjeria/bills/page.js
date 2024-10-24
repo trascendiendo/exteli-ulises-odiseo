@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link'
-import { FilePdf } from '@phosphor-icons/react/dist/ssr';
+import { FilePdf, FileX } from '@phosphor-icons/react/dist/ssr';
 import toast, { Toaster } from 'react-hot-toast'
 
 import { FilterMatchMode } from 'primereact/api';
@@ -15,6 +15,7 @@ import { Dropdown } from 'primereact/dropdown';
 import { Tag } from 'primereact/tag';
 
 import { parsePrice } from '@/app/libs/utils';
+import { Warning, X } from '@phosphor-icons/react';
 import Apis from '@/app/libs/apis';
 import { Breadcrumbs } from '@/app/ui/components/organisms';
 
@@ -22,26 +23,43 @@ const PageClients = () => {
   const [loading, setLoading] = useState(true)
   const [globalFilterValue, setGlobalFilterValue] = useState('')
   const [bills, setBills] = useState(null)
-  const [statuses] = useState(['Pendiente', 'Pagado', 'Cancelado', 'Vencido'])
+  const [statuses] = useState(['Pagado', 'Cancelado'])
   const [filters, setFilters] = useState({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
     number: {value: null, matchMode: FilterMatchMode.STARTS_WITH},
     customer: {value: null, matchMode: FilterMatchMode.STARTS_WITH},
     createDate: {value: null, matchMode: FilterMatchMode.DATE_IS},
-    paidDate: {value: null, matchMode: FilterMatchMode.DATE_IS},
     total: {value: null, matchMode: FilterMatchMode.STARTS_WITH},
     status: { value: null, matchMode: FilterMatchMode.EQUALS }
   })
+
+  const [modal, setModal] = useState(false)
+  const [billId, setBillId] = useState(undefined)
+
+  const handleCancelBill = async (id) => {
+    setLoading(true)
+    try {
+      await Apis.bills.CancelBill(id)
+    } catch (error) {
+      toast.error('Error al cancelar una factura.')
+    } finally {
+      setLoading(false)
+      window.location.reload()
+    }
+  }
+  const openModal = (id) => {
+    setBillId(id)
+    setModal(true)
+  }
+  const handleCloseModal = () => {
+    setModal(false)
+  }
   const getSeverity = (status) => {
     switch (status) {
-      case 'Pendiente':
-        return 'warning'
       case 'Pagado':
         return 'success'
       case 'Cancelado':
         return 'danger'
-      case 'Vencido':
-        return 'info'
     }
   }
   useEffect(() => {
@@ -55,7 +73,6 @@ const PageClients = () => {
               number: `${item.billSerial}-${item.billNumber}`,
               customer: `${item.customer.customer.firstName} ${item.customer.customer.lastName}`,
               createDate: item.createDate,
-              paidDate: item.paidDate,
               total: parsePrice(item.total),
               status: item.status
             }))
@@ -125,12 +142,20 @@ const PageClients = () => {
   }
   const actionBodyTemplate = (rowData) => {
     return (
-      <Link
-        className='btn btn-primary'
-        href={`./bills/${rowData.id}`}
-      >
-        Ver <FilePdf size={28} />
-      </Link>
+      <div className='flex gap-3'>
+        <button
+          className='btn btn-danger uppercase'
+          onClick={() => openModal(rowData.id)}
+        >
+          Cancelar <FileX size={28} />
+        </button>
+        <Link
+          className='btn btn-primary uppercase'
+          href={`./bills/${rowData.id}`}
+        >
+          Ver <FilePdf size={28} />
+        </Link>
+      </div>
     )
   }
   const header = renderHeader()
@@ -182,7 +207,6 @@ const PageClients = () => {
                     'number',
                     'customer',
                     'createDate',
-                    'paidDate',
                     'total',
                     'status'
                   ]}
@@ -208,16 +232,9 @@ const PageClients = () => {
                   />
                   <Column
                     field='createDate'
-                    header='Registrado'
+                    header='Creado el'
                     filter
                     filterPlaceholder='Filtrar por fecha de creación'
-                    style={{ minWidth: '10rem' }}
-                  />
-                  <Column
-                    field='paidDate'
-                    header='Vencimiento'
-                    filter
-                    filterPlaceholder='Filtrar por vencimiento'
                     style={{ minWidth: '10rem' }}
                   />
                   <Column 
@@ -250,6 +267,54 @@ const PageClients = () => {
           </div>
         </div>
         <Toaster />
+        {modal && (
+          <div className={`modal`}>
+            <div className='modal__content' style={{ height: '350px' }}>
+              <div className='modal__close'>
+                <button onClick={handleCloseModal}>
+                  <X size={32} />
+                </button>
+              </div>
+              <div className='flex justify-center mt-4'>
+                <div className='flex justify-between w-7/12'>
+                  <div className='rounded-2xl px-4 py-3 text-center w-full' style={{ backgroundColor: '#FFCDD2' }}>
+                    <div className='flex justify-center mb-3'>
+                      <Warning size={42} />
+                    </div>
+                    <strong>
+                      IMPORTANTE
+                    </strong>
+                    <p>
+                      Cancelar la factura es un proceso <strong>irreversible</strong>.
+                    </p>
+                    <p>
+                      ¿Está seguro que desea continuar?
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className='flex justify-center mt-4'>
+                <div className='flex justify-between w-3/12'>
+                  <button
+                    className='btn btn-danger w-full'
+                    onClick={handleCloseModal}
+                  >
+                    Cancelar
+                  </button>
+                </div>
+                <div className='w-1/12'></div>
+                <div className='flex justify-between w-3/12'>
+                  <button
+                    className='btn btn-success w-full'
+                    onClick={() => handleCancelBill(billId)}
+                  >
+                    Proceder
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </>
   )

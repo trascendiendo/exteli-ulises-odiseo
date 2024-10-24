@@ -370,9 +370,6 @@
   &.btn-danger {
     background-color: #F44336;
     border: 2px solid #F44336;
-    svg {
-      margin-left: 0;
-    }
     &:disabled {
       background-color: #EF9A9A;
       border: 2px solid #EF9A9A;
