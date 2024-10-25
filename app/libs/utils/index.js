@@ -1,3 +1,4 @@
+export { default as dateFormat } from './dateFormat'
 export { default as getCustomer } from './getCustomer'
 export { default as getFullCustomer } from './getFullCustomer'
 export { default as isBrowser } from './isBrowser'

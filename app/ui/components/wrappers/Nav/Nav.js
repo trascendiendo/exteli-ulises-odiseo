@@ -6,7 +6,8 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { signOut } from 'firebase/auth';
 import Cookies from 'universal-cookie';
-import { 
+import {
+  CalendarDots,
   ChartLine,
   ChatCircleDots,
   DotsThreeVertical,
@@ -274,6 +275,31 @@ const Nav = () => {
                           <li className="pc-item">
                             <Link href='/extranjeria/accounting/add'>
                               <span className="pc-mtext">Agregar ingresos/egresos</span>
+                            </Link>
+                          </li>
+                        </ul>
+                      </li>
+
+                      <li className="pc-item pc-hasmenu">
+                        <a href="#" onClick={e => handleSubmenu(e)}>
+                          <span className="pc-micon"><CalendarDots size={24} /></span>
+                          <span className='pc-mtext'>
+                            Agenda
+                          </span>
+                          <span className="pc-arrow">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                          </span>
+                          <span className="pc-badge"></span>
+                        </a>
+                        <ul className="pc-submenu" style={{ display: 'none' }}>
+                          <li className="pc-item">
+                            <Link href='/extranjeria/calendar'>
+                              <span className="pc-mtext">Administrar citas</span>
+                            </Link>
+                          </li>
+                          <li className="pc-item">
+                            <Link href='/extranjeria/calendar/add'>
+                              <span className="pc-mtext">Agregar cita</span>
                             </Link>
                           </li>
                         </ul>

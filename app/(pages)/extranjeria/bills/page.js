@@ -71,7 +71,7 @@ const PageClients = () => {
             return res.map(item => ({
               id: item.id,
               number: `${item.billSerial}-${item.billNumber}`,
-              customer: `${item.customer.customer.firstName} ${item.customer.customer.lastName}`,
+              customer: item.customer.customer?.firstName != undefined ? `${item.customer.customer.firstName} ${item.customer.customer.lastName}` : item.customer,
               createDate: item.createDate,
               total: parsePrice(item.total),
               status: item.status
