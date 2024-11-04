@@ -39,8 +39,14 @@ const AddBill = () => {
   const [checkivaInBase, setCheckIvaInBase] = useState(false)
   const [total, setTotal] = useState(0.00)
   const [status, setStatus] = useState('pendiente')
-  const router = useRouter()
 
+  const [newCustomer, setNewCustomer] = useState(false)
+  const [documentType, setDocumentType] = useState('')
+  const [documentNumber, setDocumentNumber] = useState('')
+  const [phone, setPhone] = useState('')
+  const [phoneSecondary, setPhoneSecondary] = useState('')
+
+  const router = useRouter()
   const [modal, setModal] = useState(false)
 
   const getCompanyData = async () => {
@@ -177,6 +183,51 @@ const AddBill = () => {
     setModal(false)
   }
 
+  const handleNewCustomer = async () => {
+    setIsLoading(true)
+    const timeline = {
+      registerdBy: `${thisUser.firstName} ${thisUser.lastName}`,
+      comment: ``,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    }
+    const accounting = {
+      type: 'ingreso',
+      amount: total,
+      description: nonRegisteredUser,
+      reference: `Factura: ${billSerial}-${billNumber}`,
+      registerdBy: `${thisUser.firstName} ${thisUser.lastName}`,
+      createdAt: serverTimestamp()
+    }
+    try {
+      const timelineRef = await Apis.timelines.PostTimeline(timeline)
+      const timelineUid = timelineRef.id
+      if ( total > 0 ) {
+        await Apis.accounting.PostAccounting(accounting)
+      }
+      const customer = {
+        firstName: nonRegisteredUser.toLowerCase(),
+        phone: phone,
+        phoneSecondary: phoneSecondary,
+        documentType: documentType,
+        documentNumber: documentNumber,
+        procedure: `Factura: ${billSerial}-${billNumber}`,
+        status: "",
+        paid: total,
+        registerdBy: `${thisUser.firstName} ${thisUser.lastName}`,
+        timeline: timelineUid,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      }
+      await Apis.customers.PostCustomer(customer)
+    } catch (error) {
+      toast.error('Error al registrar un cliente.')
+    } finally {
+      setIsLoading(false)
+      router.push('/extranjeria/bills')
+    }
+  }
+
   const handleSubmit = async () => {
     setIsLoading(true)
     try {
@@ -217,6 +268,10 @@ const AddBill = () => {
         status,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
+      }
+
+      if ( newCustomer ) {
+        handleNewCustomer()
       }
       await Apis.bills.PostBill(bill)
       toast.success('Factura registrada con éxito.')
@@ -373,12 +428,22 @@ const AddBill = () => {
                             autoComplete='off'
                             onChange={e => setNonRegisteredUser(e.target.value)}
                           />
+                          <div className='mt-2 text-sm'>
+                            <label>
+                              <input 
+                                className='mr-1' 
+                                type='checkbox' 
+                                onChange={e => setNewCustomer(!newCustomer)}
+                              /> Registrar cliente en la base de datos
+                            </label>
+                          </div>
                         </>
                       }
                     </div>
-                    <div className="flex items-end w-4/12">
+                    <div className="w-4/12">
                       {registeredCustomer ? 
                         <>
+                          <span className="block text-sm">&nbsp;</span>
                           <button
                             className='btn btn-success uppercase'
                             style={{ height: '48px' }}
@@ -388,6 +453,7 @@ const AddBill = () => {
                           </button>
                         </> : 
                         <>
+                          <span className="block text-sm">&nbsp;</span>
                           <button
                             className='btn btn-secondary uppercase'
                             style={{ height: '48px' }}
@@ -400,6 +466,66 @@ const AddBill = () => {
                     </div>
                     <div className="nouser-select w-4/12"></div>
                   </div>
+
+                  {!registeredCustomer && (
+                    <>
+                      {newCustomer && (
+                        <div className='flex gap-4'>
+                          <div className="w-3/12">
+                            <div className="mb-4">
+                              <span className="block text-sm">Tipo de documento (*)</span>
+                              <select
+                                className="border rounded-lg px-3 py-3.5 text-sm w-full"
+                                value={documentType}
+                                onChange={e => setDocumentType(e.target.value)}
+                                required
+                              >
+                                <option value="">Seleccionar opción</option>
+                                <option value="Pasaporte">Pasaporte</option>
+                                <option value="NIE">NIE</option>
+                                <option value="DNI">DNI</option>
+                              </select>
+                            </div>
+                          </div>
+
+                          <div className="w-3/12">
+                            <div className="mb-4">
+                              <span className="block text-sm">Número de documento (*)</span>
+                              <InputText
+                                type='text'
+                                value={documentNumber}
+                                onChange={e => setDocumentNumber(e.target.value)}
+                                required
+                              />
+                            </div>
+                          </div>
+
+                          <div className="w-3/12">
+                            <div className="mb-4">
+                              <span className="block text-sm">Móvil principal (*)</span>
+                              <InputText
+                                type='text'
+                                value={phone}
+                                onChange={e => setPhone(e.target.value)}
+                                required
+                              />
+                            </div>
+                          </div>
+
+                          <div className="w-3/12">
+                            <div className="mb-4">
+                              <span className="block text-sm">Móvil secundario (*)</span>
+                              <InputText
+                                type='text'
+                                value={phoneSecondary}
+                                onChange={e => setPhoneSecondary(e.target.value)}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
 
                   <div className="flex gap-4">
                     <div className="w-3/12">

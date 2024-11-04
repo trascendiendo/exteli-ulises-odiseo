@@ -645,7 +645,7 @@ select {
     max-height: 95%;
     max-width: 900px;
     overflow: auto;
-    padding: 56px 28px 28px 28px;
+    padding: 56px 28px 42px 28px;
     place-self: center;
     position: relative;
     width: 800px;

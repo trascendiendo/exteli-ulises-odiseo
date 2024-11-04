@@ -75,6 +75,24 @@ const users = {
       throw error
     }
   },
+  GetAllUsersByStatus: async (status) => {
+    try {
+      const usersRef = collection(db, 'users')
+      const q = query(usersRef, where('status', '==', status))
+      const querySnapshot = await getDocs(q)
+
+      const users = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }))
+      
+      return users
+    } catch (error) {
+      console.info(`GetAllUsersByStatus: Error al obtener usuarios con el estado: ${status}`)
+      console.error(error)
+      throw error
+    }
+  },
   PostUser: async (uid, user) => {
     try {
       await setDoc(doc(db, 'users', uid), user)

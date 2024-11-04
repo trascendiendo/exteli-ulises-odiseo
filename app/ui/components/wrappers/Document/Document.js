@@ -142,7 +142,8 @@ const Document = ({
   irpfs,
   total,
   paymentMethod,
-  notes
+  notes,
+  status
  }) => {
 
   return (
@@ -344,6 +345,11 @@ const Document = ({
           <Text>Medio de pago: {paymentMethod}</Text>
           <Text>{notes}</Text>
         </View>
+        {status == "Cancelado" && (
+          <View style={styles.section}>
+            <Text style={{color: '#EF5350',fontFamily: 'PublicSans', fontWeight: 600 }}>FACTURA CANCELADA</Text>
+          </View>
+        )}
       </Page>
     </DocumentPDF>
   )

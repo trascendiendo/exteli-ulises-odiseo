@@ -32,6 +32,7 @@ const PageBill = () => {
     }
     getBill()
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  console.log(bill)
 
   return (
     <>
@@ -84,6 +85,7 @@ const PageBill = () => {
                        irpfs={bill.irpfs}
                        total={bill.total}
                        notes={bill.notes}
+                       status={bill.status}
                      />
                    </PDFViewer>
                   )}
