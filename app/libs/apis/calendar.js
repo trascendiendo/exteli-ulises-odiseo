@@ -1,6 +1,6 @@
-import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, updateDoc, onSnapshot, orderBy, query, QuerySnapshot } from 'firebase/firestore'
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, updateDoc, orderBy, query } from 'firebase/firestore'
 import { db } from '@/app/libs/utils/firebase'
-import { callback } from 'chart.js/dist/helpers/helpers.core'
+import calendarDayformat from '../utils/calendarDayformat'
 
 const calendar = {
   GetEvent: async (uid) => {
@@ -19,32 +19,77 @@ const calendar = {
       throw error
     }
   },
-  GetEvents: async () => {
+  GetTodayHours: async (date) => {
     try {
+      const [year, month, day] = date.split('-').map(Number)
+
       const eventRef = collection(db, 'calendar')
-      const q = query(eventRef, orderBy('createdAt', 'desc'))
+      const querySnapshot = await getDocs(eventRef)
 
-      const unsubscribe = onSnapshot(q, (QuerySnapshot) => {
-        const events = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }))
+      const takenHours = []
+      querySnapshot.forEach((doc) => {
+        const eventData = doc.data()
+        const { start, end } = eventData
+        const eventStart = new Date(start.seconds * 1000)
+        const eventEnd = new Date(end.seconds * 1000)
 
-        callback(events)
+        if (
+          eventStart.getFullYear() === year &&
+          eventStart.getMonth() === month - 1 &&
+          eventStart.getDate() === day
+        ) {
+          let current = new Date(eventStart)
+          while ( current < eventEnd ) {
+            takenHours.push(current.getHours() * 60 + current.getMinutes())
+            current.setMinutes(current.getMinutes() + 10)
+          }
+        }
       })
 
-      return unsubscribe
+      const availableHours = []
+      for (let hour = 10; hour <= 18; hour++) {
+        for (let minute = 0; minute < 60; minute += 30) {
+          const totalMinutes = hour * 60 + minute
+          if ( !takenHours.includes(totalMinutes) ) {
+            const formattedHour = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+            availableHours.push(formattedHour)
+          }
+        }
+      }
+      return availableHours
+    } catch (error) {
+      console.info(`GetTodayHours: Error al obtener horas disponibles`)
+      console.error(error)
+      throw error
+    }
+  },
+  GetEvents: async (uid) => {
+    try {
+      const eventRef = collection(db, 'calendar', uid, 'events')
+      const querySnapshot = await getDocs(eventRef)
+
+      const events = querySnapshot.docs.map(doc => {
+        const data = doc.data()
+        return {
+          id: doc.id,
+          ...data,
+          start: calendarDayformat(data.start),
+          end: calendarDayformat(data.end)
+        }
+      })
+      return events
     } catch (error) {
       console.info(`GetEvents: Error al obtener eventos`)
       console.error(error)
       throw error
     }
   },
-  PostEvent: async (event) => {
+  PostEvent: async (uid, event) => {
     try {
-      await addDoc(collection(db, 'calendar'), event)
+      const eventRef = collection(db, 'calendar', uid, 'events')
+      await addDoc(eventRef, event)
     } catch (error) {
-      console.info(`PostEvent: Error al crear evento`)
+      console.info(`PostEvent: Error al crear evento ${event} para el usuario ${uid}`)
       console.error(error)
       throw error
     }

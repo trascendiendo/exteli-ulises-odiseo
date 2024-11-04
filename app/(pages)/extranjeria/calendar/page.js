@@ -1,8 +1,8 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { Eye, Trash } from '@phosphor-icons/react/dist/ssr';
+import { Calendar, Eye, FileText, MapPin,TextAUnderline, Trash, User } from '@phosphor-icons/react/dist/ssr';
 import toast, { Toaster } from 'react-hot-toast'
 import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
@@ -11,15 +11,19 @@ import interactionPlugin from '@fullcalendar/interaction'
 import listMonth from '@fullcalendar/list'
 import esLocale from '@fullcalendar/core/locales/es'
 import { Warning, X } from '@phosphor-icons/react';
+import Cookies from 'universal-cookie';
 import Apis from '@/app/libs/apis';
-import { dateFormat, timeFormat } from '@/app/libs/utils';
-import { Badge } from '@/app/ui/components/atoms';
+import { dateFormat, getUser } from '@/app/libs/utils';
 import { Breadcrumbs } from '@/app/ui/components/organisms';
 
 const PageCalendar = () => {
+  const cookies = new Cookies
+  const [thisUser, setThisUser] = useState({})
   const [loading, setLoading] = useState(true)
+  const [agents, setAgents] = useState(null)
   const [events, setEvents] = useState(null)
   const [modal, setModal] = useState(false)
+  const calendarRef = useRef(null)
 
   const [eventTitle, setEventTitle] = useState(undefined)
   const [description, setDescription] = useState(undefined)
@@ -36,149 +40,62 @@ const PageCalendar = () => {
   const handleSelect = (selectInfo) => {
     let calendar = selectInfo.view.calendar
     calendar.unselect()
-    console.log(calendar)
   }
 
-  const handleEventClick = (clickInfo) => {
+  const handleEventClick = async (clickInfo) => {
     const event = clickInfo.event
-    console.log(event.end)
     setEventTitle(event.title)
     setDescription(event.extendedProps.description)
     setEventStart(event.start)
     setEventEnd(event.end)
     setEventVenue(event.extendedProps.venue)
     setEventClient(event.extendedProps.client)
-    setEventAgent(event.extendedProps.agent)
-
+    const getAgentFullName = await Apis.users.GetUser(event.extendedProps.agent)
+    if ( getAgentFullName ) setEventAgent(`${getAgentFullName.firstName} ${getAgentFullName.lastName}`)
     setModal(true)
   }
 
-  const date = new Date();
-  const d = date.getDate();
-  const m = date.getMonth();
-  const y = date.getFullYear();
+  const handleAgentCalendar = (agent) => {
+    getEvents(agent)
+  }
+
+  const getEvents = async (uid) => {
+    setLoading(true)
+    try {
+      const res = await Apis.calendar.GetEvents(uid)
+      setEvents(res)
+    } catch (error) {
+      console.info('fetchEvents')
+      console.error(`Error al obtener events calendar/page.js`)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
-    const date = new Date();
-    const d = date.getDate();
-    const m = date.getMonth();
-    const y = date.getFullYear();
-    setEvents([
-      {
-        title: 'All Day Event',
-        start: new Date(y, m, 1),
-        allDay: true,
-        description:
-          'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry standard dummy text ever since the 1500s.',
-        venue: 'City Town',
-        className: 'event-warning'
-      },
-      {
-        title: 'Long Event',
-        start: new Date(y, m, 7),
-        end: new Date(y, m, 10),
-        allDay: true,
-        description:
-          'It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.',
-        venue: 'City Town',
-        className: 'event-primary'
-      },
-      {
-        groupId: 999,
-        title: 'Repeating Event',
-        start: new Date(y, m, 9, 16, 0),
-        allDay: false,
-        description:
-          'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry standard dummy text ever since the 1500s.',
-        venue: 'City Town',
-        className: 'event-danger'
-      },
-      {
-        groupId: 999,
-        title: 'Repeating Event',
-        start: new Date(y, m, 16, 16, 0),
-        allDay: false,
-        description:
-          'It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.',
-        venue: 'City Town',
-        className: 'event-danger'
-      },
-      {
-        title: 'Conference',
-        start: new Date(y, m, 11),
-        end: new Date(y, m, 13),
-        allDay: true,
-        description:
-          'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry standard dummy text ever since the 1500s.',
-        venue: 'City Town',
-        className: 'event-info'
-      },
-      {
-        title: 'Meeting',
-        start: new Date(y, m, 12, 10, 30),
-        end: new Date(y, m, 12, 12, 30),
-        allDay: false,
-        description:
-          'It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.',
-        venue: 'City Town',
-        className: 'event-danger'
-      },
-      {
-        title: 'Lunch',
-        start: new Date(y, m, 12, 12, 30),
-        allDay: false,
-        description:
-          'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry standard dummy text ever since the 1500s.',
-        venue: 'City Town',
-        className: 'event-success'
-      },
-      {
-        title: 'Meeting',
-        start: new Date(y, m, 14, 14, 30),
-        allDay: false,
-        description:
-          'It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.',
-        venue: 'City Town',
-        className: 'event-warning'
-      },
-      {
-        title: 'Happy Hour',
-        start: new Date(y, m, 14, 17, 30),
-        allDay: false,
-        description:
-          'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry standard dummy text ever since the 1500s.',
-        venue: 'City Town',
-        className: 'event-info'
-      },
-      {
-        title: 'Dinner',
-        start: new Date(y, m, 15, 20, 0o0),
-        allDay: false,
-        description:
-          'It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.',
-        venue: 'City Town',
-        className: 'event-primary'
-      },
-      {
-        title: 'Birthday Party',
-        start: new Date(y, m, 13, 0o0, 0o0),
-        allDay: false,
-        description:
-          'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry standard dummy text ever since the 1500s.',
-        venue: 'City Town',
-        className: 'event-success'
-      },
-      {
-        title: 'Click for Google',
-        url: 'http://google.com/',
-        allDay: true,
-        description:
-          'It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.',
-        venue: 'City Town',
-        start: new Date(y, m, 28)
+    const getData = async () => {
+      const userRes = cookies.get('user')
+      if ( userRes ) {
+        setThisUser(userRes)
       }
-    ])
+      setLoading(true)
+      try {
+        const agentRes = await Apis.users.GetAllUsers()
+        setAgents(agentRes)
+      } catch (error) {
+        console.info('getData')
+        console.error(`Error al obtener data`)
+      }
+      setLoading(false)
+    }
+    getData()
   }, [])
+
+  useEffect(() => {
+    if ( thisUser && thisUser.uid ) {
+      getEvents(thisUser.uid)
+    }
+  }, [thisUser])
 
   return (
     <>
@@ -207,37 +124,63 @@ const PageCalendar = () => {
           <div className="card">
             <div className="card__body">
               <div className="w-full flex justify-between mb-5">
-                <div className="w-4/12"></div>
+                <div className="w-3/12">
+                  <span className="block text-sm">Seleccionar agente</span>
+                  <select
+                    className="border rounded-lg px-3 py-3.5 text-sm w-full"
+                    onChange={(e) => handleAgentCalendar(e.target.value)}
+                    value={thisUser.uid}
+                  >
+                    <option>Seleccionar agente</option>
+                    {agents && (
+                      agents.map(agent => (
+                        <option
+                          key={agent.id}
+                          value={agent.id}
+                        >
+                          {agent.firstName} {agent.lastName}
+                        </option>
+                      ))
+                    )}
+                  </select>
+                </div>
                 <Link
                   className="btn btn-success"
-                  href='/extranjeria/packs/add'
+                  href='/extranjeria/calendar/add'
                 >
                   Agregar cita
                 </Link>
               </div>
               <div>
-                <FullCalendar
-                  headerToolbar={{
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
-                  }}
-                  slotDuration='00:10:00'
-                  navLinks={true}
-                  height='auto'
-                  droppable={true}
-                  selectable={true}
-                  selectMirror={true}
-                  editable={true}
-                  dayMaxEvents={true}
-                  handleWindowResize={true}
-                  select={handleSelect}
-                  eventClick={handleEventClick}
-                  events={events}
-                  initialView='dayGrid'
-                  locale={esLocale}
-                  plugins={[ dayGridPlugin, timeGridPlugin, listMonth, interactionPlugin ]}
-                />
+                {events && (
+                  <FullCalendar
+                    headerToolbar={{
+                      left: 'prev,next today',
+                      center: 'title',
+                      right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
+                    }}
+                    slotDuration='00:30:00'
+                    navLinks={true}
+                    height='auto'
+                    droppable={true}
+                    selectable={true}
+                    selectMirror={true}
+                    editable={true}
+                    dayMaxEvents={true}
+                    handleWindowResize={true}
+                    select={handleSelect}
+                    eventClick={handleEventClick}
+                    events={events}
+                    initialView='dayGridMonth'
+                    locale={esLocale}
+                    plugins={[ dayGridPlugin, timeGridPlugin, listMonth, interactionPlugin ]}
+                    timeZone='Europe/Madrid'
+                    slotMinTime="10:00:00"
+                    slotMaxTime="18:00:00"
+                    nowIndicator={true}
+                    ref={calendarRef}
+                  />
+                )}
               </div>
             </div>
           </div>
@@ -245,37 +188,97 @@ const PageCalendar = () => {
         <Toaster />
         {modal && (
           <div className={`modal`}>
-            <div className='modal__content' style={{ height: '350px' }}>
+            <div className='modal__content' style={{ height: '480px' }}>
               <div className='modal__close'>
                 <button onClick={handleCloseModal}>
                   <X size={32} />
                 </button>
               </div>
-              <div className='flex justify-center mt-4'>
-                <p>
-                  {eventTitle}
-                </p>
-                <p>
-                  {description}
-                </p>
-                <p>
-                  {dateFormat(eventStart)}
-                </p>
-                {eventEnd ? 
-                  <>
-                    <p>
-                      {dateFormat(eventStart)}
+              <div className='mt-4'>
+                <div className='flex gap-3 mb-3'>
+                  <div>
+                    <span className='bg-gray-200 flex items-center justify-center rounded-xl px-1 py-2'>
+                      <TextAUnderline size={32} />
+                    </span>
+                  </div>
+                  <div>
+                    <h5 className='font-semibold mb-1 text-lg'>
+                      Título    
+                    </h5>
+                    <p className='font-light'>
+                      {eventTitle}
                     </p>
-                  </> :
-                  <>
-                    <p>
-                      {dateFormat(eventStart)} to {dateFormat(eventEnd)}
+                  </div>
+                </div>
+                <div className='flex gap-3 mb-3'>
+                  <div>
+                    <span className='bg-gray-200 flex items-center justify-center rounded-xl px-1 py-2'>
+                      <MapPin size={32} />
+                    </span>
+                  </div>
+                  <div>
+                    <h5 className='font-semibold mb-1 text-lg'>
+                      Lugar
+                    </h5>
+                    <p className='font-light'>
+                      {eventVenue}
                     </p>
-                  </>
-                }
-                <p>
-                  {eventVenue}
-                </p>
+                  </div>
+                </div>
+                <div className='flex gap-3 mb-3'>
+                  <div>
+                    <span className='bg-gray-200 flex items-center justify-center rounded-xl px-1 py-2'>
+                      <Calendar size={32} />
+                    </span>
+                  </div>
+                  <div>
+                    <h5 className='font-semibold mb-1 text-lg'>
+                      Fecha
+                    </h5>
+                    {eventEnd ? 
+                      <>
+                        <p className='font-light'>
+                          {dateFormat(eventStart)} al {dateFormat(eventEnd)}
+                        </p>
+                      </> :
+                      <>
+                        <p className='font-light'>
+                          {dateFormat(eventStart)}
+                        </p>
+                      </>
+                    }
+                  </div>
+                </div>
+                <div className='flex gap-3 mb-3'>
+                  <div>
+                    <span className='bg-gray-200 flex items-center justify-center rounded-xl px-1 py-2'>
+                      <FileText size={32} />
+                    </span>
+                  </div>
+                  <div>
+                    <h5 className='font-semibold mb-1 text-lg'>
+                      Descripción
+                    </h5>
+                    <p className='font-light'>
+                      {description}
+                    </p>
+                  </div>
+                </div>
+                <div className='flex gap-3'>
+                  <div>
+                    <span className='bg-gray-200 flex items-center justify-center rounded-xl px-1 py-2'>
+                      <User size={32} />
+                    </span>
+                  </div>
+                  <div>
+                    <h5 className='font-semibold mb-1 text-lg'>
+                      Agente
+                    </h5>
+                    <p className='font-light'>
+                      {eventAgent}
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
