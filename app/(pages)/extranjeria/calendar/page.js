@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { useRouter } from 'next/navigation';
 import Link from 'next/link'
 import { Calendar, Eye, FileText, MapPin,TextAUnderline, Trash, User } from '@phosphor-icons/react/dist/ssr';
 import toast, { Toaster } from 'react-hot-toast'
@@ -13,7 +14,7 @@ import esLocale from '@fullcalendar/core/locales/es'
 import { Warning, X } from '@phosphor-icons/react';
 import Cookies from 'universal-cookie';
 import Apis from '@/app/libs/apis';
-import { dateFormat, getUser } from '@/app/libs/utils';
+import { dateFormat } from '@/app/libs/utils';
 import { Breadcrumbs } from '@/app/ui/components/organisms';
 
 const PageCalendar = () => {
@@ -33,6 +34,8 @@ const PageCalendar = () => {
   const [eventClient, setEventClient] = useState(undefined)
   const [eventAgent, setEventAgent] = useState(undefined)
 
+  const router = useRouter()
+
   const handleCloseModal = () => {
     setModal(false)
   }
@@ -49,7 +52,7 @@ const PageCalendar = () => {
     setEventStart(event.start)
     setEventEnd(event.end)
     setEventVenue(event.extendedProps.venue)
-    setEventClient(event.extendedProps.client)
+    setEventClient(event.id)
     const getAgentFullName = await Apis.users.GetUser(event.extendedProps.agent)
     if ( getAgentFullName ) setEventAgent(`${getAgentFullName.firstName} ${getAgentFullName.lastName}`)
     setModal(true)
@@ -70,6 +73,14 @@ const PageCalendar = () => {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleCancelEvent = (uid) => {
+    console.log(uid)
+  }
+
+  const handleEditEvent = (uid) => {
+    router.push(`/extranjeria/calendar/${uid}`)
   }
 
   useEffect(() => {
@@ -188,7 +199,7 @@ const PageCalendar = () => {
         <Toaster />
         {modal && (
           <div className={`modal`}>
-            <div className='modal__content' style={{ height: '480px' }}>
+            <div className='modal__content' style={{ height: '535px' }}>
               <div className='modal__close'>
                 <button onClick={handleCloseModal}>
                   <X size={32} />
@@ -264,7 +275,7 @@ const PageCalendar = () => {
                     </p>
                   </div>
                 </div>
-                <div className='flex gap-3'>
+                <div className='flex gap-3 mb-3'>
                   <div>
                     <span className='bg-gray-200 flex items-center justify-center rounded-xl px-1 py-2'>
                       <User size={32} />
@@ -277,6 +288,25 @@ const PageCalendar = () => {
                     <p className='font-light'>
                       {eventAgent}
                     </p>
+                  </div>
+                </div>
+                <div className='flex justify-center mt-4'>
+                  <div className='flex justify-between w-3/12'>
+                    <button
+                      className='btn btn-danger w-full'
+                      onClick={() => handleCancelEvent(eventClient)}
+                    >
+                      Cancelar evento
+                    </button>
+                  </div>
+                  <div className='w-1/12'></div>
+                  <div className='flex justify-between w-3/12'>
+                    <button
+                      className='btn btn-primary w-full'
+                      onClick={() => handleEditEvent(eventClient)}
+                    >
+                      Editar evento
+                    </button>
                   </div>
                 </div>
               </div>
