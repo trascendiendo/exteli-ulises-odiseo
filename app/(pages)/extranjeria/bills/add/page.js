@@ -23,6 +23,7 @@ const AddBill = () => {
   const [myCustomers, setMyCustomers] = useState({})
   const [customerData, setCustomerData] = useState({})
   const [nonRegisteredUser, setNonRegisteredUser] = useState('')
+  const [nonRegisteredUserPhone, setNonRegisteredUserPhone] = useState('')
   const [registeredCustomer, setRegisteredCustomer] = useState(true)
   const [createDate, setCreateDate] = useState(new Date().toISOString().split('T')[0])
   const [billSerial, setBillSerial] = useState('2024')
@@ -257,6 +258,7 @@ const AddBill = () => {
         billNumber,
         provider,
         customer: registeredCustomer ? customerData : nonRegisteredUser,
+        phone: nonRegisteredUserPhone ? nonRegisteredUserPhone : '',
         createDate,
         description,
         subtotal,
@@ -392,7 +394,7 @@ const AddBill = () => {
                 <div className="w-10/12">
 
                   <div className="flex gap-4 mb-4">
-                    <div className="w-4/12">
+                    <div className="w-3/12">
                       <span className="block text-sm">Cliente (*)</span>
                       {registeredCustomer ?
                         <>
@@ -440,7 +442,19 @@ const AddBill = () => {
                         </>
                       }
                     </div>
-                    <div className="w-4/12">
+                    {!registeredCustomer && (
+                      <div className="w-3/12">
+                        <span className="block text-sm">Móvil</span>
+                        <InputText
+                          name='nonRegisteredUserPhone'
+                          type='text'
+                          placeholder='Ingresar...'
+                          autoComplete='off'
+                          onChange={e => setNonRegisteredUserPhone(e.target.value)}
+                        />
+                      </div>
+                    )}
+                    <div className="w-3/12">
                       {registeredCustomer ? 
                         <>
                           <span className="block text-sm">&nbsp;</span>
@@ -875,6 +889,7 @@ const AddBill = () => {
                   billNumber={billNumber}
                   provider={provider}
                   customerData={registeredCustomer ? customerData : nonRegisteredUser}
+                  customerPhone={registeredCustomer ? null : nonRegisteredUserPhone}
                   createDate={createDate}
                   rowsData={rowsData}
                   subtotal={subtotal}

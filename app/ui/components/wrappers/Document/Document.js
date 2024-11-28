@@ -134,6 +134,7 @@ const Document = ({
   billNumber,
   provider,
   customerData,
+  customerPhone,
   createDate,
   rowsData,
   subtotal,
@@ -186,16 +187,25 @@ const Document = ({
           <View style={styles.tableRow}>
             <View style={styles.tableColw6d12}>
               <View style={styles.tableColw12d12}>
-                <Text style={styles.fontExtralight}>
-                  {customerData.customer ?
-                    <>
+                {customerData.customer ?
+                  <>
+                    <Text style={styles.fontExtralight}>
                       {customerData.customer.firstName} {customerData.customer.lastName}
-                    </> :
-                    <>
-                      {customerData}
-                    </>
-                  }
-                </Text>
+                    </Text>
+                  </> :
+                  <>
+                    <View style={styles.tableColw12d12}>
+                      <Text style={styles.fontExtralight}>
+                        {customerData}
+                      </Text>
+                    </View>
+                    <View style={styles.tableColw12d12}>
+                      <Text style={styles.fontExtralight}>
+                        {customerPhone}
+                      </Text>
+                    </View>
+                  </>
+                }
                 {customerData.customer &&
                   <>
                     <View style={styles.tableFull}>

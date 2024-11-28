@@ -20,6 +20,7 @@ const PageMessaging = () => {
       setIsLoading(true)
       try {
         const resTemplates = await Apis.wa.GetTemplates()
+        console.log(resTemplates)
         setTemplates(resTemplates)
       } catch (error) {
         console.info('fetchData')
@@ -28,8 +29,6 @@ const PageMessaging = () => {
     }
     getTemplates()
   }, [])
-
-  console.log(templates)
 
   return (
     <>
