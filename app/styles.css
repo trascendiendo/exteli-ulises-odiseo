@@ -400,6 +400,12 @@
     color: #BDBDBD;
     cursor: not-allowed;
   }
+
+  &.no-ml {
+    svg {
+      margin-left: 0;
+    }
+  }
 }
 
 /* badges */

@@ -1,4 +1,4 @@
-import { addDoc, collection, getDoc, getDocs } from 'firebase/firestore'
+import { addDoc, collection, doc, getDoc, getDocs } from 'firebase/firestore'
 import { db } from '@/app/libs/utils/firebase'
 
 const rrss = {

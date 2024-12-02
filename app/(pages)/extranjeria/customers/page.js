@@ -13,6 +13,7 @@ import { InputText } from 'primereact/inputtext';
 import { InputIcon } from 'primereact/inputicon';
 import { IconField } from 'primereact/iconfield';
 import { Dropdown } from 'primereact/dropdown';
+import { Tooltip } from 'primereact/tooltip';
 import { Tag } from 'primereact/tag';
 
 import Apis from '@/app/libs/apis';
@@ -151,12 +152,17 @@ const PageClients = () => {
   }
   const actionBodyTemplate = (rowData) => {
     return (
-      <Link
-        className="btn btn-primary"
-        href={`./customers/${rowData.id}`}
-      >
-        Ver más <Eye size={28} />
-      </Link>
+      <>
+        <Tooltip target='.btn-primary' />
+        <Link
+          className="btn btn-primary no-ml"
+          data-pr-tooltip="Ver cliente"
+          data-pr-position='top'
+          href={`./customers/${rowData.id}`}
+        >
+          <Eye size={28} />
+        </Link>
+      </>
     )
   }
   const header = renderHeader()

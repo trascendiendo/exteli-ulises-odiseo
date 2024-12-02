@@ -478,7 +478,10 @@ const AddBill = () => {
                         </>
                       }
                     </div>
-                    <div className="nouser-select w-4/12"></div>
+                    <div className="nouser-select w-3/12"></div>
+                    {registeredCustomer && (
+                      <div className="nouser-select w-3/12"></div>
+                    )}
                   </div>
 
                   {!registeredCustomer && (
