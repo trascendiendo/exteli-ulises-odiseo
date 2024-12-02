@@ -112,6 +112,16 @@ const bills = {
       console.error(error)
       throw error
     }
+  },
+  PaidBill: async (uid) => {
+    try {
+      const billDocRef = doc(db, 'bills', uid)
+      await updateDoc(billDocRef, { status: 'Pagado' })
+    } catch (error) {
+      console.info(`PaidBill: Error al marcar como pagada la factura ${uid}`)
+      console.error(error)
+      throw error
+    }
   }
 }
 

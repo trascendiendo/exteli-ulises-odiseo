@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link'
-import { FilePdf, FileX } from '@phosphor-icons/react/dist/ssr';
+import { FileArrowUp, FilePdf, FileX } from '@phosphor-icons/react/dist/ssr';
 import toast, { Toaster } from 'react-hot-toast'
 
 import { FilterMatchMode } from 'primereact/api';
@@ -12,6 +12,7 @@ import { InputText } from 'primereact/inputtext';
 import { InputIcon } from 'primereact/inputicon';
 import { IconField } from 'primereact/iconfield';
 import { Dropdown } from 'primereact/dropdown';
+import { Tooltip } from 'primereact/tooltip';
 import { Tag } from 'primereact/tag';
 
 import { parsePrice } from '@/app/libs/utils';
@@ -23,7 +24,7 @@ const PageClients = () => {
   const [loading, setLoading] = useState(true)
   const [globalFilterValue, setGlobalFilterValue] = useState('')
   const [bills, setBills] = useState(null)
-  const [statuses] = useState(['Pagado', 'Cancelado'])
+  const [statuses] = useState(['Pagado', 'Cancelado', 'Pendiente'])
   const [filters, setFilters] = useState({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
     number: {value: null, matchMode: FilterMatchMode.STARTS_WITH},
@@ -34,6 +35,7 @@ const PageClients = () => {
   })
 
   const [modal, setModal] = useState(false)
+  const [modalType, setModalType] = useState('cancel')
   const [billId, setBillId] = useState(undefined)
 
   const handleCancelBill = async (id) => {
@@ -47,8 +49,20 @@ const PageClients = () => {
       window.location.reload()
     }
   }
-  const openModal = (id) => {
+  const handleBillPaid = async (id) => {
+    setLoading(true)
+    try {
+      await Apis.bills.PaidBill(id)
+    } catch (error) {
+      toast.error('Error al actulizar la factura.')
+    } finally {
+      setLoading(false)
+      window.location.reload()
+    }
+  }
+  const openModal = (id, type) => {
     setBillId(id)
+    setModalType(type)
     setModal(true)
   }
   const handleCloseModal = () => {
@@ -60,6 +74,8 @@ const PageClients = () => {
         return 'success'
       case 'Cancelado':
         return 'danger'
+      case 'Pendiente':
+        return 'info'
     }
   }
   useEffect(() => {
@@ -143,17 +159,32 @@ const PageClients = () => {
   const actionBodyTemplate = (rowData) => {
     return (
       <div className='flex gap-3'>
+        <Tooltip target='.btn-success' />
+        <Tooltip target='.btn-danger' />
+        <Tooltip target='.btn-primary' />
         <button
-          className='btn btn-danger uppercase'
-          onClick={() => openModal(rowData.id)}
+          className='btn btn-success no-ml uppercase'
+          data-pr-tooltip="Marcar como Pagada"
+          data-pr-position='top'
+          onClick={() => openModal(rowData.id, 'pagar')}
         >
-          Cancelar <FileX size={28} />
+          <FileArrowUp size={28} />
+        </button>
+        <button
+          className='btn btn-danger no-ml uppercase'
+          data-pr-tooltip="Cancelar factura"
+          data-pr-position='top'
+          onClick={() => openModal(rowData.id, 'cancelar')}
+        >
+          <FileX size={28} />
         </button>
         <Link
-          className='btn btn-primary uppercase'
+          className='btn btn-primary no-ml uppercase'
+          data-pr-tooltip="Ver factura"
+          data-pr-position='top'
           href={`./bills/${rowData.id}`}
         >
-          Ver <FilePdf size={28} />
+          <FilePdf size={28} />
         </Link>
       </div>
     )
@@ -284,12 +315,25 @@ const PageClients = () => {
                     <strong>
                       IMPORTANTE
                     </strong>
-                    <p>
-                      Cancelar la factura es un proceso <strong>irreversible</strong>.
-                    </p>
-                    <p>
-                      ¿Está seguro que desea continuar?
-                    </p>
+                    {modalType == 'cancelar' ? (
+                      <>
+                        <p>
+                          Cancelar la factura es un proceso <strong>irreversible</strong>.
+                        </p>
+                        <p>
+                          ¿Está seguro que desea continuar?
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <p>
+                          Esta factura se marcará como <strong>pagada</strong>.
+                        </p>
+                        <p>
+                          ¿Está seguro que desea continuar?
+                        </p>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
@@ -304,12 +348,21 @@ const PageClients = () => {
                 </div>
                 <div className='w-1/12'></div>
                 <div className='flex justify-between w-3/12'>
-                  <button
-                    className='btn btn-success w-full'
-                    onClick={() => handleCancelBill(billId)}
-                  >
-                    Proceder
-                  </button>
+                  {modalType == 'cancelar' ? (
+                    <button
+                      className='btn btn-success w-full'
+                      onClick={() => handleCancelBill(billId)}
+                    >
+                      Proceder
+                    </button>
+                  ) : (
+                    <button
+                      className='btn btn-success w-full'
+                      onClick={() => handleBillPaid(billId)}
+                    >
+                      Proceder
+                    </button>
+                  )}
                 </div>
               </div>
             </div>

@@ -125,7 +125,7 @@ const Nav = () => {
                   whiteSpace: 'nowrap'
                 }}
               >
-                v1.2
+                v1.2.1
               </span>
             </Link>
           </div>

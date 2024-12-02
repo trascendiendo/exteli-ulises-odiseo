@@ -80,7 +80,7 @@ const PageLists = () => {
                           <td>
                             <Link
                               className="btn btn-primary"
-                              href={`./rrss/lists/${list.id}`}
+                              href={`./lists/${list.id}`}
                             >
                               Ver más <Eye size={28} />
                             </Link>
