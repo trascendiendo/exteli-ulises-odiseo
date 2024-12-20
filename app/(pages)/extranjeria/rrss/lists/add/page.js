@@ -24,6 +24,7 @@ const AddList = () => {
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
     name: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
     nationality: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    phone: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
     status: { value: null, matchMode: FilterMatchMode.EQUALS }
   })
 
@@ -225,6 +226,13 @@ const AddList = () => {
                     filter
                     filterPlaceholder='Buscar por nacionalidad'
                     style={{ minWidth: '5rem' }}
+                  />
+                  <Column
+                    field='phone'
+                    header='Móvil'
+                    filter
+                    filterPlaceholder='Buscar por móvil'
+                    style={{ minWidth: '3rem' }}
                   />
                   <Column 
                     field='status' 

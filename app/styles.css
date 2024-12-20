@@ -668,3 +668,15 @@ select {
   @media print {
   }
 }
+
+.table {
+  tr {
+    td {
+      a {
+        &:visited {
+          text-decoration: line-through;
+        }
+      }
+    }
+  }
+}
