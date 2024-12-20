@@ -32,6 +32,7 @@ const PageClients = () => {
     documentNumber: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
     phone: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
     nationality: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    enterDate: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
     agent: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
     status: { value: null, matchMode: FilterMatchMode.EQUALS }
   });
@@ -228,35 +229,36 @@ const PageClients = () => {
                     header='Nombre'
                     filter
                     filterPlaceholder='Buscar nombre'
-                    style={{ minWidth: '10rem' }}
                   />
                   <Column 
                     field='documentNumber'
                     header='Documentación'
                     filter
                     filterPlaceholder='Buscar por documentación'
-                    style={{ minWidth: '10rem' }}
                   />
                   <Column
                     field='phone'
                     header='Móvil'
                     filter
                     filterPlaceholder='Buscar móvil'
-                    style={{ minWidth: '10rem' }}
                   />
                   <Column 
                     field='nationality'
                     header='Nacionalidad'
                     filter
                     filterPlaceholder='Buscar por nacionalidad'
-                    style={{ minWidth: '10rem' }}
+                  />
+                  <Column
+                    field='enterDate'
+                    header='Año de ingreso'
+                    filter
+                    filterPlaceholder='Buscar por año de ingreso'
                   />
                   <Column 
                     field='agent'
                     header='Agente'
                     filter
                     filterPlaceholder='Buscar agente'
-                    style={{ minWidth: '10rem' }}
                   />
                   <Column 
                     field='status' 
@@ -271,7 +273,6 @@ const PageClients = () => {
                     header='Acciones'
                     body={actionBodyTemplate} 
                     exportable={false}
-                    style={{ width: '12rem' }}
                   />
                 </DataTable>
               </div>

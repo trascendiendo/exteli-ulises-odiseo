@@ -18,7 +18,17 @@ const PageWhatsapp = () => {
     try {
       const res = await Apis.rrss.GetList(listUid)
       if ( res ) {
-        setList(res.selectedCustomers)
+        const uniqueList = []
+        const seenNumbers = new Set()
+
+        res.selectedCustomers.forEach((item) => {
+          if (!seenNumbers.has(item.numero)) {
+            seenNumbers.add(item.numero)
+            uniqueList.push(item)
+          }
+        })
+        //setList(res.selectedCustomers)
+        setList(uniqueList)
       }
     } catch (error) {
       console.error(`getList: Error al obtener la lista ${listUid}`)
@@ -49,6 +59,7 @@ const PageWhatsapp = () => {
     }
     getWhatsappLists()
   }, [])
+  console.log(list)
 
   return (
     <>
