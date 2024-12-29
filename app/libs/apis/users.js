@@ -1,9 +1,5 @@
-<<<<<<< Updated upstream
 import { collection, doc, getDoc, getDocs, query, setDoc, where } from 'firebase/firestore'
 import { db } from '@/app/libs/utils/firebase'
-=======
-import instance from '@/app/libs/apis/instance'
->>>>>>> Stashed changes
 
 const users = {
   Login: async (email, password) => {
