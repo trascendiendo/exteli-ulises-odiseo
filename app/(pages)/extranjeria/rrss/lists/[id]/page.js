@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useParams } from 'next/navigation';
 import LoadingScreen from '@/app/ui/components/molecules/LoadingScreen';
 import { Breadcrumbs } from '@/app/ui/components/organisms';
-import Apis from '@/app/utils/api';
+import Apis from '@/app/libs/apis';
 
 const PageList = () => {
   const params = useParams()
