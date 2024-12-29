@@ -1,5 +1,9 @@
+<<<<<<< Updated upstream
 import { collection, doc, getDoc, getDocs, query, setDoc, where } from 'firebase/firestore'
 import { db } from '@/app/libs/utils/firebase'
+=======
+import instance from '@/app/libs/apis/instance'
+>>>>>>> Stashed changes
 
 const users = {
   Login: async (email, password) => {
@@ -24,33 +28,19 @@ const users = {
     }
   },
   GetUser: async (uid) => {
-    try {
-      const userDocRef = doc(db, 'users', uid)
-      const userDocSnap = await getDoc(userDocRef)
-
-      if ( userDocSnap.exists() ) {
-        return userDocSnap.data()
-      } else {
-        return null
-      }
-      
-    } catch (error) {
-      console.info(`GetUser: Error al obtener usuario: ${uid}`)
-      console.error(error)
-      throw error
+    if ( uid ) {
+      try {
+        return instance.get(`users/${uid}`)
+      } catch (error) {
+        console.info(`GetUser: Error al obtener usuario: ${uid}`)
+        console.error(error)
+        return false
+      } 
     }
   },
   GetAllUsers: async () => {
     try {
-      const usersRef = collection(db, 'users')
-      const querySnapshot = await getDocs(usersRef)
-
-      const users = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }))
-
-      return users
+      return instance.get(`users`)
     } catch (error) {
       console.info(`GetAllUsers: Error al obtener usuarios`)
       console.error(error)
@@ -59,15 +49,9 @@ const users = {
   },
   GetAllUsersButMe: async (uid) => {
     try {
-      const usersRef = collection(db, 'users')
-      const q = query(usersRef, where('uid', '!=', uid))
-      const querySnapshot = await getDocs(q)
-
-      const users = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }))
-      
+      const response = instance.get(`users`)
+      const allUsers = response.data
+      const users = allUsers.filter(user => user.uid !== uid)
       return users
     } catch (error) {
       console.info(`GetAllUsersButMe: Error al obtener usuarios`)

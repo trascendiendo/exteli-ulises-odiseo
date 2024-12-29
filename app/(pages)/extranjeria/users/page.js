@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image';
 import { Eye } from '@phosphor-icons/react/dist/ssr';
 import toast, { Toaster } from 'react-hot-toast'
+<<<<<<< Updated upstream
 
 import { FilterMatchMode } from 'primereact/api';
 import { DataTable } from 'primereact/datatable';
@@ -16,6 +17,10 @@ import { Dropdown } from 'primereact/dropdown';
 import { Tag } from 'primereact/tag';
 
 import Apis from '@/app/libs/apis';
+=======
+import { Badge } from '@/app/ui/components/atoms';
+import apis from '@/app/libs/apis';
+>>>>>>> Stashed changes
 
 const PageUsers = () => {
   const [isLoading, setIsLoading] = useState(false)
@@ -56,7 +61,13 @@ const PageUsers = () => {
     }
   }
 
+  const getUsers = async () => {
+    const { data } = await apis.users.GetAllUsers()
+    setUsers(data)
+  }
+
   useEffect(() => {
+<<<<<<< Updated upstream
     const fetchUsers = async () => {
       try {
         const res = await Apis.users.GetAllUsers()
@@ -76,6 +87,10 @@ const PageUsers = () => {
     }
     fetchUsers()
     setIsLoading(false)
+=======
+    
+    getUsers()
+>>>>>>> Stashed changes
   }, [])
 
   const onGlobalFilterChange = (e) => {
