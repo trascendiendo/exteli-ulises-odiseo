@@ -690,6 +690,7 @@ const AddBill = () => {
                           <option value="Efectivo">Efectivo</option>
                           <option value="Bizum">Bizum</option>
                           <option value="Tarjeta">Tarjeta</option>
+                          <option value="Transferencia bancaria">Transferencia bancaria</option>
                         </select>
                       </div>
                     </div>
