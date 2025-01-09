@@ -24,19 +24,33 @@ const users = {
     }
   },
   GetUser: async (uid) => {
-    if ( uid ) {
-      try {
-        return instance.get(`users/${uid}`)
-      } catch (error) {
-        console.info(`GetUser: Error al obtener usuario: ${uid}`)
-        console.error(error)
-        return false
-      } 
+    try {
+      const userDocRef = doc(db, 'users', uid)
+      const userDocSnap = await getDoc(userDocRef)
+
+      if ( userDocSnap.exists() ) {
+        return userDocSnap.data()
+      } else {
+        return null
+      }
+      
+    } catch (error) {
+      console.info(`GetUser: Error al obtener usuario: ${uid}`)
+      console.error(error)
+      throw error
     }
   },
   GetAllUsers: async () => {
     try {
-      return instance.get(`users`)
+      const usersRef = collection(db, 'users')
+      const querySnapshot = await getDocs(usersRef)
+
+      const users = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }))
+
+      return users
     } catch (error) {
       console.info(`GetAllUsers: Error al obtener usuarios`)
       console.error(error)
@@ -45,9 +59,15 @@ const users = {
   },
   GetAllUsersButMe: async (uid) => {
     try {
-      const response = instance.get(`users`)
-      const allUsers = response.data
-      const users = allUsers.filter(user => user.uid !== uid)
+      const usersRef = collection(db, 'users')
+      const q = query(usersRef, where('uid', '!=', uid))
+      const querySnapshot = await getDocs(q)
+
+      const users = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }))
+      
       return users
     } catch (error) {
       console.info(`GetAllUsersButMe: Error al obtener usuarios`)
