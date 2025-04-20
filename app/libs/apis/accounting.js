@@ -1,4 +1,4 @@
-import { addDoc, collection, doc, getDoc, getDocs, query, updateDoc, where } from 'firebase/firestore'
+import { addDoc, collection, doc, getDoc, getDocs, query, Timestamp, updateDoc, where } from 'firebase/firestore'
 import { db } from '@/app/libs/utils/firebase'
 
 const accounting = {
@@ -57,6 +57,31 @@ const accounting = {
       return accounting
     } catch (error) {
       console.info(`GetAllAccountingToday: Error al obtener ingresos/egresos del día`)
+      console.error(error)
+      throw error
+    }
+  },
+  GetAllAccountingByPeriod: async (startDateStr, endDateStr) => {
+    try {
+      const startDate = Timestamp.fromDate(new Date(startDateStr))
+      const endDate = Timestamp.fromDate(new Date(endDateStr))
+
+      const accountingRef = collection(db, 'accounting')
+      const q = query(accountingRef,
+        where('accounting.type', '==', 'ingreso'),
+        where('accounting.createdAt', '>=', startDate),
+        where('accounting.createdAt', '<=', endDate)
+      )
+      const querySnapshot = await getDocs(q)
+
+      const accounting = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }))
+
+      return accounting
+    } catch (error) {
+      console.info(`GetAllAccountingByPeriod: Error al obtener ingresos/egresos para el periodo`)
       console.error(error)
       throw error
     }
