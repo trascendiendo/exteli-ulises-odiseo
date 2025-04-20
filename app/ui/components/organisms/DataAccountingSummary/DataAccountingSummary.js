@@ -66,35 +66,42 @@ const Summary = () => {
                     readOnlyInput
                     hideOnRangeSelection
                   />
-                  {accounting.length == 0 && <><p>No se encontraron registros para este periodo.</p></>}
                   {accounting &&
                     <>
-                      <table className='accounting__summary'>
-                        <thead>
-                          <tr>
-                            <th>Tipo</th>
-                            <th>Referencia</th>
-                            <th>Monto abonado</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {accounting.map((item, index) => (
-                            <tr key={item.id}>
-                              <td>{item.accounting.type}</td>
-                              <td>{item.accounting.reference}</td>
-                              <td>{Number(item.accounting.amount).toFixed(2)}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                        <tfoot>
-                          <tr>
-                            <td colSpan={2}><strong>Total:</strong></td>
-                            <td>
-                              {accounting.reduce((acc, item) => acc + Number(item.accounting.amount), 0).toFixed(2)}
-                            </td>
-                          </tr>
-                        </tfoot>
-                      </table>
+                      {accounting.length == 0 ?
+                        <>
+                          <p>No se encontraron registros para este periodo.</p>
+                        </>
+                        :
+                        <>
+                          <table className='accounting__summary'>
+                            <thead>
+                              <tr>
+                                <th>Tipo</th>
+                                <th>Referencia</th>
+                                <th>Monto abonado</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {accounting.map((item, index) => (
+                                <tr key={item.id}>
+                                  <td>{item.accounting.type}</td>
+                                  <td>{item.accounting.reference}</td>
+                                  <td>{Number(item.accounting.amount).toFixed(2)}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                            <tfoot>
+                              <tr>
+                                <td colSpan={2}><strong>Total:</strong></td>
+                                <td>
+                                  {accounting.reduce((acc, item) => acc + Number(item.accounting.amount), 0).toFixed(2)}
+                                </td>
+                              </tr>
+                            </tfoot>
+                          </table>
+                        </>
+                      }
                     </>
                   }
                 </div>
