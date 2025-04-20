@@ -680,3 +680,34 @@ select {
     }
   }
 }
+
+.accounting__summary {
+  width: 100%;
+  thead {
+    tr {
+      th {
+        padding: 6px 10px;
+        text-align: left;
+      }
+    }
+  }
+  tbody {
+    tr {
+      border-top: 1px solid #DBE0E5;
+      td {
+        padding: 6px 10px;
+      }
+    }
+  }
+  tfoot {
+    border-top: 3px solid #DBE0E5;
+    tr {
+      td {
+        padding: 6px 10px;
+        &:first-child {
+          text-align: right;
+        }
+      }
+    }
+  }
+}

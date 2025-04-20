@@ -277,6 +277,11 @@ const Nav = () => {
                               <span className="pc-mtext">Agregar ingresos/egresos</span>
                             </Link>
                           </li>
+                          <li className="pc-item">
+                            <Link href='/extranjeria/accounting/summary'>
+                              <span className="pc-mtext">Ingresos por mes</span>
+                            </Link>
+                          </li>
                         </ul>
                       </li>
 
