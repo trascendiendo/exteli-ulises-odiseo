@@ -28,9 +28,6 @@ const Login = () => {
   // manuel
   // WpaB%fs(a76S(rgR
 
-  // yaneth
-  // 5f)CJK9yANT!wd*U
-
   const handleSubmit = async () => {
     setLoading(true)
     try {
