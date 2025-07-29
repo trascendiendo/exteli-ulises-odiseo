@@ -151,7 +151,7 @@ const Document = ({
     <DocumentPDF>
       <Page size="A4" style={styles.body}>
         <View style={styles.sectionImg}>
-          <ImagePDF src="/images/logo.png" style={{ width: 84, height: 84 }} />
+          <ImagePDF src="/images/logo2.jpeg" style={{ width: 84, height: 84 }} />
         </View>
         
         <View style={[styles.tableFull, styles.sectionImg]}>
