@@ -1,13 +1,12 @@
 'use client'
 
-import { Suspense, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { serverTimestamp } from 'firebase/firestore';
-import toast, { Toaster } from 'react-hot-toast';
 import Apis from '@/app/libs/apis';
-import { timeFormat } from '@/app/libs/utils';
 import { InputText } from '@/app/ui/components/atoms';
 import SkeletonDataCustomer from '@/app/ui/components/skeletons/organisms/DataCustomer/DataCustomer';
+import { serverTimestamp } from 'firebase/firestore';
+import { useRouter } from 'next/navigation';
+import { Suspense, useEffect, useState } from 'react';
+import toast, { Toaster } from 'react-hot-toast';
 
 const Customer = ({
   uid,

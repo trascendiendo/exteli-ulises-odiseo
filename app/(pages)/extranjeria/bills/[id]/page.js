@@ -1,13 +1,12 @@
 'use client'
 
-import { useEffect, useState } from "react"
-import { useRouter } from 'next/navigation';
-import { useParams } from 'next/navigation';
 import Apis from '@/app/libs/apis';
 import LoadingScreen from '@/app/ui/components/molecules/LoadingScreen';
 import { Breadcrumbs } from '@/app/ui/components/organisms';
 import { Document } from "@/app/ui/components/wrappers";
 import { PDFViewer } from "@react-pdf/renderer";
+import { useParams, useRouter } from 'next/navigation';
+import { useEffect, useState } from "react";
 
 const PageBill = () => {
   const params = useParams()
@@ -76,6 +75,7 @@ const PageBill = () => {
                        billNumber={bill.billNumber}
                        provider={bill.provider}
                        customerData={bill.customer}
+                       customerPhone={bill.phone}
                        createDate={bill.createDate}
                        paidDate={bill.paidDate}
                        rowsData={bill.description}

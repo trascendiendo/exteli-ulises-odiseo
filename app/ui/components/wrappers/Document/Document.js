@@ -1,8 +1,6 @@
 'use client'
-import { Font, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
-import { Document as DocumentPDF } from '@react-pdf/renderer';
-import { Image as ImagePDF } from '@react-pdf/renderer';
 import { parsePrice } from '@/app/libs/utils';
+import { Document as DocumentPDF, Font, Image as ImagePDF, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 
 Font.register({
   family: 'PublicSans',
