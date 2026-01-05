@@ -1,20 +1,19 @@
 'use client'
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link'
-import Image from 'next/image';
 import { Eye } from '@phosphor-icons/react/dist/ssr';
-import toast, { Toaster } from 'react-hot-toast'
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import toast, { Toaster } from 'react-hot-toast';
 
 import { FilterMatchMode } from 'primereact/api';
-import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { InputText } from 'primereact/inputtext';
-import { InputIcon } from 'primereact/inputicon';
-import { IconField } from 'primereact/iconfield';
+import { DataTable } from 'primereact/datatable';
 import { Dropdown } from 'primereact/dropdown';
-import { Tooltip } from 'primereact/tooltip';
+import { IconField } from 'primereact/iconfield';
+import { InputIcon } from 'primereact/inputicon';
+import { InputText } from 'primereact/inputtext';
 import { Tag } from 'primereact/tag';
+import { Tooltip } from 'primereact/tooltip';
 
 import Apis from '@/app/libs/apis';
 import { Breadcrumbs } from '@/app/ui/components/organisms';
@@ -84,7 +83,7 @@ const PageClients = () => {
     const fetchCustomers = async () => {
       try {
         const res = await Apis.customers.GetAllCustomers()
-        if ( res ) {
+        if (res) {
           const parseRes = (res) => {
             return res.map(item => ({
               id: item.id,
@@ -94,7 +93,7 @@ const PageClients = () => {
           }
           const newRes = parseRes(res)
           setCustomers(newRes)
-        } 
+        }
       } catch (error) {
         toast.error('Error al cargar la lista de clientes.')
       }
@@ -106,14 +105,14 @@ const PageClients = () => {
   }, [])
   const onGlobalFilterChange = (e) => {
     const value = e.target.value
-    let _filters = {...filters}
+    let _filters = { ...filters }
     _filters['global'].value = value
     setFilters(_filters)
     setGlobalFilterValue(value)
   }
   const renderHeader = () => {
     return (
-      <div className='flex justify-end'> 
+      <div className='flex justify-end'>
         <IconField iconPosition='left'>
           <InputIcon className='pi pi-search' />
           <InputText value={globalFilterValue} onChange={onGlobalFilterChange} placeholder='Búsqueda' />
@@ -123,7 +122,7 @@ const PageClients = () => {
   }
   const statusBodyTemplate = (rowData) => {
     return (
-      <Tag 
+      <Tag
         value={rowData.status}
         severity={getSeverity(rowData.status)}
       />
@@ -131,7 +130,7 @@ const PageClients = () => {
   }
   const statusItemTemplate = (option) => {
     return (
-      <Tag 
+      <Tag
         value={option}
         severity={getSeverity(option)}
       />
@@ -139,15 +138,15 @@ const PageClients = () => {
   }
   const statusRowFilterTemplate = (options) => {
     return (
-      <Dropdown 
+      <Dropdown
         value={options.value}
         options={statuses}
-        onChange={(e) => options.filterApplyCallback(e.value)} 
-        itemTemplate={statusItemTemplate} 
-        placeholder="Filtrar por estado" 
-        className="p-column-filter" 
-        showClear 
-        style={{ minWidth: '8rem' }} 
+        onChange={(e) => options.filterApplyCallback(e.value)}
+        itemTemplate={statusItemTemplate}
+        placeholder="Filtrar por estado"
+        className="p-column-filter"
+        showClear
+        style={{ minWidth: '8rem' }}
       />
     )
   }
@@ -204,7 +203,7 @@ const PageClients = () => {
                 </Link>
               </div>
               <div className="table-responsive">
-                <DataTable 
+                <DataTable
                   value={customers}
                   paginator
                   rows={14}
@@ -230,7 +229,7 @@ const PageClients = () => {
                     filter
                     filterPlaceholder='Buscar nombre'
                   />
-                  <Column 
+                  <Column
                     field='documentNumber'
                     header='Documentación'
                     filter
@@ -242,7 +241,7 @@ const PageClients = () => {
                     filter
                     filterPlaceholder='Buscar móvil'
                   />
-                  <Column 
+                  <Column
                     field='nationality'
                     header='Nacionalidad'
                     filter
@@ -254,24 +253,24 @@ const PageClients = () => {
                     filter
                     filterPlaceholder='Buscar por año de ingreso'
                   />
-                  <Column 
+                  <Column
                     field='agent'
                     header='Agente'
                     filter
                     filterPlaceholder='Buscar agente'
                   />
-                  <Column 
-                    field='status' 
-                    header='Status' 
+                  <Column
+                    field='status'
+                    header='Status'
                     showFilterMenu={false}
                     style={{ width: '8rem' }}
                     body={statusBodyTemplate}
                     filter
                     filterElement={statusRowFilterTemplate}
                   />
-                  <Column 
+                  <Column
                     header='Acciones'
-                    body={actionBodyTemplate} 
+                    body={actionBodyTemplate}
                     exportable={false}
                   />
                 </DataTable>

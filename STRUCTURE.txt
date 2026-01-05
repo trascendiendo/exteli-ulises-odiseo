@@ -1,0 +1,298 @@
+.
+├── README.md
+├── STRUCTURE.txt
+├── app
+│   ├── (pages)
+│   │   ├── citas
+│   │   ├── extranjeria
+│   │   │   ├── accounting
+│   │   │   │   ├── [id]
+│   │   │   │   │   └── page.js
+│   │   │   │   ├── add
+│   │   │   │   │   └── page.js
+│   │   │   │   ├── page.js
+│   │   │   │   └── summary
+│   │   │   │       └── page.js
+│   │   │   ├── bills
+│   │   │   │   ├── [id]
+│   │   │   │   │   └── page.js
+│   │   │   │   ├── add
+│   │   │   │   │   └── page.js
+│   │   │   │   ├── page.js
+│   │   │   │   └── settings
+│   │   │   │       └── page.js
+│   │   │   ├── calendar
+│   │   │   │   ├── [id]
+│   │   │   │   │   └── page.js
+│   │   │   │   ├── add
+│   │   │   │   │   └── page.js
+│   │   │   │   └── page.js
+│   │   │   ├── customers
+│   │   │   │   ├── [id]
+│   │   │   │   │   └── page.js
+│   │   │   │   ├── add
+│   │   │   │   │   └── page.js
+│   │   │   │   └── page.js
+│   │   │   ├── layout.js
+│   │   │   ├── nationality
+│   │   │   │   ├── [id]
+│   │   │   │   │   └── page.js
+│   │   │   │   ├── add
+│   │   │   │   │   └── page.js
+│   │   │   │   └── page.js
+│   │   │   ├── packs
+│   │   │   │   ├── [id]
+│   │   │   │   │   └── page.js
+│   │   │   │   ├── add
+│   │   │   │   │   └── page.js
+│   │   │   │   └── page.js
+│   │   │   ├── page.js
+│   │   │   ├── procedures
+│   │   │   │   ├── [id]
+│   │   │   │   │   └── page.js
+│   │   │   │   ├── add
+│   │   │   │   │   └── page.js
+│   │   │   │   └── page.js
+│   │   │   ├── rrss
+│   │   │   │   ├── lists
+│   │   │   │   │   ├── [id]
+│   │   │   │   │   │   └── page.js
+│   │   │   │   │   ├── add
+│   │   │   │   │   │   └── page.js
+│   │   │   │   │   └── page.js
+│   │   │   │   ├── page.js
+│   │   │   │   └── whatsapp
+│   │   │   │       ├── add
+│   │   │   │       │   └── page.js
+│   │   │   │       └── page.js
+│   │   │   ├── tasks
+│   │   │   │   ├── [id]
+│   │   │   │   │   └── page.js
+│   │   │   │   ├── add
+│   │   │   │   │   └── page.js
+│   │   │   │   └── page.js
+│   │   │   └── users
+│   │   │       ├── [id]
+│   │   │       │   └── page.js
+│   │   │       ├── add
+│   │   │       │   └── page.js
+│   │   │       └── page.js
+│   │   └── forgot-password
+│   ├── favicon.ico
+│   ├── features
+│   │   └── user
+│   │       └── userSlice.js
+│   ├── globals.css
+│   ├── layout.js
+│   ├── libs
+│   │   ├── apis
+│   │   │   ├── accounting.js
+│   │   │   ├── axiosInstance.js
+│   │   │   ├── bills.js
+│   │   │   ├── calendar.js
+│   │   │   ├── company.js
+│   │   │   ├── customers.js
+│   │   │   ├── dashboard.js
+│   │   │   ├── general.js
+│   │   │   ├── index.js
+│   │   │   ├── nationalities.js
+│   │   │   ├── packs.js
+│   │   │   ├── procedures.js
+│   │   │   ├── rrss.js
+│   │   │   ├── tasks.js
+│   │   │   ├── timeline.js
+│   │   │   ├── users.js
+│   │   │   └── wa.js
+│   │   ├── hooks
+│   │   ├── providers
+│   │   │   ├── AuthContext.js
+│   │   │   └── AuthContext_.js
+│   │   └── utils
+│   │       ├── calendarDayformat.js
+│   │       ├── capitalize.js
+│   │       ├── dateFormat.js
+│   │       ├── firebase.js
+│   │       ├── getCustomer.js
+│   │       ├── getFullCustomer.js
+│   │       ├── getUser.js
+│   │       ├── index.js
+│   │       ├── isBrowser.js
+│   │       ├── parsePrice.js
+│   │       └── timeFormat.js
+│   ├── page.js
+│   ├── store.js
+│   ├── styles.css
+│   ├── theme.css
+│   └── ui
+│       └── components
+│           ├── atoms
+│           │   ├── Alert
+│           │   │   ├── Alert.js
+│           │   │   └── index.js
+│           │   ├── Avatar
+│           │   │   ├── Avatar.js
+│           │   │   └── index.js
+│           │   ├── Badge
+│           │   │   ├── Badge.js
+│           │   │   └── index.js
+│           │   ├── Button
+│           │   │   ├── Button.js
+│           │   │   └── index.js
+│           │   ├── Icon
+│           │   │   ├── Icon.js
+│           │   │   └── index.js
+│           │   ├── IconLink
+│           │   │   ├── IconLink.js
+│           │   │   └── index.js
+│           │   ├── InputCheckbox
+│           │   │   ├── InputCheckbox.js
+│           │   │   └── index.js
+│           │   ├── InputText
+│           │   │   ├── InputText.js
+│           │   │   └── index.js
+│           │   ├── Loading
+│           │   │   ├── Loading.js
+│           │   │   └── index.js
+│           │   ├── Select
+│           │   │   ├── Select.js
+│           │   │   └── index.js
+│           │   ├── TextArea
+│           │   │   ├── TextArea.js
+│           │   │   └── index.js
+│           │   └── index.js
+│           ├── molecules
+│           │   ├── LoadingScreen
+│           │   │   ├── LoadingScreen.js
+│           │   │   └── index.js
+│           │   ├── Note
+│           │   │   ├── Note.js
+│           │   │   └── index.js
+│           │   └── index.js
+│           ├── organisms
+│           │   ├── Breadcrumbs
+│           │   │   ├── Breadcrumbs.js
+│           │   │   └── index.js
+│           │   ├── Card
+│           │   │   ├── Card.js
+│           │   │   └── index.js
+│           │   ├── CardChart
+│           │   │   ├── CardChart.js
+│           │   │   └── index.js
+│           │   ├── CardCustomer
+│           │   │   ├── CardCustomer.js
+│           │   │   └── index.js
+│           │   ├── DataAccounting
+│           │   │   ├── DataAccounting.js
+│           │   │   └── index.js
+│           │   ├── DataAccountingSummary
+│           │   │   ├── DataAccountingSummary.js
+│           │   │   └── index.js
+│           │   ├── DataCustomer
+│           │   │   ├── DataCustomer.js
+│           │   │   └── index.js
+│           │   ├── DataPacks
+│           │   │   ├── DataPacks.js
+│           │   │   └── index.js
+│           │   ├── DataProcedure
+│           │   │   ├── DataProcedure.js
+│           │   │   └── index.js
+│           │   ├── IncommingsByDay
+│           │   │   ├── IncommingsByDay.js
+│           │   │   └── index.js
+│           │   ├── IncommingsByMonth
+│           │   │   ├── IncommingsByMonth.js
+│           │   │   └── index.js
+│           │   ├── IncommingsBySemester
+│           │   │   ├── IncommingsBySemester.js
+│           │   │   └── index.js
+│           │   ├── TableCustomer
+│           │   │   ├── TableCustomer.js
+│           │   │   └── index.js
+│           │   ├── TableUsers
+│           │   │   ├── TableUsers.js
+│           │   │   └── index.js
+│           │   ├── Timeline
+│           │   │   ├── Timeline.js
+│           │   │   └── index.js
+│           │   ├── TitleCustomer
+│           │   │   ├── TitleCustomer.js
+│           │   │   └── index.js
+│           │   └── index.js
+│           ├── skeletons
+│           │   └── organisms
+│           │       ├── CardChart
+│           │       │   └── CardChart.js
+│           │       ├── CardCustomer
+│           │       │   └── CardCustomer.js
+│           │       ├── DataAccounting
+│           │       │   └── DataAccounting.js
+│           │       ├── DataCustomer
+│           │       │   └── DataCustomer.js
+│           │       ├── DataPacks
+│           │       │   └── DataPacks.js
+│           │       ├── DataProcedure
+│           │       │   └── DataProcedure.js
+│           │       ├── SkeletonIncommingsCard
+│           │       │   └── SkeletonIncommingsCard.js
+│           │       ├── TableCustomer
+│           │       │   └── TableCustomer.js
+│           │       ├── Timeline
+│           │       │   └── Timeline.js
+│           │       └── TitleCustomer
+│           │           └── TitleCustomer.js
+│           └── wrappers
+│               ├── Document
+│               │   ├── Document.js
+│               │   └── index.js
+│               ├── Footer
+│               │   ├── Footer.js
+│               │   └── index.js
+│               ├── Header
+│               │   ├── Header.js
+│               │   └── index.js
+│               ├── Nav
+│               │   ├── Nav.js
+│               │   └── index.js
+│               └── index.js
+├── firebase.json
+├── jsconfig.json
+├── next-env.d.ts
+├── next.config.mjs
+├── package-lock.json
+├── package.json
+├── postcss.config.mjs
+├── public
+│   ├── 404.html
+│   ├── fonts
+│   │   ├── PublicSans-Black.ttf
+│   │   ├── PublicSans-BlackItalic.ttf
+│   │   ├── PublicSans-Bold.ttf
+│   │   ├── PublicSans-BoldItalic.ttf
+│   │   ├── PublicSans-ExtraBold.ttf
+│   │   ├── PublicSans-ExtraBoldItalic.ttf
+│   │   ├── PublicSans-ExtraLight.ttf
+│   │   ├── PublicSans-ExtraLightItalic.ttf
+│   │   ├── PublicSans-Italic.ttf
+│   │   ├── PublicSans-Light.ttf
+│   │   ├── PublicSans-LightItalic.ttf
+│   │   ├── PublicSans-Medium.ttf
+│   │   ├── PublicSans-MediumItalic.ttf
+│   │   ├── PublicSans-Regular.ttf
+│   │   ├── PublicSans-SemiBold.ttf
+│   │   ├── PublicSans-SemiBoldItalic.ttf
+│   │   ├── PublicSans-Thin.ttf
+│   │   └── PublicSans-ThinItalic.ttf
+│   ├── images
+│   │   ├── avatarCustomerFem.png
+│   │   ├── avatarCustomerMale.png
+│   │   ├── avatarUserFem.png
+│   │   ├── avatarUserMale.png
+│   │   ├── background.jpeg
+│   │   ├── logo.png
+│   │   └── logo2.jpeg
+│   ├── index.html
+│   ├── next.svg
+│   └── vercel.svg
+└── tailwind.config.js
+
+102 directories, 194 files
