@@ -1,21 +1,21 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
-import { useRouter } from 'next/navigation';
-import Link from 'next/link'
-import { Calendar, Eye, FileText, MapPin,TextAUnderline, Trash, User } from '@phosphor-icons/react/dist/ssr';
-import toast, { Toaster } from 'react-hot-toast'
-import FullCalendar from '@fullcalendar/react'
-import dayGridPlugin from '@fullcalendar/daygrid'
-import timeGridPlugin from '@fullcalendar/timegrid'
-import interactionPlugin from '@fullcalendar/interaction'
-import listMonth from '@fullcalendar/list'
-import esLocale from '@fullcalendar/core/locales/es'
-import { Warning, X } from '@phosphor-icons/react';
-import Cookies from 'universal-cookie';
 import Apis from '@/app/libs/apis';
 import { dateFormat } from '@/app/libs/utils';
 import { Breadcrumbs } from '@/app/ui/components/organisms';
+import esLocale from '@fullcalendar/core/locales/es';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import interactionPlugin from '@fullcalendar/interaction';
+import listMonth from '@fullcalendar/list';
+import FullCalendar from '@fullcalendar/react';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import { X } from '@phosphor-icons/react';
+import { Calendar, FileText, MapPin, TextAUnderline, User } from '@phosphor-icons/react/dist/ssr';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
+import { Toaster } from 'react-hot-toast';
+import Cookies from 'universal-cookie';
 
 const PageCalendar = () => {
   const cookies = new Cookies
@@ -107,6 +107,9 @@ const PageCalendar = () => {
       getEvents(thisUser.uid)
     }
   }, [thisUser])
+
+  console.log("events:")
+  console.log(events)
 
   return (
     <>
